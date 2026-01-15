@@ -1,26 +1,56 @@
 @import 'tailwindcss';
 
+@font-face {
+  font-family: 'ChicagoFLF';
+  src: url('/fonts/ChicagoFLF.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Charcoal';
+  src: url('/fonts/Charcoal.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --mac-platinum: #cccccc;
+  --mac-platinum-light: #eeeeee;
+  --mac-platinum-dark: #999999;
+  --mac-white: #ffffff;
+  --mac-black: #000000;
+  --mac-border-light: #ffffff;
+  --mac-border-dark: #666666;
+  --mac-border-darker: #333333;
+  --mac-window-active: #cccccc;
+  --mac-window-inactive: #dddddd;
+  --mac-titlebar-stripe: #999999;
+  --mac-highlight: #3366cc;
+  --mac-highlight-text: #ffffff;
+  --font-chicago: 'ChicagoFLF', 'Chicago', sans-serif;
+  --font-charcoal: 'Charcoal', 'Geneva', sans-serif;
+  --font-geneva: 'Geneva', 'Monaco', monospace;
+  --space-1: 2px;
+  --space-2: 4px;
+  --space-3: 8px;
+  --space-4: 12px;
+  --space-5: 16px;
+  --space-6: 20px;
+  --mac-shadow: 1px 1px 0 #000, 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-background: var(--mac-platinum);
+  --color-foreground: var(--mac-black);
+  --font-sans: var(--font-charcoal);
+  --font-mono: var(--font-geneva);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--mac-platinum);
+  color: var(--mac-black);
+  font-family: var(--font-charcoal);
 }
