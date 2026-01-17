@@ -17,19 +17,19 @@
 }
 
 :root {
-  --mac-platinum: #cccccc;
-  --mac-platinum-light: #eeeeee;
-  --mac-platinum-dark: #999999;
-  --mac-white: #ffffff;
-  --mac-black: #000000;
-  --mac-border-light: #ffffff;
-  --mac-border-dark: #666666;
-  --mac-border-darker: #333333;
-  --mac-window-active: #cccccc;
-  --mac-window-inactive: #dddddd;
-  --mac-titlebar-stripe: #999999;
-  --mac-highlight: #3366cc;
-  --mac-highlight-text: #ffffff;
+  --os9-platinum: #cccccc;
+  --os9-platinum-light: #eeeeee;
+  --os9-platinum-dark: #999999;
+  --os9-white: #ffffff;
+  --os9-black: #000000;
+  --os9-border-light: #ffffff;
+  --os9-border-dark: #666666;
+  --os9-border-darker: #333333;
+  --os9-window-active: #cccccc;
+  --os9-window-inactive: #dddddd;
+  --os9-titlebar-stripe: #999999;
+  --os9-highlight: #3366cc;
+  --os9-highlight-text: #ffffff;
   --font-chicago: 'ChicagoFLF', 'Chicago', sans-serif;
   --font-charcoal: 'Charcoal', 'Geneva', sans-serif;
   --font-geneva: 'Geneva', 'Monaco', monospace;
@@ -39,18 +39,71 @@
   --space-4: 12px;
   --space-5: 16px;
   --space-6: 20px;
-  --mac-shadow: 1px 1px 0 #000, 2px 2px 4px rgba(0, 0, 0, 0.3);
+  --os9-shadow: 1px 1px 0 #000, 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 @theme inline {
-  --color-background: var(--mac-platinum);
-  --color-foreground: var(--mac-black);
+  --color-background: var(--os9-platinum);
+  --color-foreground: var(--os9-black);
   --font-sans: var(--font-charcoal);
   --font-mono: var(--font-geneva);
 }
 
 body {
-  background: var(--mac-platinum);
-  color: var(--mac-black);
+  background: var(--os9-platinum);
+  color: var(--os9-black);
   font-family: var(--font-charcoal);
+}
+@layer components {
+  .btn {
+    font-family: var(--font-charcoal);
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 3px;
+    background: var(--os9-platinum);
+    color: var(--os9-black);
+    cursor: pointer;
+    outline: none;
+    position: relative;
+    border-width: 2px;
+    border-style: solid;
+    border-top-color: var(--os9-border-light);
+    border-left-color: var(--os9-border-light);
+    border-bottom-color: var(--os9-border-dark);
+    border-right-color: var(--os9-border-dark);
+    box-shadow:
+      inset 1px 1px 0 var(--os9-white),
+      inset -1px -1px 0 var(--os9-platinum-dark);
+  }
+  .btn:hover:not(:disabled) {
+    background: var(--os9-platinum-light);
+  }
+  .btn:active:not(:disabled) {
+    border-top-color: var(--os9-border-dark);
+    border-left-color: var(--os9-border-dark);
+    border-bottom-color: var(--os9-border-light);
+    border-right-color: var(--os9-border-light);
+    box-shadow: inset 1px 1px 2px var(--os9-border-darker);
+    padding: 5px 11px 3px 13px;
+  }
+  .btn:focus-visible {
+    outline: 2px solid var(--os9-highlight);
+    outline-offset: 2px;
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+    pointer-events: none;
+  }
+  .btn.primary {
+    box-shadow:
+      0 0 0 2px var(--os9-black),
+      inset 1px 1px 0 var(--os9-white),
+      inset -1px -1px 0 var(--os9-platinum-dark);
+  }
+  .btn.primary:active:not(:disabled) {
+    box-shadow:
+      0 0 0 2px var(--os9-black),
+      inset 1px 1px 2px var(--os9-border-darker);
+  }
 }
