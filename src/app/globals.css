@@ -237,4 +237,17 @@ body {
   .radio-label {
     color: var(--os9-black);
   }
+  .scroll-area {
+    position: relative;
+    overflow: hidden;
+  }
+  .scroll-area-viewport {
+    width: 100%;
+    height: 100%;
+    overflow: scroll;
+    scrollbar-width: none;
+  }
+  .scroll-area-viewport::-webkit-scrollbar {
+    display: none;
+  }
 }
