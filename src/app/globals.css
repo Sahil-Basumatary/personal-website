@@ -324,6 +324,36 @@ body {
     flex: 1;
     position: relative;
     background: var(--os9-platinum-dark);
+    border-width: 1px;
+    border-style: solid;
+    border-top-color: var(--os9-border-dark);
+    border-left-color: var(--os9-border-dark);
+    border-bottom-color: var(--os9-border-light);
+    border-right-color: var(--os9-border-light);
+  }
+  .scroll-area-thumb {
+    position: absolute;
+    background: var(--os9-platinum);
+    border-width: 1px;
+    border-style: solid;
+    border-top-color: var(--os9-border-light);
+    border-left-color: var(--os9-border-light);
+    border-bottom-color: var(--os9-border-dark);
+    border-right-color: var(--os9-border-dark);
+    cursor: pointer;
+  }
+  .scroll-area-thumb:hover {
+    background: var(--os9-platinum-light);
+  }
+  .scroll-area-scrollbar[data-orientation='vertical'] .scroll-area-thumb {
+    left: 0;
+    right: 0;
+    min-height: 20px;
+  }
+  .scroll-area-scrollbar[data-orientation='horizontal'] .scroll-area-thumb {
+    top: 0;
+    bottom: 0;
+    min-width: 20px;
   }
   .scroll-area-corner {
     position: absolute;
