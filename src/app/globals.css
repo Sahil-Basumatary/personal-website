@@ -246,9 +246,17 @@ body {
     height: 100%;
     overflow: scroll;
     scrollbar-width: none;
+    -ms-overflow-style: none;
   }
   .scroll-area-viewport::-webkit-scrollbar {
     display: none;
+  }
+  .scroll-area-viewport:focus {
+    outline: none;
+  }
+  .scroll-area-viewport:focus-visible {
+    outline: 2px solid var(--os9-highlight);
+    outline-offset: -2px;
   }
   .scroll-area-scrollbar {
     position: absolute;
