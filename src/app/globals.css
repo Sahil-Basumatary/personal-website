@@ -272,6 +272,54 @@ body {
     height: 16px;
     border-top: 1px solid var(--os9-border-dark);
   }
+  .scroll-area-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    background: var(--os9-platinum);
+    border-width: 1px;
+    border-style: solid;
+    border-top-color: var(--os9-border-light);
+    border-left-color: var(--os9-border-light);
+    border-bottom-color: var(--os9-border-dark);
+    border-right-color: var(--os9-border-dark);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .scroll-area-arrow:hover {
+    background: var(--os9-platinum-light);
+  }
+  .scroll-area-arrow:active {
+    border-top-color: var(--os9-border-dark);
+    border-left-color: var(--os9-border-dark);
+    border-bottom-color: var(--os9-border-light);
+    border-right-color: var(--os9-border-light);
+    background: var(--os9-platinum-dark);
+  }
+  .scroll-area-arrow::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-style: solid;
+  }
+  .scroll-area-arrow[data-direction='up']::after {
+    border-width: 0 4px 5px 4px;
+    border-color: transparent transparent var(--os9-black) transparent;
+  }
+  .scroll-area-arrow[data-direction='down']::after {
+    border-width: 5px 4px 0 4px;
+    border-color: var(--os9-black) transparent transparent transparent;
+  }
+  .scroll-area-arrow[data-direction='left']::after {
+    border-width: 4px 5px 4px 0;
+    border-color: transparent var(--os9-black) transparent transparent;
+  }
+  .scroll-area-arrow[data-direction='right']::after {
+    border-width: 4px 0 4px 5px;
+    border-color: transparent transparent transparent var(--os9-black);
+  }
   .scroll-area-track {
     flex: 1;
     position: relative;
