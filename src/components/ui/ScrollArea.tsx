@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 
 interface ScrollAreaProps {
   children: React.ReactNode;
@@ -29,6 +29,14 @@ function ScrollArea({ children, className = '', style }: ScrollAreaProps) {
       clientHeight: viewport.clientHeight,
     });
   }, []);
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    updateScrollState();
+    const resizeObserver = new ResizeObserver(updateScrollState);
+    resizeObserver.observe(viewport);
+    return () => resizeObserver.disconnect();
+  }, [updateScrollState]);
   const trackHeight = scrollState.clientHeight - 32;
   const thumbHeight = Math.max(
     20,
