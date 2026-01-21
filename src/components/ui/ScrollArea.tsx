@@ -45,6 +45,12 @@ function ScrollArea({ children, className = '', style }: ScrollAreaProps) {
   const maxScroll = scrollState.scrollHeight - scrollState.clientHeight;
   const scrollRatio = maxScroll > 0 ? scrollState.scrollTop / maxScroll : 0;
   const thumbTop = scrollRatio * (trackHeight - thumbHeight);
+  const scrollBy = (amount: number) => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    viewport.scrollTop += amount;
+  };
+  const hasOverflow = scrollState.scrollHeight > scrollState.clientHeight;
   const classes = ['scroll-area', className].filter(Boolean).join(' ');
   return (
     <div className={classes} style={style}>
@@ -53,20 +59,30 @@ function ScrollArea({ children, className = '', style }: ScrollAreaProps) {
         className="scroll-area-viewport"
         onScroll={updateScrollState}
         tabIndex={0}
-        style={{ paddingRight: 16 }}
+        style={{ paddingRight: hasOverflow ? 16 : 0 }}
       >
         {children}
       </div>
-      <div className="scroll-area-scrollbar" data-orientation="vertical">
-        <div className="scroll-area-arrow" data-direction="up" />
-        <div className="scroll-area-track">
+      {hasOverflow && (
+        <div className="scroll-area-scrollbar" data-orientation="vertical">
           <div
-            className="scroll-area-thumb"
-            style={{ top: thumbTop, height: thumbHeight }}
+            className="scroll-area-arrow"
+            data-direction="up"
+            onClick={() => scrollBy(-40)}
+          />
+          <div className="scroll-area-track">
+            <div
+              className="scroll-area-thumb"
+              style={{ top: thumbTop, height: thumbHeight }}
+            />
+          </div>
+          <div
+            className="scroll-area-arrow"
+            data-direction="down"
+            onClick={() => scrollBy(40)}
           />
         </div>
-        <div className="scroll-area-arrow" data-direction="down" />
-      </div>
+      )}
     </div>
   );
 }
