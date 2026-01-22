@@ -51,6 +51,26 @@ function ScrollArea({ children, className = '', style }: ScrollAreaProps) {
     viewport.scrollTop += amount;
   };
   const hasOverflow = scrollState.scrollHeight > scrollState.clientHeight;
+  const handleThumbDrag = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const startY = e.clientY;
+    const startScrollTop = scrollState.scrollTop;
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      const deltaY = moveEvent.clientY - startY;
+      const scrollableHeight = trackHeight - thumbHeight;
+      const scrollRatio = deltaY / scrollableHeight;
+      const newScrollTop = startScrollTop + scrollRatio * maxScroll;
+      if (viewportRef.current) {
+        viewportRef.current.scrollTop = newScrollTop;
+      }
+    };
+    const onMouseUp = () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  };
   const classes = ['scroll-area', className].filter(Boolean).join(' ');
   return (
     <div className={classes} style={style}>
@@ -74,6 +94,7 @@ function ScrollArea({ children, className = '', style }: ScrollAreaProps) {
             <div
               className="scroll-area-thumb"
               style={{ top: thumbTop, height: thumbHeight }}
+              onMouseDown={handleThumbDrag}
             />
           </div>
           <div
