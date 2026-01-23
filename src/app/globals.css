@@ -371,4 +371,20 @@ body {
     height: 16px;
     background: var(--os9-platinum);
   }
+  .context-menu {
+    position: fixed;
+    z-index: 1000;
+    min-width: 160px;
+    padding: 2px 0;
+    background: var(--os9-white);
+    font-family: var(--font-charcoal);
+    font-size: 12px;
+    border-width: 2px;
+    border-style: solid;
+    border-top-color: var(--os9-border-light);
+    border-left-color: var(--os9-border-light);
+    border-bottom-color: var(--os9-border-dark);
+    border-right-color: var(--os9-border-dark);
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
+  }
 }
