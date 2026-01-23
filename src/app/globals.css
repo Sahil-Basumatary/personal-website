@@ -387,4 +387,21 @@ body {
     border-right-color: var(--os9-border-dark);
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.25);
   }
+  .context-menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 16px;
+    cursor: default;
+    color: var(--os9-black);
+    user-select: none;
+  }
+  .context-menu-item:hover:not(.disabled) {
+    background: var(--os9-highlight);
+    color: var(--os9-highlight-text);
+  }
+  .context-menu-item.disabled {
+    color: var(--os9-border-dark);
+    pointer-events: none;
+  }
 }
