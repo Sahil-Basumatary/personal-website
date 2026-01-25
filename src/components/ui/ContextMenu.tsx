@@ -68,9 +68,81 @@ function ContextMenuTrigger({
   );
 }
 
+interface ContextMenuContentProps {
+  children: React.ReactNode;
+}
+
+function ContextMenuContent({ children }: ContextMenuContentProps) {
+  const { isOpen, position } = useContextMenu();
+  if (!isOpen) return null;
+  return (
+    <div
+      className="context-menu"
+      style={{ left: position.x, top: position.y }}
+      role="menu"
+    >
+      {children}
+    </div>
+  );
+}
+
+interface ContextMenuItemProps {
+  children: React.ReactNode;
+  disabled?: boolean;
+  onSelect?: () => void;
+}
+
+function ContextMenuItem({
+  children,
+  disabled = false,
+  onSelect,
+}: ContextMenuItemProps) {
+  const { close } = useContextMenu();
+  const handleClick = useCallback(() => {
+    if (disabled) return;
+    onSelect?.();
+    close();
+  }, [disabled, onSelect, close]);
+  const classes = ['context-menu-item', disabled && 'disabled']
+    .filter(Boolean)
+    .join(' ');
+  return (
+    <div
+      className={classes}
+      onClick={handleClick}
+      role="menuitem"
+      aria-disabled={disabled}
+    >
+      {children}
+    </div>
+  );
+}
+
+function ContextMenuDivider() {
+  return <div className="context-menu-divider" role="separator" />;
+}
+
+interface ContextMenuShortcutProps {
+  children: React.ReactNode;
+}
+
+function ContextMenuShortcut({ children }: ContextMenuShortcutProps) {
+  return <span className="context-menu-shortcut">{children}</span>;
+}
+
 const ContextMenu = Object.assign(ContextMenuRoot, {
   Trigger: ContextMenuTrigger,
+  Content: ContextMenuContent,
+  Item: ContextMenuItem,
+  Divider: ContextMenuDivider,
+  Shortcut: ContextMenuShortcut,
 });
 
 export { ContextMenu };
-export type { ContextMenuProps, ContextMenuTriggerProps };
+export type {
+  ContextMenuProps,
+  ContextMenuTriggerProps,
+  ContextMenuContentProps,
+  ContextMenuItemProps,
+  ContextMenuShortcutProps,
+};
