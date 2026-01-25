@@ -404,4 +404,18 @@ body {
     color: var(--os9-border-dark);
     pointer-events: none;
   }
+  .context-menu-divider {
+    height: 1px;
+    margin: 4px 0;
+    background: var(--os9-border-dark);
+    box-shadow: 0 1px 0 var(--os9-border-light);
+  }
+  .context-menu-shortcut {
+    margin-left: 24px;
+    color: var(--os9-border-dark);
+    font-size: 11px;
+  }
+  .context-menu-item:hover:not(.disabled) .context-menu-shortcut {
+    color: var(--os9-highlight-text);
+  }
 }
