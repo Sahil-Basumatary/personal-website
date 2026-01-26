@@ -1,5 +1,13 @@
 'use client';
-import { createContext, useContext, useState, useCallback } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+} from 'react';
+import { createPortal } from 'react-dom';
 
 interface MenuPosition {
   x: number;
@@ -73,16 +81,37 @@ interface ContextMenuContentProps {
 }
 
 function ContextMenuContent({ children }: ContextMenuContentProps) {
-  const { isOpen, position } = useContextMenu();
+  const { isOpen, position, close } = useContextMenu();
+  const menuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        close();
+      }
+    };
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close();
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen, close]);
   if (!isOpen) return null;
-  return (
+  if (typeof window === 'undefined') return null;
+  return createPortal(
     <div
+      ref={menuRef}
       className="context-menu"
       style={{ left: position.x, top: position.y }}
       role="menu"
     >
       {children}
-    </div>
+    </div>,
+    document.body
   );
 }
 
