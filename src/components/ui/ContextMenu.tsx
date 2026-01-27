@@ -5,6 +5,7 @@ import {
   useState,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
 } from 'react';
 import { createPortal } from 'react-dom';
@@ -100,6 +101,23 @@ function ContextMenuContent({ children }: ContextMenuContentProps) {
       document.removeEventListener('keydown', handleEscape);
     };
   }, [isOpen, close]);
+  useLayoutEffect(() => {
+    if (!isOpen || !menuRef.current) return;
+    const menu = menuRef.current;
+    const rect = menu.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    let x = position.x;
+    let y = position.y;
+    if (x + rect.width > viewportWidth) {
+      x = viewportWidth - rect.width - 8;
+    }
+    if (y + rect.height > viewportHeight) {
+      y = viewportHeight - rect.height - 8;
+    }
+    menu.style.left = `${x}px`;
+    menu.style.top = `${y}px`;
+  }, [isOpen, position]);
   if (!isOpen) return null;
   if (typeof window === 'undefined') return null;
   return createPortal(
