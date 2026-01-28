@@ -117,7 +117,34 @@ function ContextMenuContent({ children }: ContextMenuContentProps) {
     }
     menu.style.left = `${x}px`;
     menu.style.top = `${y}px`;
+    const firstItem = menu.querySelector<HTMLElement>(
+      '.context-menu-item:not(.disabled)'
+    );
+    firstItem?.focus();
   }, [isOpen, position]);
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    const menu = menuRef.current;
+    if (!menu) return;
+    const items = Array.from(
+      menu.querySelectorAll<HTMLElement>('.context-menu-item:not(.disabled)')
+    );
+    const currentIndex = items.findIndex(
+      (item) => item === document.activeElement
+    );
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+      items[nextIndex]?.focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prevIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+      items[prevIndex]?.focus();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const focused = document.activeElement as HTMLElement;
+      focused?.click();
+    }
+  }, []);
   if (!isOpen) return null;
   if (typeof window === 'undefined') return null;
   return createPortal(
@@ -126,6 +153,7 @@ function ContextMenuContent({ children }: ContextMenuContentProps) {
       className="context-menu"
       style={{ left: position.x, top: position.y }}
       role="menu"
+      onKeyDown={handleKeyDown}
     >
       {children}
     </div>,
@@ -158,6 +186,7 @@ function ContextMenuItem({
       className={classes}
       onClick={handleClick}
       role="menuitem"
+      tabIndex={disabled ? -1 : 0}
       aria-disabled={disabled}
     >
       {children}

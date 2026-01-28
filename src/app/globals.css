@@ -404,6 +404,14 @@ body {
     color: var(--os9-border-dark);
     pointer-events: none;
   }
+  .context-menu-item:focus {
+    outline: none;
+    background: var(--os9-highlight);
+    color: var(--os9-highlight-text);
+  }
+  .context-menu-item:focus .context-menu-shortcut {
+    color: var(--os9-highlight-text);
+  }
   .context-menu-divider {
     height: 1px;
     margin: 4px 0;
