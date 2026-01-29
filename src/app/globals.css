@@ -426,4 +426,61 @@ body {
   .context-menu-item:hover:not(.disabled) .context-menu-shortcut {
     color: var(--os9-highlight-text);
   }
+  .tooltip {
+    position: fixed;
+    z-index: 1100;
+    max-width: 250px;
+    padding: 6px 10px;
+    background: #ffffcc;
+    color: var(--os9-black);
+    font-family: var(--font-charcoal);
+    font-size: 11px;
+    line-height: 1.4;
+    border: 1px solid var(--os9-black);
+    border-radius: 8px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+  }
+  .tooltip-arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+  }
+  .tooltip-arrow[data-position='top'] {
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px 6px 0 6px;
+    border-color: var(--os9-black) transparent transparent transparent;
+  }
+  .tooltip-arrow[data-position='top']::after {
+    content: '';
+    position: absolute;
+    bottom: 1px;
+    left: -5px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 5px 5px 0 5px;
+    border-color: #ffffcc transparent transparent transparent;
+  }
+  .tooltip-arrow[data-position='bottom'] {
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 0 6px 6px 6px;
+    border-color: transparent transparent var(--os9-black) transparent;
+  }
+  .tooltip-arrow[data-position='bottom']::after {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: -5px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0 5px 5px 5px;
+    border-color: transparent transparent #ffffcc transparent;
+  }
 }
