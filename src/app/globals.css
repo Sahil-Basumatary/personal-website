@@ -483,4 +483,28 @@ body {
     border-width: 0 5px 5px 5px;
     border-color: transparent transparent #ffffcc transparent;
   }
+  .dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .dialog {
+    position: relative;
+    min-width: 320px;
+    max-width: 480px;
+    padding: 16px 20px;
+    background: var(--os9-platinum);
+    font-family: var(--font-charcoal);
+    border-width: 2px;
+    border-style: solid;
+    border-top-color: var(--os9-border-light);
+    border-left-color: var(--os9-border-light);
+    border-bottom-color: var(--os9-border-dark);
+    border-right-color: var(--os9-border-dark);
+    box-shadow: var(--os9-shadow);
+  }
 }
