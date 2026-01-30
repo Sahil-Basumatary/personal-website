@@ -114,6 +114,58 @@ function DialogContent({
   );
 }
 
+type IconVariant = 'error' | 'warning' | 'info';
+
+interface DialogIconProps {
+  variant: IconVariant;
+}
+
+function DialogIcon({ variant }: DialogIconProps) {
+  return (
+    <div className={`dialog-icon dialog-icon-${variant}`} aria-hidden="true" />
+  );
+}
+
+interface DialogHeaderProps {
+  children: React.ReactNode;
+}
+
+function DialogHeader({ children }: DialogHeaderProps) {
+  return <div className="dialog-header">{children}</div>;
+}
+
+interface DialogBodyProps {
+  children: React.ReactNode;
+}
+
+function DialogBody({ children }: DialogBodyProps) {
+  return <div className="dialog-body">{children}</div>;
+}
+
+interface DialogTitleProps {
+  children: React.ReactNode;
+}
+
+function DialogTitle({ children }: DialogTitleProps) {
+  return <h2 className="dialog-title">{children}</h2>;
+}
+
+interface DialogDescriptionProps {
+  children: React.ReactNode;
+}
+
+function DialogDescription({ children }: DialogDescriptionProps) {
+  return <p className="dialog-description">{children}</p>;
+}
+
+interface DialogActionsProps {
+  children: React.ReactNode;
+}
+
+function DialogActions({ children }: DialogActionsProps) {
+  return <div className="dialog-actions">{children}</div>;
+}
+
 interface DialogCloseProps {
   children: React.ReactNode;
 }
@@ -130,6 +182,12 @@ function DialogClose({ children }: DialogCloseProps) {
 const Dialog = Object.assign(DialogRoot, {
   Trigger: DialogTrigger,
   Content: DialogContent,
+  Header: DialogHeader,
+  Body: DialogBody,
+  Icon: DialogIcon,
+  Title: DialogTitle,
+  Description: DialogDescription,
+  Actions: DialogActions,
   Close: DialogClose,
 });
 
@@ -138,5 +196,11 @@ export type {
   DialogProps,
   DialogTriggerProps,
   DialogContentProps,
+  DialogIconProps,
+  DialogHeaderProps,
+  DialogBodyProps,
+  DialogTitleProps,
+  DialogDescriptionProps,
+  DialogActionsProps,
   DialogCloseProps,
 };

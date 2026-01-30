@@ -507,4 +507,90 @@ body {
     border-right-color: var(--os9-border-dark);
     box-shadow: var(--os9-shadow);
   }
+  .dialog-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .dialog-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+  }
+  .dialog-icon-error {
+    background: #cc0000;
+    border-radius: 50%;
+    position: relative;
+  }
+  .dialog-icon-error::before,
+  .dialog-icon-error::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 3px;
+    background: var(--os9-white);
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+  .dialog-icon-error::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+  }
+  .dialog-icon-warning {
+    width: 0;
+    height: 0;
+    border-left: 16px solid transparent;
+    border-right: 16px solid transparent;
+    border-bottom: 28px solid #ffcc00;
+    position: relative;
+  }
+  .dialog-icon-warning::after {
+    content: '!';
+    position: absolute;
+    top: 8px;
+    left: -4px;
+    font-family: var(--font-chicago);
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--os9-black);
+  }
+  .dialog-icon-info {
+    background: var(--os9-highlight);
+    border-radius: 50%;
+    position: relative;
+  }
+  .dialog-icon-info::before {
+    content: 'i';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-chicago);
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--os9-white);
+  }
+  .dialog-body {
+    flex: 1;
+  }
+  .dialog-title {
+    margin: 0 0 8px 0;
+    font-family: var(--font-chicago);
+    font-size: 13px;
+    font-weight: normal;
+    color: var(--os9-black);
+  }
+  .dialog-description {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--os9-black);
+  }
+  .dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+  }
 }
