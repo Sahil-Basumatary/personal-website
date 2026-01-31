@@ -16,3 +16,22 @@ export type {
   ContextMenuItemProps,
   ContextMenuShortcutProps,
 } from './ContextMenu';
+export { Tooltip } from './Tooltip';
+export type {
+  TooltipProps,
+  TooltipTriggerProps,
+  TooltipContentProps,
+} from './Tooltip';
+export { Dialog } from './Dialog';
+export type {
+  DialogProps,
+  DialogTriggerProps,
+  DialogContentProps,
+  DialogIconProps,
+  DialogHeaderProps,
+  DialogBodyProps,
+  DialogTitleProps,
+  DialogDescriptionProps,
+  DialogActionsProps,
+  DialogCloseProps,
+} from './Dialog';
