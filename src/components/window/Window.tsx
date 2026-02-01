@@ -1,5 +1,6 @@
 'use client';
 import { createContext, useContext, useState, useCallback } from 'react';
+import { TitleBar } from './TitleBar';
 
 interface WindowContextValue {
   isActive: boolean;
@@ -86,7 +87,9 @@ function WindowRoot({
   );
 }
 
-const Window = Object.assign(WindowRoot, {});
+const Window = Object.assign(WindowRoot, {
+  TitleBar,
+});
 
 export { Window, useWindow };
 export type { WindowProps, WindowContextValue };
