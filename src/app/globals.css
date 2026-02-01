@@ -593,4 +593,23 @@ body {
     gap: 8px;
     margin-top: 16px;
   }
+  .window {
+    position: relative;
+    background: var(--os9-window-inactive);
+    border-width: 2px;
+    border-style: solid;
+    border-top-color: var(--os9-border-light);
+    border-left-color: var(--os9-border-light);
+    border-bottom-color: var(--os9-border-dark);
+    border-right-color: var(--os9-border-dark);
+    box-shadow:
+      1px 1px 0 #000,
+      2px 2px 8px rgba(0, 0, 0, 0.35);
+  }
+  .window.active {
+    background: var(--os9-window-active);
+    box-shadow:
+      2px 2px 0 #000,
+      3px 3px 10px rgba(0, 0, 0, 0.4);
+  }
 }
