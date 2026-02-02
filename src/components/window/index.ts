@@ -1,5 +1,7 @@
-export { Window, useWindow } from './Window';
-export type { WindowProps, WindowContextValue } from './Window';
+export { Window } from './Window';
+export type { WindowProps } from './Window';
+export { useWindow } from './WindowContext';
+export type { WindowContextValue } from './WindowContext';
 export { TitleBar } from './TitleBar';
 export type {
   TitleBarProps,
@@ -8,3 +10,5 @@ export type {
   ZoomBoxProps,
   TitleProps,
 } from './TitleBar';
+export { WindowContent } from './WindowContent';
+export type { WindowContentProps } from './WindowContent';

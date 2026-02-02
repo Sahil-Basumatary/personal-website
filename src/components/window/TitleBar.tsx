@@ -1,5 +1,5 @@
 'use client';
-import { useWindow } from './Window';
+import { useWindow } from './WindowContext';
 
 interface TitleBarProps {
   children: React.ReactNode;

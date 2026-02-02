@@ -723,4 +723,16 @@ body {
   .window-title.active {
     color: var(--os9-black);
   }
+  .window-content {
+    flex: 1;
+    background: var(--os9-white);
+    border-width: 2px;
+    border-style: solid;
+    border-top-color: var(--os9-border-dark);
+    border-left-color: var(--os9-border-dark);
+    border-bottom-color: var(--os9-border-light);
+    border-right-color: var(--os9-border-light);
+    box-shadow: inset 1px 1px 2px var(--os9-border-darker);
+    margin: 2px;
+  }
 }

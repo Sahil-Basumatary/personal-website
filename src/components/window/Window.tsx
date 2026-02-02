@@ -1,24 +1,8 @@
 'use client';
-import { createContext, useContext, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
+import { WindowContext } from './WindowContext';
 import { TitleBar } from './TitleBar';
-
-interface WindowContextValue {
-  isActive: boolean;
-  isCollapsed: boolean;
-  activate: () => void;
-  collapse: () => void;
-  expand: () => void;
-}
-
-const WindowContext = createContext<WindowContextValue | null>(null);
-
-function useWindow() {
-  const context = useContext(WindowContext);
-  if (!context) {
-    throw new Error('Window components must be used within Window');
-  }
-  return context;
-}
+import { WindowContent } from './WindowContent';
 
 interface WindowProps {
   children: React.ReactNode;
@@ -89,7 +73,8 @@ function WindowRoot({
 
 const Window = Object.assign(WindowRoot, {
   TitleBar,
+  Content: WindowContent,
 });
 
-export { Window, useWindow };
-export type { WindowProps, WindowContextValue };
+export { Window };
+export type { WindowProps };
