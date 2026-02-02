@@ -622,6 +622,41 @@ body {
     user-select: none;
     cursor: default;
   }
+  .window-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .window-control-box {
+    width: 12px;
+    height: 12px;
+    padding: 0;
+    background: var(--os9-platinum-light);
+    border-width: 1px;
+    border-style: solid;
+    border-top-color: var(--os9-border-light);
+    border-left-color: var(--os9-border-light);
+    border-bottom-color: var(--os9-border-dark);
+    border-right-color: var(--os9-border-dark);
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .window-control-box:not(.active) {
+    background: var(--os9-platinum);
+    border-color: var(--os9-platinum-dark);
+  }
+  .window-control-box:hover.active {
+    background: var(--os9-white);
+  }
+  .window-control-box:active.active {
+    border-top-color: var(--os9-border-dark);
+    border-left-color: var(--os9-border-dark);
+    border-bottom-color: var(--os9-border-light);
+    border-right-color: var(--os9-border-light);
+    background: var(--os9-platinum-dark);
+  }
   .window-title {
     flex: 1;
     text-align: center;
