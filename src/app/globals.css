@@ -622,6 +622,15 @@ body {
     user-select: none;
     cursor: default;
   }
+  .window-titlebar.active {
+    background: repeating-linear-gradient(
+      0deg,
+      var(--os9-platinum) 0px,
+      var(--os9-platinum) 1px,
+      var(--os9-titlebar-stripe) 1px,
+      var(--os9-titlebar-stripe) 2px
+    );
+  }
   .window-controls {
     display: flex;
     align-items: center;
@@ -656,6 +665,49 @@ body {
     border-bottom-color: var(--os9-border-light);
     border-right-color: var(--os9-border-light);
     background: var(--os9-platinum-dark);
+  }
+  .window-close-box.active::before,
+  .window-close-box.active::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 1px;
+    background: var(--os9-black);
+  }
+  .window-close-box.active::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+  .window-close-box.active::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+  }
+  .window-zoom-box.active::before,
+  .window-zoom-box.active::after {
+    content: '';
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border: 1px solid var(--os9-black);
+    background: var(--os9-platinum-light);
+  }
+  .window-zoom-box.active::before {
+    top: 1px;
+    left: 1px;
+  }
+  .window-zoom-box.active::after {
+    bottom: 1px;
+    right: 1px;
+  }
+  .window-collapse-box.active::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 1px;
+    background: var(--os9-black);
   }
   .window-title {
     flex: 1;
