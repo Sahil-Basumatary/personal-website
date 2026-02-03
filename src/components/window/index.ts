@@ -12,3 +12,5 @@ export type {
 } from './TitleBar';
 export { WindowContent } from './WindowContent';
 export type { WindowContentProps } from './WindowContent';
+export { ResizeHandle } from './ResizeHandle';
+export type { ResizeHandleProps } from './ResizeHandle';

@@ -3,6 +3,7 @@ import { useState, useCallback } from 'react';
 import { WindowContext } from './WindowContext';
 import { TitleBar } from './TitleBar';
 import { WindowContent } from './WindowContent';
+import { ResizeHandle } from './ResizeHandle';
 
 interface WindowProps {
   children: React.ReactNode;
@@ -74,6 +75,7 @@ function WindowRoot({
 const Window = Object.assign(WindowRoot, {
   TitleBar,
   Content: WindowContent,
+  ResizeHandle,
 });
 
 export { Window };
