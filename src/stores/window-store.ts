@@ -32,6 +32,13 @@ function clampPosition(pos: Position, windowSize: Size): Position {
   };
 }
 
+function clampSize(size: Size, minSize: Size): Size {
+  return {
+    width: Math.max(size.width, minSize.width),
+    height: Math.max(size.height, minSize.height),
+  };
+}
+
 function findTopWindow(
   windows: Record<string, WindowState>,
   excludeId?: string
@@ -111,12 +118,96 @@ export const useWindowStore = create<WindowManagerState>()((set, get) => ({
     });
   },
 
-  // stubs — will implement in follow-up commits
-  moveWindow: () => {},
-  resizeWindow: () => {},
-  minimizeWindow: () => {},
-  maximizeWindow: () => {},
-  restoreWindow: () => {},
+  moveWindow: (id: string, position: Position) => {
+    const { windows } = get();
+    const win = windows[id];
+    if (!win) return;
+    set({
+      windows: {
+        ...windows,
+        [id]: { ...win, position: clampPosition(position, win.size) },
+      },
+    });
+  },
+
+  resizeWindow: (id: string, size: Size) => {
+    const { windows } = get();
+    const win = windows[id];
+    if (!win) return;
+    set({
+      windows: {
+        ...windows,
+        [id]: { ...win, size: clampSize(size, win.minSize) },
+      },
+    });
+  },
+
+  minimizeWindow: (id: string) => {
+    const { windows, activeWindowId } = get();
+    const win = windows[id];
+    if (!win || win.isMinimized) return;
+    const updated: WindowState = {
+      ...win,
+      isMinimized: true,
+      previousBounds: win.previousBounds ?? {
+        position: win.position,
+        size: win.size,
+      },
+    };
+    const newWindows = { ...windows, [id]: updated };
+    const newActiveId =
+      activeWindowId === id ? findTopWindow(newWindows, id) : activeWindowId;
+    set({ windows: newWindows, activeWindowId: newActiveId });
+  },
+
+  maximizeWindow: (id: string) => {
+    const { windows, nextZIndex } = get();
+    const win = windows[id];
+    if (!win || win.isMaximized) return;
+    const vp = getViewport();
+    set({
+      windows: {
+        ...windows,
+        [id]: {
+          ...win,
+          isMaximized: true,
+          previousBounds: { position: win.position, size: win.size },
+          position: { x: 0, y: 0 },
+          size: { width: vp.width, height: vp.height },
+          zIndex: nextZIndex,
+        },
+      },
+      activeWindowId: id,
+      nextZIndex: nextZIndex + 1,
+    });
+  },
+
+  restoreWindow: (id: string) => {
+    const { windows, nextZIndex } = get();
+    const win = windows[id];
+    if (!win || (!win.isMinimized && !win.isMaximized)) return;
+    const bounds = win.previousBounds ?? {
+      position: win.position,
+      size: win.size,
+    };
+    set({
+      windows: {
+        ...windows,
+        [id]: {
+          ...win,
+          isMinimized: false,
+          isMaximized: false,
+          position: bounds.position,
+          size: bounds.size,
+          previousBounds: undefined,
+          zIndex: nextZIndex,
+        },
+      },
+      activeWindowId: id,
+      nextZIndex: nextZIndex + 1,
+    });
+  },
+
   collapseWindow: () => {},
   expandWindow: () => {},
   cascadeWindows: () => {},
