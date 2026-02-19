@@ -208,8 +208,83 @@ export const useWindowStore = create<WindowManagerState>()((set, get) => ({
     });
   },
 
-  collapseWindow: () => {},
-  expandWindow: () => {},
-  cascadeWindows: () => {},
-  tileWindows: () => {},
+  collapseWindow: (id: string) => {
+    const { windows } = get();
+    const win = windows[id];
+    if (!win || win.isCollapsed) return;
+    set({
+      windows: {
+        ...windows,
+        [id]: { ...win, isCollapsed: true },
+      },
+    });
+  },
+
+  expandWindow: (id: string) => {
+    const { windows } = get();
+    const win = windows[id];
+    if (!win || !win.isCollapsed) return;
+    set({
+      windows: {
+        ...windows,
+        [id]: { ...win, isCollapsed: false },
+      },
+    });
+  },
+
+  cascadeWindows: () => {
+    const { windows, nextZIndex } = get();
+    const visible = Object.values(windows)
+      .filter((w) => !w.isMinimized)
+      .sort((a, b) => a.zIndex - b.zIndex);
+    if (visible.length === 0) return;
+    const updated = { ...windows };
+    let z = nextZIndex;
+    visible.forEach((win, i) => {
+      updated[win.id] = {
+        ...win,
+        position: { x: CASCADE_OFFSET * i, y: CASCADE_OFFSET * i },
+        isMaximized: false,
+        previousBounds: undefined,
+        zIndex: z++,
+      };
+    });
+    set({
+      windows: updated,
+      activeWindowId: visible[visible.length - 1].id,
+      nextZIndex: z,
+    });
+  },
+
+  tileWindows: () => {
+    const { windows, nextZIndex } = get();
+    const visible = Object.values(windows)
+      .filter((w) => !w.isMinimized)
+      .sort((a, b) => a.zIndex - b.zIndex);
+    if (visible.length === 0) return;
+    const vp = getViewport();
+    const cols = Math.ceil(Math.sqrt(visible.length));
+    const rows = Math.ceil(visible.length / cols);
+    const tileW = Math.floor(vp.width / cols);
+    const tileH = Math.floor(vp.height / rows);
+    const updated = { ...windows };
+    let z = nextZIndex;
+    visible.forEach((win, i) => {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      updated[win.id] = {
+        ...win,
+        position: { x: col * tileW, y: row * tileH },
+        size: clampSize({ width: tileW, height: tileH }, win.minSize),
+        isMaximized: false,
+        previousBounds: undefined,
+        zIndex: z++,
+      };
+    });
+    set({
+      windows: updated,
+      activeWindowId: visible[visible.length - 1].id,
+      nextZIndex: z,
+    });
+  },
 }));
