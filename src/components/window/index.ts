@@ -17,3 +17,4 @@ export type { ResizeHandleProps } from './ResizeHandle';
 export { ManagedWindow } from './ManagedWindow';
 export type { ManagedWindowProps } from './ManagedWindow';
 export { WindowManager } from './WindowManager';
+export type { WindowManagerProps } from './WindowManager';

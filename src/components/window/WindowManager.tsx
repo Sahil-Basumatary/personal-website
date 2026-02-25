@@ -5,7 +5,11 @@ import { useWindowStore } from '@/stores/window-store';
 import { ManagedWindow } from './ManagedWindow';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 
-function WindowPlaceholder({ windowId }: { windowId: string }) {
+interface WindowManagerProps {
+  renderContent?: (windowId: string, component: string) => React.ReactNode;
+}
+
+function DefaultContent({ windowId }: { windowId: string }) {
   const component = useWindowStore((s) => s.windows[windowId]?.component);
   return (
     <div style={{ padding: 16 }}>
@@ -14,21 +18,34 @@ function WindowPlaceholder({ windowId }: { windowId: string }) {
   );
 }
 
-function WindowManager() {
+function ResolvedContent({
+  windowId,
+  renderContent,
+}: {
+  windowId: string;
+  renderContent: (windowId: string, component: string) => React.ReactNode;
+}) {
+  const component = useWindowStore((s) => s.windows[windowId]?.component);
+  return <>{renderContent(windowId, component ?? '')}</>;
+}
+
+function WindowManager({ renderContent }: WindowManagerProps) {
   const windowIds = useWindowStore(useShallow((s) => Object.keys(s.windows)));
   useKeyboardShortcuts();
-
   const handleDesktopMouseDown = useCallback((e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       useWindowStore.setState({ activeWindowId: null });
     }
   }, []);
-
   return (
     <div className="window-manager" onMouseDown={handleDesktopMouseDown}>
       {windowIds.map((id) => (
         <ManagedWindow key={id} windowId={id}>
-          <WindowPlaceholder windowId={id} />
+          {renderContent ? (
+            <ResolvedContent windowId={id} renderContent={renderContent} />
+          ) : (
+            <DefaultContent windowId={id} />
+          )}
         </ManagedWindow>
       ))}
     </div>
@@ -36,3 +53,4 @@ function WindowManager() {
 }
 
 export { WindowManager };
+export type { WindowManagerProps };
