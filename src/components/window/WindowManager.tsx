@@ -1,9 +1,7 @@
 'use client';
-import { useCallback } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useWindowStore } from '@/stores/window-store';
 import { ManagedWindow } from './ManagedWindow';
-import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 
 interface WindowManagerProps {
   renderContent?: (windowId: string, component: string) => React.ReactNode;
@@ -31,14 +29,8 @@ function ResolvedContent({
 
 function WindowManager({ renderContent }: WindowManagerProps) {
   const windowIds = useWindowStore(useShallow((s) => Object.keys(s.windows)));
-  useKeyboardShortcuts();
-  const handleDesktopMouseDown = useCallback((e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      useWindowStore.setState({ activeWindowId: null });
-    }
-  }, []);
   return (
-    <div className="window-manager" onMouseDown={handleDesktopMouseDown}>
+    <div className="window-manager">
       {windowIds.map((id) => (
         <ManagedWindow key={id} windowId={id}>
           {renderContent ? (
