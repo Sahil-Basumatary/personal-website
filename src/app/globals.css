@@ -791,6 +791,9 @@ body {
     inset: 0;
     pointer-events: none;
   }
+  .window {
+    pointer-events: auto;
+  }
   .os-shell {
     display: flex;
     flex-direction: column;
