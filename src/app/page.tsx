@@ -1,18 +1,12 @@
 'use client';
-import { useEffect, useCallback } from 'react';
 import { WindowManager } from '@/components/window';
-import { useWindowStore } from '@/stores/window-store';
+import { MenuBar, Dock } from '@/components/menubar';
+import { Desktop } from '@/components/desktop';
+import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 
-function AboutContent() {
+function AboutComputerContent() {
   return (
-    <div
-      style={{
-        padding: 20,
-        textAlign: 'center',
-        fontFamily: 'var(--font-body)',
-        fontSize: 12,
-      }}
-    >
+    <div style={{ textAlign: 'center', padding: 20 }}>
       <div
         style={{
           fontFamily: 'var(--font-system)',
@@ -20,10 +14,12 @@ function AboutContent() {
           marginBottom: 12,
         }}
       >
-        Mac OS 9
+        Sahil&apos;s Computer
       </div>
-      <div style={{ marginBottom: 4 }}>Personal Website</div>
-      <div style={{ color: 'var(--border-shadow)' }}>Version 1.0</div>
+      <div style={{ marginBottom: 4, fontSize: 12 }}>Personal Website v1.0</div>
+      <div style={{ color: 'var(--border-shadow)', fontSize: 11 }}>
+        Built with Next.js, React &amp; TypeScript
+      </div>
       <div
         style={{
           marginTop: 20,
@@ -33,22 +29,15 @@ function AboutContent() {
           fontSize: 11,
         }}
       >
-        Built with Next.js, React, and Zustand
+        Sahil Basumatary — King&apos;s College London
       </div>
     </div>
   );
 }
 
-function WelcomeContent() {
+function AboutMeContent() {
   return (
-    <div
-      style={{
-        padding: 16,
-        fontFamily: 'var(--font-body)',
-        fontSize: 12,
-        lineHeight: 1.6,
-      }}
-    >
+    <div style={{ padding: 16, lineHeight: 1.6, fontSize: 12 }}>
       <p
         style={{
           fontFamily: 'var(--font-system)',
@@ -56,21 +45,173 @@ function WelcomeContent() {
           marginBottom: 12,
         }}
       >
-        Welcome to the Window Manager
+        About Me
       </p>
-      <p>Try these interactions:</p>
-      <ul style={{ margin: '8px 0', paddingLeft: 20 }}>
-        <li>Drag windows by their title bar</li>
-        <li>Resize from the bottom-right corner</li>
-        <li>Click a window to bring it to front</li>
-        <li>Close, zoom, and collapse buttons</li>
-      </ul>
-      <p style={{ marginTop: 12 }}>Keyboard shortcuts:</p>
-      <ul style={{ margin: '8px 0', paddingLeft: 20 }}>
-        <li>⌘W — Close active window</li>
-        <li>⌘M — Minimize active window</li>
-        <li>⌘Tab — Cycle between windows</li>
-      </ul>
+      <p>
+        Hey! I&apos;m Sahil Basumatary, a first-year Computer Science student at
+        King&apos;s College London. I&apos;m passionate about building software
+        that solves real problems.
+      </p>
+      <p style={{ marginTop: 8 }}>
+        Currently exploring full-stack development, distributed systems, and
+        machine learning. When I&apos;m not coding, you&apos;ll find me on the
+        tennis court.
+      </p>
+    </div>
+  );
+}
+
+function ProjectsContent() {
+  const projects = [
+    { name: 'personal-blog', tech: 'React, Express, Clerk', status: 'LIVE' },
+    { name: 'pioni', tech: 'Python, FastAPI', status: 'LIVE' },
+    {
+      name: 'tennisly',
+      tech: 'Java, Spring Boot',
+      status: 'COMING SOON',
+    },
+  ];
+  return (
+    <div style={{ padding: 16, fontSize: 12 }}>
+      <p
+        style={{
+          fontFamily: 'var(--font-system)',
+          fontSize: 13,
+          marginBottom: 12,
+        }}
+      >
+        Projects
+      </p>
+      {projects.map((p) => (
+        <div
+          key={p.name}
+          style={{
+            padding: '8px 0',
+            borderBottom: '1px solid #eee',
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}
+        >
+          <div>
+            <strong>{p.name}</strong>
+            <div style={{ color: 'var(--border-shadow)', marginTop: 2 }}>
+              {p.tech}
+            </div>
+          </div>
+          <span
+            style={{
+              fontSize: 10,
+              padding: '2px 6px',
+              background: p.status === 'LIVE' ? '#4caf50' : '#999',
+              color: '#fff',
+              borderRadius: 2,
+              alignSelf: 'flex-start',
+            }}
+          >
+            {p.status}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SkillsContent() {
+  const skills = {
+    languages: ['TypeScript', 'JavaScript', 'Python', 'Java', 'SQL'],
+    frontend: ['React', 'Next.js', 'Tailwind CSS', 'HTML/CSS'],
+    backend: ['Node.js', 'Express', 'FastAPI', 'Spring Boot'],
+    tools: ['Git', 'Docker', 'PostgreSQL', 'MongoDB', 'Vercel'],
+  };
+  return (
+    <div
+      style={{
+        padding: 16,
+        fontFamily: 'var(--font-mono)',
+        fontSize: 11,
+        whiteSpace: 'pre',
+        lineHeight: 1.5,
+      }}
+    >
+      {JSON.stringify(skills, null, 2)}
+    </div>
+  );
+}
+
+function TerminalContent() {
+  return (
+    <div
+      style={{
+        padding: 8,
+        fontFamily: 'var(--font-mono)',
+        fontSize: 12,
+        background: '#1a1a2e',
+        color: '#00ff00',
+        minHeight: '100%',
+      }}
+    >
+      <div>Macintosh HD:Users:Sahil&gt; _</div>
+      <div style={{ color: '#555', marginTop: 8, fontSize: 11 }}>
+        Terminal will be fully implemented in Phase 4.
+      </div>
+      <div style={{ color: '#555', fontSize: 11 }}>
+        Type &apos;help&apos; for available commands.
+      </div>
+    </div>
+  );
+}
+
+function ContactContent() {
+  return (
+    <div style={{ padding: 16, fontSize: 12, lineHeight: 1.8 }}>
+      <p
+        style={{
+          fontFamily: 'var(--font-system)',
+          fontSize: 13,
+          marginBottom: 12,
+        }}
+      >
+        Get in Touch
+      </p>
+      <div>GitHub: github.com/Sahil-Basumatary</div>
+      <div>Website: sahilbzy.com</div>
+      <div>Blog: blog.sahilbzy.com</div>
+      <div
+        style={{ color: 'var(--border-shadow)', marginTop: 16, fontSize: 11 }}
+      >
+        Contact form coming in Phase 6.
+      </div>
+    </div>
+  );
+}
+
+function FileExplorerContent() {
+  const items = [
+    { name: 'Desktop', type: 'folder' },
+    { name: 'Documents', type: 'folder' },
+    { name: 'Applications', type: 'folder' },
+    { name: 'README.md', type: 'file' },
+  ];
+  return (
+    <div>
+      {items.map((item) => (
+        <div
+          key={item.name}
+          style={{
+            padding: '4px 12px',
+            fontSize: 12,
+            borderBottom: '1px solid #eee',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}
+        >
+          <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)' }}>
+            {item.type === 'folder' ? '[DIR]' : '[FILE]'}
+          </span>
+          <span>{item.name}</span>
+        </div>
+      ))}
     </div>
   );
 }
@@ -90,84 +231,44 @@ function NotepadContent() {
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
 
-Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.`}
+Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.`}
     </div>
   );
 }
 
-function renderDemoContent(_windowId: string, component: string) {
+function renderContent(_windowId: string, component: string) {
   switch (component) {
+    case 'about-computer':
+      return <AboutComputerContent />;
     case 'about':
-      return <AboutContent />;
-    case 'welcome':
-      return <WelcomeContent />;
+      return <AboutMeContent />;
+    case 'projects':
+      return <ProjectsContent />;
+    case 'skills':
+      return <SkillsContent />;
+    case 'terminal':
+      return <TerminalContent />;
+    case 'contact':
+      return <ContactContent />;
+    case 'file-explorer':
+      return <FileExplorerContent />;
     case 'notepad':
       return <NotepadContent />;
     default:
-      return (
-        <div
-          style={{ padding: 16, fontFamily: 'var(--font-body)', fontSize: 12 }}
-        >
-          {component}
-        </div>
-      );
+      return <div style={{ padding: 16, fontSize: 12 }}>{component}</div>;
   }
 }
 
-function MenuBar() {
-  const openWindow = useWindowStore((s) => s.openWindow);
-  const cascadeWindows = useWindowStore((s) => s.cascadeWindows);
-  const tileWindows = useWindowStore((s) => s.tileWindows);
-  const handleNewWindow = useCallback(() => {
-    const count = Object.keys(useWindowStore.getState().windows).length;
-    openWindow({
-      title: `Untitled ${count + 1}`,
-      component: 'notepad',
-    });
-  }, [openWindow]);
-  return (
-    <div className="demo-menubar">
-      <button className="demo-menubar-item" onClick={handleNewWindow}>
-        New Window
-      </button>
-      <div className="demo-menubar-divider" />
-      <button className="demo-menubar-item" onClick={cascadeWindows}>
-        Cascade
-      </button>
-      <button className="demo-menubar-item" onClick={tileWindows}>
-        Tile
-      </button>
-    </div>
-  );
-}
-
 export default function Home() {
-  useEffect(() => {
-    const state = useWindowStore.getState();
-    if (Object.keys(state.windows).length > 0) return;
-    state.openWindow({
-      title: 'About This Computer',
-      component: 'about',
-      position: { x: 60, y: 50 },
-      size: { width: 340, height: 220 },
-    });
-    state.openWindow({
-      title: 'Welcome',
-      component: 'welcome',
-      position: { x: 140, y: 90 },
-      size: { width: 420, height: 340 },
-    });
-    state.openWindow({
-      title: 'SimpleText',
-      component: 'notepad',
-      position: { x: 280, y: 160 },
-      size: { width: 360, height: 280 },
-    });
-  }, []);
+  useKeyboardShortcuts();
   return (
-    <div className="demo-desktop">
+    <div className="os-shell">
       <MenuBar />
-      <WindowManager renderContent={renderDemoContent} />
+      <main className="os-content">
+        <Desktop />
+        <WindowManager renderContent={renderContent} />
+      </main>
+      <Dock />
     </div>
   );
 }
