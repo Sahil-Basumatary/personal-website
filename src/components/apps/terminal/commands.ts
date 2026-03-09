@@ -56,6 +56,33 @@ const help: Command = {
   },
 };
 
+const whoami: Command = {
+  name: 'whoami',
+  description: 'Who is this?',
+  execute: () => [
+    accent('Sahil Basumatary'),
+    stdout("CS @ King's College London"),
+  ],
+};
+
+const pwd: Command = {
+  name: 'pwd',
+  description: 'Print working directory',
+  execute: (_args, ctx) => [stdout(ctx.cwd)],
+};
+
+const echo: Command = {
+  name: 'echo',
+  description: 'Echo arguments',
+  execute: (args) => [stdout(args.join(' '))],
+};
+
+const date: Command = {
+  name: 'date',
+  description: 'Show current date and time',
+  execute: () => [stdout(new Date().toString())],
+};
+
 const clear: Command = {
   name: 'clear',
   description: 'Clear terminal output',
@@ -64,6 +91,10 @@ const clear: Command = {
 
 export const COMMANDS: Record<string, Command> = {
   help: help,
+  whoami: whoami,
+  pwd: pwd,
+  echo: echo,
+  date: date,
   clear: clear,
 };
 
