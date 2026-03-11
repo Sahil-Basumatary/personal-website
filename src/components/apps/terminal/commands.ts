@@ -215,6 +215,74 @@ const contact: Command = {
   },
 };
 
+const open: Command = {
+  name: 'open',
+  description: 'Open an app or project',
+  execute: (args, ctx) => {
+    if (args.length === 0) return [error('open: missing argument')];
+    const name = args.join(' ');
+    const appEntries = ctx.fs.listDirectory('/Applications');
+    if (appEntries) {
+      const match = appEntries.find(
+        (e) => e.kind === 'app' && e.name.toLowerCase() === name.toLowerCase()
+      );
+      if (match && match.kind === 'app') {
+        ctx.openWindow({
+          title: match.name,
+          component: match.component,
+          size: { width: 600, height: 400 },
+        });
+        return [system(`Opened ${match.name}`)];
+      }
+    }
+    const projectEntries = ctx.fs.listDirectory('/Desktop/Projects');
+    if (projectEntries) {
+      const match = projectEntries.find((e) => {
+        const baseName = e.name.replace(/\.md$/, '');
+        return baseName.toLowerCase() === name.toLowerCase();
+      });
+      if (match && match.kind === 'file') {
+        ctx.openWindow({
+          title: match.name.replace(/\.md$/, ''),
+          component: 'notepad',
+          size: { width: 500, height: 350 },
+        });
+        return [system(`Opened project: ${match.name.replace(/\.md$/, '')}`)];
+      }
+    }
+    return [
+      error(`open: '${name}' not found. Try 'ls /Applications' or 'projects'`),
+    ];
+  },
+};
+
+const history: Command = {
+  name: 'history',
+  description: 'Show command history',
+  execute: (_args, ctx) => {
+    if (ctx.history.length === 0) return [system('No history yet.')];
+    return ctx.history.map((entry, i) => {
+      const num = String(i + 1).padStart(4);
+      return stdout(`${num}  ${entry}`);
+    });
+  },
+};
+
+const vim: Command = {
+  name: 'vim',
+  description: 'Open vim editor',
+  execute: () => [
+    error("This isn't that kind of terminal..."),
+    system('Try the Text Editor app instead: open Text Editor'),
+  ],
+};
+
+const sudo: Command = {
+  name: 'sudo',
+  description: 'Execute as superuser',
+  execute: () => [error('Nice try. 🔒')],
+};
+
 const clear: Command = {
   name: 'clear',
   description: 'Clear terminal output',
@@ -231,9 +299,13 @@ export const COMMANDS: Record<string, Command> = {
   skills: skills,
   projects: projects,
   contact: contact,
+  open: open,
+  history: history,
   echo: echo,
   date: date,
   clear: clear,
+  vim: vim,
+  sudo: sudo,
 };
 
 export function getCompletions(input: string, _ctx: CommandContext): string[] {
