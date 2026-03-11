@@ -145,6 +145,76 @@ const cat: Command = {
   },
 };
 
+const skills: Command = {
+  name: 'skills',
+  description: 'Display technical skills',
+  execute: (_args, ctx) => {
+    const content = ctx.fs.getFileContent('/Desktop/Skills.json');
+    if (!content) return [error('skills: could not load Skills.json')];
+    try {
+      const data = JSON.parse(content) as Record<string, string[]>;
+      const lines: OutputLine[] = [accent('Technical Skills'), stdout('')];
+      for (const [category, items] of Object.entries(data)) {
+        const label = category.charAt(0).toUpperCase() + category.slice(1);
+        lines.push(stdout(`  ${label.padEnd(14)} ${items.join(', ')}`));
+      }
+      return lines;
+    } catch {
+      return [error('skills: failed to parse Skills.json')];
+    }
+  },
+};
+
+const projects: Command = {
+  name: 'projects',
+  description: 'List projects',
+  execute: (_args, ctx) => {
+    const entries = ctx.fs.listDirectory('/Desktop/Projects');
+    if (!entries) return [error('projects: could not read Projects directory')];
+    const lines: OutputLine[] = [
+      accent('Projects'),
+      stdout(''),
+      stdout(`  ${'Name'.padEnd(20)} ${'Tech'.padEnd(30)} Status`),
+      stdout(`  ${'─'.repeat(20)} ${'─'.repeat(30)} ${'─'.repeat(12)}`),
+    ];
+    for (const entry of entries) {
+      if (entry.kind !== 'file') continue;
+      const content = ctx.fs.getFileContent(`/Desktop/Projects/${entry.name}`);
+      if (!content) continue;
+      const contentLines = content.split('\n').filter(Boolean);
+      const name = (contentLines[0] ?? entry.name).replace(/^#\s*/, '');
+      const techLine = contentLines.find(
+        (l) => l.includes(',') || l.includes('React') || l.includes('Python')
+      );
+      const statusLine = contentLines.find(
+        (l) =>
+          l.toLowerCase().includes('progress') ||
+          l.toLowerCase().includes('live') ||
+          l.includes('.com')
+      );
+      const tech = techLine ?? '—';
+      let status = 'LIVE';
+      if (statusLine?.toLowerCase().includes('progress')) status = 'WIP';
+      lines.push(stdout(`  ${name.padEnd(20)} ${tech.padEnd(30)} ${status}`));
+    }
+    return lines;
+  },
+};
+
+const contact: Command = {
+  name: 'contact',
+  description: 'Show contact info',
+  execute: (_args, ctx) => {
+    const content = ctx.fs.getFileContent('/Desktop/Contact');
+    if (!content) return [error('contact: could not load Contact file')];
+    const lines: OutputLine[] = [accent('Contact'), stdout('')];
+    for (const line of content.split('\n')) {
+      lines.push(stdout(`  ${line}`));
+    }
+    return lines;
+  },
+};
+
 const clear: Command = {
   name: 'clear',
   description: 'Clear terminal output',
@@ -158,6 +228,9 @@ export const COMMANDS: Record<string, Command> = {
   cd: cd,
   ls: ls,
   cat: cat,
+  skills: skills,
+  projects: projects,
+  contact: contact,
   echo: echo,
   date: date,
   clear: clear,
