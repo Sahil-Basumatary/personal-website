@@ -308,7 +308,7 @@ export const COMMANDS: Record<string, Command> = {
   sudo: sudo,
 };
 
-export function getCompletions(input: string, _ctx: CommandContext): string[] {
+export function getCompletions(input: string, ctx: CommandContext): string[] {
   const parts = input.split(' ');
   if (parts.length <= 1) {
     const partial = parts[0].toLowerCase();
@@ -316,5 +316,62 @@ export function getCompletions(input: string, _ctx: CommandContext): string[] {
       .filter((name) => name.startsWith(partial))
       .sort();
   }
-  return [];
+  const cmd = parts[0];
+  const pathCommands = ['cd', 'ls', 'cat', 'open'];
+  if (!pathCommands.includes(cmd)) return [];
+  const partial = parts[parts.length - 1];
+  if (cmd === 'open') {
+    return getOpenCompletions(partial, ctx);
+  }
+  return getPathCompletions(partial, ctx);
+}
+
+function getOpenCompletions(partial: string, ctx: CommandContext): string[] {
+  const results: string[] = [];
+  const lower = partial.toLowerCase();
+  const apps = ctx.fs.listDirectory('/Applications');
+  if (apps) {
+    for (const entry of apps) {
+      if (entry.name.toLowerCase().startsWith(lower)) {
+        results.push(entry.name);
+      }
+    }
+  }
+  const projectEntries = ctx.fs.listDirectory('/Desktop/Projects');
+  if (projectEntries) {
+    for (const entry of projectEntries) {
+      const baseName = entry.name.replace(/\.md$/, '');
+      if (baseName.toLowerCase().startsWith(lower)) {
+        results.push(baseName);
+      }
+    }
+  }
+  return results.sort();
+}
+
+function getPathCompletions(partial: string, ctx: CommandContext): string[] {
+  let dir: string;
+  let prefix: string;
+  let nameStart: string;
+  const lastSlash = partial.lastIndexOf('/');
+  if (lastSlash === -1) {
+    dir = ctx.cwd;
+    prefix = '';
+    nameStart = partial;
+  } else {
+    const dirPart = partial.slice(0, lastSlash) || '/';
+    dir = ctx.fs.resolvePath(ctx.cwd, dirPart);
+    prefix = partial.slice(0, lastSlash + 1);
+    nameStart = partial.slice(lastSlash + 1);
+  }
+  const entries = ctx.fs.listDirectory(dir);
+  if (!entries) return [];
+  const lower = nameStart.toLowerCase();
+  return entries
+    .filter((e) => e.name.toLowerCase().startsWith(lower))
+    .map((e) => {
+      const suffix = e.kind === 'folder' ? '/' : '';
+      return prefix + e.name + suffix;
+    })
+    .sort();
 }
