@@ -3,6 +3,7 @@ import { WindowManager } from '@/components/window';
 import { MenuBar, Dock } from '@/components/menubar';
 import { Desktop } from '@/components/desktop';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
+import { Terminal } from '@/components/apps/terminal/Terminal';
 
 function AboutComputerContent() {
   return (
@@ -138,29 +139,6 @@ function SkillsContent() {
   );
 }
 
-function TerminalContent() {
-  return (
-    <div
-      style={{
-        padding: 8,
-        fontFamily: 'var(--font-mono)',
-        fontSize: 12,
-        background: '#1a1a2e',
-        color: '#00ff00',
-        minHeight: '100%',
-      }}
-    >
-      <div>Macintosh HD:Users:Sahil&gt; _</div>
-      <div style={{ color: '#555', marginTop: 8, fontSize: 11 }}>
-        Terminal will be fully implemented in Phase 4.
-      </div>
-      <div style={{ color: '#555', fontSize: 11 }}>
-        Type &apos;help&apos; for available commands.
-      </div>
-    </div>
-  );
-}
-
 function ContactContent() {
   return (
     <div style={{ padding: 16, fontSize: 12, lineHeight: 1.8 }}>
@@ -247,7 +225,7 @@ function renderContent(_windowId: string, component: string) {
     case 'skills':
       return <SkillsContent />;
     case 'terminal':
-      return <TerminalContent />;
+      return <Terminal />;
     case 'contact':
       return <ContactContent />;
     case 'file-explorer':
