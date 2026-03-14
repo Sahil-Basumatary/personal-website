@@ -595,6 +595,8 @@ body {
   }
   .window {
     position: relative;
+    display: flex;
+    flex-direction: column;
     background: var(--window-inactive-bg);
     border-width: 2px;
     border-style: solid;
@@ -1100,10 +1102,16 @@ body {
     width: 16px;
     height: 16px;
   }
+  .window-content:has(.terminal) {
+    background: #1a1a2e;
+    border-color: #1a1a2e;
+    box-shadow: none;
+    overflow: hidden;
+  }
   .terminal {
     display: flex;
     flex-direction: column;
-    min-height: 100%;
+    height: 100%;
     background: #1a1a2e;
     font-family: 'Geneva', 'Monaco', 'Courier New', monospace;
     font-size: 12px;
@@ -1113,6 +1121,12 @@ body {
   }
   .terminal-output {
     flex: 1;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .terminal-output::-webkit-scrollbar {
+    display: none;
   }
   .terminal-line {
     white-space: pre-wrap;
@@ -1129,6 +1143,12 @@ body {
   }
   .terminal-line-accent {
     color: #00d4ff;
+  }
+  .terminal-banner {
+    color: #00d4ff;
+    white-space: pre;
+    line-height: 1.2;
+    margin-bottom: 4px;
   }
   .terminal-input-row {
     display: flex;
@@ -1149,7 +1169,24 @@ body {
     font-size: inherit;
     padding: 0;
     margin: 0;
-    caret-color: #00ff41;
+    caret-color: transparent;
+  }
+  .terminal-cursor {
+    display: inline-block;
+    width: 7px;
+    height: 14px;
+    background: #00ff41;
+    animation: terminal-blink 1s step-end infinite;
+    vertical-align: text-bottom;
+  }
+  @keyframes terminal-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
   }
   .window.minimized {
     display: none;
