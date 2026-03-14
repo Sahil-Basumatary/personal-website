@@ -1100,6 +1100,57 @@ body {
     width: 16px;
     height: 16px;
   }
+  .terminal {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    background: #1a1a2e;
+    font-family: 'Geneva', 'Monaco', 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    padding: 8px;
+    cursor: text;
+  }
+  .terminal-output {
+    flex: 1;
+  }
+  .terminal-line {
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .terminal-line-stdout {
+    color: #00ff41;
+  }
+  .terminal-line-error {
+    color: #ff5555;
+  }
+  .terminal-line-system {
+    color: #888888;
+  }
+  .terminal-line-accent {
+    color: #00d4ff;
+  }
+  .terminal-input-row {
+    display: flex;
+    align-items: center;
+  }
+  .terminal-prompt {
+    color: #00cc33;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .terminal-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #00ff41;
+    font-family: inherit;
+    font-size: inherit;
+    padding: 0;
+    margin: 0;
+    caret-color: #00ff41;
+  }
   .window.minimized {
     display: none;
   }
