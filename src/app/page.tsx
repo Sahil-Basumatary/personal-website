@@ -4,6 +4,7 @@ import { MenuBar, Dock } from '@/components/menubar';
 import { Desktop } from '@/components/desktop';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { Terminal } from '@/components/apps/terminal/Terminal';
+import { FileExplorer } from '@/components/apps/file-explorer/FileExplorer';
 
 function AboutComputerContent() {
   return (
@@ -163,37 +164,6 @@ function ContactContent() {
   );
 }
 
-function FileExplorerContent() {
-  const items = [
-    { name: 'Desktop', type: 'folder' },
-    { name: 'Documents', type: 'folder' },
-    { name: 'Applications', type: 'folder' },
-    { name: 'README.md', type: 'file' },
-  ];
-  return (
-    <div>
-      {items.map((item) => (
-        <div
-          key={item.name}
-          style={{
-            padding: '4px 12px',
-            fontSize: 12,
-            borderBottom: '1px solid #eee',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-          }}
-        >
-          <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)' }}>
-            {item.type === 'folder' ? '[DIR]' : '[FILE]'}
-          </span>
-          <span>{item.name}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 function NotepadContent() {
   return (
     <div
@@ -229,7 +199,7 @@ function renderContent(_windowId: string, component: string) {
     case 'contact':
       return <ContactContent />;
     case 'file-explorer':
-      return <FileExplorerContent />;
+      return <FileExplorer />;
     case 'notepad':
       return <NotepadContent />;
     default:
