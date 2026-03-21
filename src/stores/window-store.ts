@@ -79,6 +79,7 @@ export const useWindowStore = create<WindowManagerState>()((set, get) => ({
       title: config.title,
       icon: config.icon,
       component: config.component,
+      props: config.props,
       position,
       size,
       minSize: config.minSize ?? DEFAULT_MIN_SIZE,
