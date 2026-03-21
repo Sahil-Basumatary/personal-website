@@ -13,6 +13,7 @@ export interface WindowState {
   title: string;
   icon?: string;
   component: string;
+  props?: Record<string, unknown>;
   position: Position;
   size: Size;
   minSize: Size;
@@ -30,6 +31,7 @@ export interface WindowConfig {
   title: string;
   icon?: string;
   component: string;
+  props?: Record<string, unknown>;
   position?: Position;
   size?: Size;
   minSize?: Size;
