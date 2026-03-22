@@ -4,7 +4,11 @@ import { useWindowStore } from '@/stores/window-store';
 import { ManagedWindow } from './ManagedWindow';
 
 interface WindowManagerProps {
-  renderContent?: (windowId: string, component: string) => React.ReactNode;
+  renderContent?: (
+    windowId: string,
+    component: string,
+    props?: Record<string, unknown>
+  ) => React.ReactNode;
 }
 
 function DefaultContent({ windowId }: { windowId: string }) {
@@ -21,10 +25,15 @@ function ResolvedContent({
   renderContent,
 }: {
   windowId: string;
-  renderContent: (windowId: string, component: string) => React.ReactNode;
+  renderContent: (
+    windowId: string,
+    component: string,
+    props?: Record<string, unknown>
+  ) => React.ReactNode;
 }) {
   const component = useWindowStore((s) => s.windows[windowId]?.component);
-  return <>{renderContent(windowId, component ?? '')}</>;
+  const props = useWindowStore((s) => s.windows[windowId]?.props);
+  return <>{renderContent(windowId, component ?? '', props)}</>;
 }
 
 function WindowManager({ renderContent }: WindowManagerProps) {
