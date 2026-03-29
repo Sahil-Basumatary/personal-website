@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import type { BeforeMount, OnMount } from '@monaco-editor/react';
 import { useFileSystemStore, getExtension } from '@/stores/file-system-store';
@@ -8,9 +8,9 @@ import { useFileSystemStore, getExtension } from '@/stores/file-system-store';
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
   ssr: false,
   loading: () => (
-    <div className="text-editor" style={styles.container}>
-      <div style={styles.emptyState}>
-        <p style={styles.emptyHint}>Loading editor…</p>
+    <div className="text-editor">
+      <div className="text-editor-empty">
+        <p className="text-editor-empty-hint">Loading editor…</p>
       </div>
     </div>
   ),
@@ -36,6 +36,11 @@ const LANGUAGE_MAP: Record<string, string> = {
 
 function detectLanguage(path: string): string {
   return LANGUAGE_MAP[getExtension(path)] ?? 'plaintext';
+}
+
+function extractFileName(path: string): string {
+  const segments = path.split('/').filter(Boolean);
+  return segments[segments.length - 1] ?? path;
 }
 
 const PLATINUM_THEME = {
@@ -106,6 +111,10 @@ export function TextEditor({ filePath }: TextEditorProps) {
     filePath ? s.getFileContent(filePath) : null
   );
   const language = filePath ? detectLanguage(filePath) : 'plaintext';
+  const fileName = useMemo(
+    () => (filePath ? extractFileName(filePath) : null),
+    [filePath]
+  );
 
   const handleBeforeMount = useCallback<BeforeMount>((monaco) => {
     monaco.editor.defineTheme('platinum', PLATINUM_THEME);
@@ -120,11 +129,11 @@ export function TextEditor({ filePath }: TextEditorProps) {
 
   if (!filePath) {
     return (
-      <div className="text-editor" style={styles.container}>
-        <div style={styles.emptyState}>
-          <p style={styles.emptyTitle}>SimpleText</p>
-          <p style={styles.emptyHint}>
-            Open a file from File Explorer to view its contents.
+      <div className="text-editor">
+        <div className="text-editor-empty">
+          <p className="text-editor-empty-title">SimpleText</p>
+          <p className="text-editor-empty-hint">
+            Open a file from Finder to view its contents.
           </p>
         </div>
       </div>
@@ -133,18 +142,18 @@ export function TextEditor({ filePath }: TextEditorProps) {
 
   if (content === null) {
     return (
-      <div className="text-editor" style={styles.container}>
-        <div style={styles.emptyState}>
-          <p style={styles.emptyTitle}>File Not Found</p>
-          <p style={styles.emptyHint}>{filePath}</p>
+      <div className="text-editor">
+        <div className="text-editor-empty">
+          <p className="text-editor-empty-title">File Not Found</p>
+          <p className="text-editor-empty-hint">{filePath}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="text-editor" style={styles.container}>
-      <div style={styles.editorBody}>
+    <div className="text-editor">
+      <div className="text-editor-body">
         <MonacoEditor
           value={content}
           language={language}
@@ -154,70 +163,15 @@ export function TextEditor({ filePath }: TextEditorProps) {
           options={EDITOR_OPTIONS}
         />
       </div>
-      <div className="text-editor-statusbar" style={styles.statusBar}>
-        <span>
-          Ln {cursor.line}, Col {cursor.col}
+      <div className="text-editor-statusbar">
+        <span className="text-editor-statusbar-left">
+          {fileName} — Ln {cursor.line}, Col {cursor.col}
         </span>
-        <div style={styles.statusBarRight}>
+        <div className="text-editor-statusbar-right">
           <span>{language}</span>
-          <span style={styles.badge}>Read-Only</span>
+          <span className="text-editor-badge">Read-Only</span>
         </div>
       </div>
     </div>
   );
 }
-
-const styles: Record<string, React.CSSProperties> = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-    background: '#e8e8e8',
-  },
-  editorBody: {
-    flex: 1,
-    minHeight: 0,
-  },
-  emptyState: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-  },
-  emptyTitle: {
-    fontFamily: 'var(--font-system)',
-    fontSize: 14,
-    margin: 0,
-  },
-  emptyHint: {
-    fontFamily: 'var(--font-body)',
-    fontSize: 12,
-    color: 'var(--border-shadow)',
-    margin: 0,
-  },
-  statusBar: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '3px 8px',
-    fontFamily: 'var(--font-body)',
-    fontSize: 11,
-    borderTop: '1px solid var(--border-shadow)',
-    background: 'var(--surface-primary)',
-    flexShrink: 0,
-  },
-  statusBarRight: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 12,
-  },
-  badge: {
-    padding: '1px 6px',
-    fontSize: 10,
-    background: 'var(--surface-sunken)',
-    color: 'var(--surface-base)',
-    borderRadius: 2,
-  },
-};

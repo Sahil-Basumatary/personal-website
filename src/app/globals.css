@@ -1206,6 +1206,65 @@ body {
     box-shadow: none;
     overflow: hidden;
   }
+  .text-editor {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #e8e8e8;
+  }
+  .text-editor-body {
+    flex: 1;
+    min-height: 0;
+  }
+  .text-editor-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .text-editor-empty-title {
+    font-family: var(--font-system);
+    font-size: 14px;
+    margin: 0;
+  }
+  .text-editor-empty-hint {
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--border-shadow);
+    margin: 0;
+  }
+  .text-editor-statusbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 3px 8px;
+    font-family: var(--font-body);
+    font-size: 11px;
+    border-top: 1px solid var(--border-shadow);
+    background: var(--surface-primary);
+    flex-shrink: 0;
+  }
+  .text-editor-statusbar-left {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .text-editor-statusbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+  .text-editor-badge {
+    padding: 1px 6px;
+    font-size: 10px;
+    background: var(--surface-sunken);
+    color: var(--surface-base);
+    border-radius: 2px;
+  }
   .window-content:has(.finder) {
     overflow: hidden;
   }
