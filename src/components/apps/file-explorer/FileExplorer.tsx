@@ -92,6 +92,7 @@ export function FileExplorer() {
               title: node.name,
               component: 'text-editor',
               size: { width: 500, height: 350 },
+              props: { filePath: node.target },
             });
           break;
         }
@@ -100,6 +101,7 @@ export function FileExplorer() {
             title: node.name,
             component: 'text-editor',
             size: { width: 500, height: 350 },
+            props: { filePath: nodePath },
           });
           break;
       }

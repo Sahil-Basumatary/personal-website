@@ -1200,6 +1200,12 @@ body {
     visibility: hidden;
     pointer-events: none;
   }
+  .window-content:has(.text-editor) {
+    background: #e8e8e8;
+    border-color: #e8e8e8;
+    box-shadow: none;
+    overflow: hidden;
+  }
   .window-content:has(.finder) {
     overflow: hidden;
   }

@@ -5,6 +5,7 @@ import { Desktop } from '@/components/desktop';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { Terminal } from '@/components/apps/terminal/Terminal';
 import { FileExplorer } from '@/components/apps/file-explorer/FileExplorer';
+import { TextEditor } from '@/components/apps/text-editor/TextEditor';
 
 function AboutComputerContent() {
   return (
@@ -184,7 +185,11 @@ Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.`}
   );
 }
 
-function renderContent(_windowId: string, component: string) {
+function renderContent(
+  _windowId: string,
+  component: string,
+  props?: Record<string, unknown>
+) {
   switch (component) {
     case 'about-computer':
       return <AboutComputerContent />;
@@ -200,6 +205,8 @@ function renderContent(_windowId: string, component: string) {
       return <ContactContent />;
     case 'file-explorer':
       return <FileExplorer />;
+    case 'text-editor':
+      return <TextEditor filePath={props?.filePath as string} />;
     case 'notepad':
       return <NotepadContent />;
     default:
