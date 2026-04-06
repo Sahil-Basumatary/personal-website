@@ -100,8 +100,16 @@ export function SystemMenu() {
             <span>Terminal</span>
           </button>
           <button
-            className="menubar-dropdown-item disabled"
-            disabled
+            className="menubar-dropdown-item"
+            onClick={() =>
+              handleItemClick(() =>
+                openWindow({
+                  title: 'Code Playground',
+                  component: 'code-playground',
+                  size: { width: 760, height: 480 },
+                })
+              )
+            }
             role="menuitem"
           >
             <span>Code Playground</span>
