@@ -6,6 +6,7 @@ import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { Terminal } from '@/components/apps/terminal/Terminal';
 import { FileExplorer } from '@/components/apps/file-explorer/FileExplorer';
 import { TextEditor } from '@/components/apps/text-editor/TextEditor';
+import { CodePlayground } from '@/components/apps/code-playground/CodePlayground';
 
 function AboutComputerContent() {
   return (
@@ -207,6 +208,8 @@ function renderContent(
       return <FileExplorer />;
     case 'text-editor':
       return <TextEditor filePath={props?.filePath as string} />;
+    case 'code-playground':
+      return <CodePlayground />;
     case 'notepad':
       return <NotepadContent />;
     default:
