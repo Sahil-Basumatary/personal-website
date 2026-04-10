@@ -114,6 +114,36 @@ export function SystemMenu() {
           >
             <span>Code Playground</span>
           </button>
+          <button
+            className="menubar-dropdown-item"
+            onClick={() =>
+              handleItemClick(() =>
+                openWindow({
+                  title: 'Text Editor',
+                  component: 'text-editor',
+                  size: { width: 560, height: 420 },
+                })
+              )
+            }
+            role="menuitem"
+          >
+            <span>Text Editor</span>
+          </button>
+          <button
+            className="menubar-dropdown-item"
+            onClick={() =>
+              handleItemClick(() =>
+                openWindow({
+                  title: 'Browser',
+                  component: 'browser',
+                  size: { width: 640, height: 460 },
+                })
+              )
+            }
+            role="menuitem"
+          >
+            <span>Browser</span>
+          </button>
           <div className="menubar-dropdown-divider" role="separator" />
           <button
             className="menubar-dropdown-item disabled"

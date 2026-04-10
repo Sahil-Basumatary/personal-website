@@ -7,6 +7,7 @@ import { Terminal } from '@/components/apps/terminal/Terminal';
 import { FileExplorer } from '@/components/apps/file-explorer/FileExplorer';
 import { TextEditor } from '@/components/apps/text-editor/TextEditor';
 import { CodePlayground } from '@/components/apps/code-playground/CodePlayground';
+import { Browser } from '@/components/apps/browser/Browser';
 
 function AboutComputerContent() {
   return (
@@ -210,6 +211,8 @@ function renderContent(
       return <TextEditor filePath={props?.filePath as string} />;
     case 'code-playground':
       return <CodePlayground />;
+    case 'browser':
+      return <Browser />;
     case 'notepad':
       return <NotepadContent />;
     default:

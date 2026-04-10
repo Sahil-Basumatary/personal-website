@@ -59,6 +59,14 @@ const DEFAULT_ICONS: DesktopIconData[] = [
     windowTitle: 'Contact',
     windowSize: { width: 400, height: 340 },
   },
+  {
+    id: 'browser',
+    label: 'Browser',
+    iconType: 'app',
+    component: 'browser',
+    windowTitle: 'Browser',
+    windowSize: { width: 640, height: 460 },
+  },
 ];
 
 export const useDesktopStore = create<DesktopState>()((set) => ({
