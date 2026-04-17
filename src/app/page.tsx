@@ -40,153 +40,6 @@ function AboutComputerContent() {
   );
 }
 
-function AboutMeContent() {
-  return (
-    <div style={{ padding: 16, lineHeight: 1.6, fontSize: 12 }}>
-      <p
-        style={{
-          fontFamily: 'var(--font-system)',
-          fontSize: 13,
-          marginBottom: 12,
-        }}
-      >
-        About Me
-      </p>
-      <p>
-        Hey! I&apos;m Sahil Basumatary, a first-year Computer Science student at
-        King&apos;s College London. I&apos;m passionate about building software
-        that solves real problems.
-      </p>
-      <p style={{ marginTop: 8 }}>
-        Currently exploring full-stack development, distributed systems, and
-        machine learning. When I&apos;m not coding, you&apos;ll find me on the
-        tennis court.
-      </p>
-    </div>
-  );
-}
-
-function ProjectsContent() {
-  const projects = [
-    { name: 'personal-blog', tech: 'React, Express, Clerk', status: 'LIVE' },
-    { name: 'pioni', tech: 'Python, FastAPI', status: 'LIVE' },
-    {
-      name: 'tennisly',
-      tech: 'Java, Spring Boot',
-      status: 'COMING SOON',
-    },
-  ];
-  return (
-    <div style={{ padding: 16, fontSize: 12 }}>
-      <p
-        style={{
-          fontFamily: 'var(--font-system)',
-          fontSize: 13,
-          marginBottom: 12,
-        }}
-      >
-        Projects
-      </p>
-      {projects.map((p) => (
-        <div
-          key={p.name}
-          style={{
-            padding: '8px 0',
-            borderBottom: '1px solid #eee',
-            display: 'flex',
-            justifyContent: 'space-between',
-          }}
-        >
-          <div>
-            <strong>{p.name}</strong>
-            <div style={{ color: 'var(--border-shadow)', marginTop: 2 }}>
-              {p.tech}
-            </div>
-          </div>
-          <span
-            style={{
-              fontSize: 10,
-              padding: '2px 6px',
-              background: p.status === 'LIVE' ? '#4caf50' : '#999',
-              color: '#fff',
-              borderRadius: 2,
-              alignSelf: 'flex-start',
-            }}
-          >
-            {p.status}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function SkillsContent() {
-  const skills = {
-    languages: ['TypeScript', 'JavaScript', 'Python', 'Java', 'SQL'],
-    frontend: ['React', 'Next.js', 'Tailwind CSS', 'HTML/CSS'],
-    backend: ['Node.js', 'Express', 'FastAPI', 'Spring Boot'],
-    tools: ['Git', 'Docker', 'PostgreSQL', 'MongoDB', 'Vercel'],
-  };
-  return (
-    <div
-      style={{
-        padding: 16,
-        fontFamily: 'var(--font-mono)',
-        fontSize: 11,
-        whiteSpace: 'pre',
-        lineHeight: 1.5,
-      }}
-    >
-      {JSON.stringify(skills, null, 2)}
-    </div>
-  );
-}
-
-function ContactContent() {
-  return (
-    <div style={{ padding: 16, fontSize: 12, lineHeight: 1.8 }}>
-      <p
-        style={{
-          fontFamily: 'var(--font-system)',
-          fontSize: 13,
-          marginBottom: 12,
-        }}
-      >
-        Get in Touch
-      </p>
-      <div>GitHub: github.com/Sahil-Basumatary</div>
-      <div>Website: sahilbzy.com</div>
-      <div>Blog: blog.sahilbzy.com</div>
-      <div
-        style={{ color: 'var(--border-shadow)', marginTop: 16, fontSize: 11 }}
-      >
-        Contact form coming in Phase 6.
-      </div>
-    </div>
-  );
-}
-
-function NotepadContent() {
-  return (
-    <div
-      style={{
-        padding: 8,
-        fontFamily: 'var(--font-mono)',
-        fontSize: 12,
-        lineHeight: 1.5,
-        whiteSpace: 'pre-wrap',
-      }}
-    >
-      {`The quick brown fox jumps over the lazy dog.
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-
-Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.`}
-    </div>
-  );
-}
-
 function renderContent(
   _windowId: string,
   component: string,
@@ -195,26 +48,16 @@ function renderContent(
   switch (component) {
     case 'about-computer':
       return <AboutComputerContent />;
-    case 'about':
-      return <AboutMeContent />;
-    case 'projects':
-      return <ProjectsContent />;
-    case 'skills':
-      return <SkillsContent />;
     case 'terminal':
       return <Terminal />;
-    case 'contact':
-      return <ContactContent />;
     case 'file-explorer':
-      return <FileExplorer />;
+      return <FileExplorer initialPath={props?.initialPath as string} />;
     case 'text-editor':
       return <TextEditor filePath={props?.filePath as string} />;
     case 'code-playground':
       return <CodePlayground />;
     case 'browser':
       return <Browser />;
-    case 'notepad':
-      return <NotepadContent />;
     default:
       return <div style={{ padding: 16, fontSize: 12 }}>{component}</div>;
   }

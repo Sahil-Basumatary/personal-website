@@ -20,6 +20,7 @@ export function Desktop() {
         title: icon.windowTitle ?? icon.label,
         component: icon.component,
         size: icon.windowSize,
+        props: icon.windowProps,
       });
     },
     [openWindow]

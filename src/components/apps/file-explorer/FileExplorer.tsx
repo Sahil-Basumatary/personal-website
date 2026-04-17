@@ -11,8 +11,12 @@ import { PathBar } from './PathBar';
 
 type ViewMode = 'list' | 'icon';
 
-export function FileExplorer() {
-  const [currentPath, setCurrentPath] = useState('/');
+interface FileExplorerProps {
+  initialPath?: string;
+}
+
+export function FileExplorer({ initialPath }: FileExplorerProps) {
+  const [currentPath, setCurrentPath] = useState(initialPath ?? '/');
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [historyBack, setHistoryBack] = useState<string[]>([]);

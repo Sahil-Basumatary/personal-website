@@ -7,6 +7,7 @@ export interface DesktopIconData {
   component: string;
   windowTitle?: string;
   windowSize?: { width: number; height: number };
+  windowProps?: Record<string, unknown>;
 }
 
 export type WallpaperType =

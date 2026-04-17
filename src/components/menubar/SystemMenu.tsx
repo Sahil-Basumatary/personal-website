@@ -78,26 +78,19 @@ export function SystemMenu() {
           </button>
           <div className="menubar-dropdown-divider" role="separator" />
           <button
-            className="menubar-dropdown-item disabled"
-            disabled
-            role="menuitem"
-          >
-            <span>Calculator</span>
-          </button>
-          <button
             className="menubar-dropdown-item"
             onClick={() =>
               handleItemClick(() =>
                 openWindow({
-                  title: 'Terminal',
-                  component: 'terminal',
-                  size: { width: 580, height: 380 },
+                  title: 'Browser',
+                  component: 'browser',
+                  size: { width: 640, height: 460 },
                 })
               )
             }
             role="menuitem"
           >
-            <span>Terminal</span>
+            <span>Browser</span>
           </button>
           <button
             className="menubar-dropdown-item"
@@ -119,6 +112,36 @@ export function SystemMenu() {
             onClick={() =>
               handleItemClick(() =>
                 openWindow({
+                  title: 'Macintosh HD',
+                  component: 'file-explorer',
+                  size: { width: 500, height: 380 },
+                })
+              )
+            }
+            role="menuitem"
+          >
+            <span>Finder</span>
+          </button>
+          <button
+            className="menubar-dropdown-item"
+            onClick={() =>
+              handleItemClick(() =>
+                openWindow({
+                  title: 'Terminal',
+                  component: 'terminal',
+                  size: { width: 580, height: 380 },
+                })
+              )
+            }
+            role="menuitem"
+          >
+            <span>Terminal</span>
+          </button>
+          <button
+            className="menubar-dropdown-item"
+            onClick={() =>
+              handleItemClick(() =>
+                openWindow({
                   title: 'Text Editor',
                   component: 'text-editor',
                   size: { width: 560, height: 420 },
@@ -128,21 +151,6 @@ export function SystemMenu() {
             role="menuitem"
           >
             <span>Text Editor</span>
-          </button>
-          <button
-            className="menubar-dropdown-item"
-            onClick={() =>
-              handleItemClick(() =>
-                openWindow({
-                  title: 'Browser',
-                  component: 'browser',
-                  size: { width: 640, height: 460 },
-                })
-              )
-            }
-            role="menuitem"
-          >
-            <span>Browser</span>
           </button>
           <div className="menubar-dropdown-divider" role="separator" />
           <button
