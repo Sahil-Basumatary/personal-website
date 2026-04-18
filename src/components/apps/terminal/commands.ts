@@ -243,9 +243,10 @@ const open: Command = {
       });
       if (match && match.kind === 'file') {
         ctx.openWindow({
-          title: match.name.replace(/\.md$/, ''),
-          component: 'notepad',
-          size: { width: 500, height: 350 },
+          title: match.name,
+          component: 'text-editor',
+          size: { width: 560, height: 420 },
+          props: { filePath: `/Desktop/Projects/${match.name}` },
         });
         return [system(`Opened project: ${match.name.replace(/\.md$/, '')}`)];
       }
@@ -280,7 +281,52 @@ const vim: Command = {
 const sudo: Command = {
   name: 'sudo',
   description: 'Execute as superuser',
-  execute: () => [error('Nice try. 🔒')],
+  execute: (args) => {
+    const joined = args.join(' ');
+    if (
+      joined.includes('rm') &&
+      joined.includes('-rf') &&
+      joined.includes('/')
+    ) {
+      return [
+        system('Deleting system files...'),
+        stdout('  rm: /Applications/Terminal'),
+        stdout('  rm: /Desktop/About Me'),
+        stdout('  rm: /Desktop/Projects/'),
+        stdout('  rm: /Desktop/Skills.json'),
+        error('Just kidding. This is a portfolio, not a real OS.'),
+        system('Everything is fine. Breathe.'),
+      ];
+    }
+    return [error('Nice try. 🔒')];
+  },
+};
+
+const nano: Command = {
+  name: 'nano',
+  description: 'Open nano editor',
+  execute: () => [
+    error('Nano? In this economy?'),
+    system('Try the Text Editor app instead: open Text Editor'),
+  ],
+};
+
+const neofetch: Command = {
+  name: 'neofetch',
+  description: 'System info',
+  execute: () => [
+    accent('         .://:.         sahil@macintosh-hd'),
+    accent('       .////////.       ------------------'),
+    accent('      ////////////      OS:     SahilOS v1.0'),
+    accent('     //////////////     Host:   sahilbzy.com'),
+    accent('    ////////////////    Kernel: Next.js 15'),
+    accent('   //////////////////   Shell:  Terminal.tsx'),
+    accent('    ////////////////    Theme:  Mac OS 9 Platinum'),
+    accent('     //////////////     Icons:  SVG handcrafted'),
+    accent('      ////////////      CPU:    React 19'),
+    accent('       .////////.       Memory: Zustand stores'),
+    accent('         .://:.         Uptime: since 2025'),
+  ],
 };
 
 const clear: Command = {
@@ -305,7 +351,9 @@ export const COMMANDS: Record<string, Command> = {
   date: date,
   clear: clear,
   vim: vim,
+  nano: nano,
   sudo: sudo,
+  neofetch: neofetch,
 };
 
 export function getCompletions(input: string, ctx: CommandContext): string[] {
