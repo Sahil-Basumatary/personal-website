@@ -8,6 +8,7 @@ import { FileExplorer } from '@/components/apps/file-explorer/FileExplorer';
 import { TextEditor } from '@/components/apps/text-editor/TextEditor';
 import { CodePlayground } from '@/components/apps/code-playground/CodePlayground';
 import { Browser } from '@/components/apps/browser/Browser';
+import { Minesweeper } from '@/components/apps/minesweeper/Minesweeper';
 
 function AboutComputerContent() {
   return (
@@ -58,6 +59,8 @@ function renderContent(
       return <CodePlayground />;
     case 'browser':
       return <Browser />;
+    case 'minesweeper':
+      return <Minesweeper />;
     default:
       return <div style={{ padding: 16, fontSize: 12 }}>{component}</div>;
   }
