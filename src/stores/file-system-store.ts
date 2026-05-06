@@ -141,7 +141,7 @@ const ROOT: FolderNode = folder('Macintosh HD', [
         'Blog:      blog.sahilbzy.com',
       ].join('\n')
     ),
-    folder('Games', []),
+    folder('Games', [app('Minesweeper', 'minesweeper')]),
   ]),
   folder('Documents', [file('Blog.webloc', 'https://blog.sahilbzy.com')]),
   folder('Applications', [
@@ -149,6 +149,7 @@ const ROOT: FolderNode = folder('Macintosh HD', [
     app('Text Editor', 'text-editor'),
     app('Code Playground', 'code-playground'),
     app('Browser', 'browser'),
+    app('Minesweeper', 'minesweeper'),
   ]),
   folder('Trash', []),
   file(

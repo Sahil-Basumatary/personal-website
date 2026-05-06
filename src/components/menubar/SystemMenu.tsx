@@ -154,6 +154,22 @@ export function SystemMenu() {
           </button>
           <div className="menubar-dropdown-divider" role="separator" />
           <button
+            className="menubar-dropdown-item"
+            onClick={() =>
+              handleItemClick(() =>
+                openWindow({
+                  title: 'Minesweeper',
+                  component: 'minesweeper',
+                  size: { width: 280, height: 380 },
+                })
+              )
+            }
+            role="menuitem"
+          >
+            <span>Minesweeper</span>
+          </button>
+          <div className="menubar-dropdown-divider" role="separator" />
+          <button
             className="menubar-dropdown-item disabled"
             disabled
             role="menuitem"
