@@ -9,6 +9,8 @@ import { TextEditor } from '@/components/apps/text-editor/TextEditor';
 import { CodePlayground } from '@/components/apps/code-playground/CodePlayground';
 import { Browser } from '@/components/apps/browser/Browser';
 import { Minesweeper } from '@/components/apps/minesweeper/Minesweeper';
+import { EasterEggLayer } from '@/components/easter-eggs';
+import { useKonamiCode } from '@/hooks/use-konami-code';
 
 function AboutComputerContent() {
   return (
@@ -68,6 +70,7 @@ function renderContent(
 
 export default function Home() {
   useKeyboardShortcuts();
+  useKonamiCode();
   return (
     <div className="os-shell">
       <MenuBar />
@@ -76,6 +79,7 @@ export default function Home() {
         <WindowManager renderContent={renderContent} />
       </main>
       <Dock />
+      <EasterEggLayer />
     </div>
   );
 }
