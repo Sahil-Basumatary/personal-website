@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { useFileSystemStore } from '@/stores/file-system-store';
 import { useWindowStore } from '@/stores/window-store';
+import { useEasterEggStore } from '@/stores/easter-egg-store';
 import { COMMANDS, getCompletions } from './commands';
 import type { OutputLine, CommandContext } from './commands';
 
@@ -39,6 +40,7 @@ export function useTerminal() {
   const resolvePath = useFileSystemStore((s) => s.resolvePath);
   const getFileContent = useFileSystemStore((s) => s.getFileContent);
   const openWindow = useWindowStore((s) => s.openWindow);
+  const triggerOverlay = useEasterEggStore((s) => s.triggerOverlay);
 
   const makeContext = useCallback(
     (): CommandContext => ({
@@ -49,9 +51,17 @@ export function useTerminal() {
       },
       fs: { getNode, listDirectory, resolvePath, getFileContent },
       openWindow,
+      triggerOverlay,
       history: commandHistoryRef.current,
     }),
-    [getNode, listDirectory, resolvePath, getFileContent, openWindow]
+    [
+      getNode,
+      listDirectory,
+      resolvePath,
+      getFileContent,
+      openWindow,
+      triggerOverlay,
+    ]
   );
 
   const executeCommand = useCallback(

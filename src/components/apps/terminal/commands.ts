@@ -1,5 +1,7 @@
 import type { FSNode } from '@/types/file-system';
 import type { WindowConfig } from '@/types/window';
+import type { EasterEggOverlay } from '@/lib/easter-eggs';
+import { buildCowsay, FORTUNES, pickRandom } from '@/lib/easter-eggs';
 
 export interface OutputLine {
   text: string;
@@ -16,6 +18,7 @@ export interface CommandContext {
     getFileContent: (path: string) => string | null;
   };
   openWindow: (config: WindowConfig) => string;
+  triggerOverlay: (overlay: EasterEggOverlay) => void;
   history: string[];
 }
 
@@ -335,6 +338,42 @@ const clear: Command = {
   execute: () => [],
 };
 
+const matrix: Command = {
+  name: 'matrix',
+  description: 'Wake up, Neo...',
+  execute: (_args, ctx) => {
+    ctx.triggerOverlay('matrix');
+    return [accent('Wake up, Neo...'), system('(press ESC or click to exit)')];
+  },
+};
+
+const cowsay: Command = {
+  name: 'cowsay',
+  description: 'Make a cow say something',
+  execute: (args) => {
+    const message = args.join(' ');
+    return buildCowsay(message).map((line) => stdout(line));
+  },
+};
+
+const fortune: Command = {
+  name: 'fortune',
+  description: 'Print a random fortune',
+  execute: () => [stdout(pickRandom(FORTUNES))],
+};
+
+const crash: Command = {
+  name: 'crash',
+  description: 'Trigger a kernel panic',
+  execute: (_args, ctx) => {
+    ctx.triggerOverlay('sad-mac');
+    return [
+      error('FATAL: kernel panic - not syncing'),
+      system('Press any key to recover.'),
+    ];
+  },
+};
+
 export const COMMANDS: Record<string, Command> = {
   help: help,
   whoami: whoami,
@@ -354,6 +393,10 @@ export const COMMANDS: Record<string, Command> = {
   nano: nano,
   sudo: sudo,
   neofetch: neofetch,
+  matrix: matrix,
+  cowsay: cowsay,
+  fortune: fortune,
+  crash: crash,
 };
 
 export function getCompletions(input: string, ctx: CommandContext): string[] {
