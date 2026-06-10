@@ -2,6 +2,10 @@ import type { FSNode } from '@/types/file-system';
 import type { WindowConfig } from '@/types/window';
 import type { EasterEggOverlay } from '@/lib/easter-eggs';
 import { buildCowsay, FORTUNES, pickRandom } from '@/lib/easter-eggs';
+import {
+  formatTechSummary,
+  type ProjectTechStack,
+} from '@/lib/content/projects';
 
 export interface OutputLine {
   text: string;
@@ -177,29 +181,28 @@ const projects: Command = {
     const lines: OutputLine[] = [
       accent('Projects'),
       stdout(''),
-      stdout(`  ${'Name'.padEnd(20)} ${'Tech'.padEnd(30)} Status`),
-      stdout(`  ${'─'.repeat(20)} ${'─'.repeat(30)} ${'─'.repeat(12)}`),
+      stdout(`  ${'Name'.padEnd(20)} ${'Tech'.padEnd(36)} Status`),
+      stdout(`  ${'─'.repeat(20)} ${'─'.repeat(36)} ${'─'.repeat(8)}`),
     ];
     for (const entry of entries) {
-      if (entry.kind !== 'file') continue;
-      const content = ctx.fs.getFileContent(`/Desktop/Projects/${entry.name}`);
-      if (!content) continue;
-      const contentLines = content.split('\n').filter(Boolean);
-      const name = (contentLines[0] ?? entry.name).replace(/^#\s*/, '');
-      const techLine = contentLines.find(
-        (l) => l.includes(',') || l.includes('React') || l.includes('Python')
+      if (entry.kind !== 'folder') continue;
+      const raw = ctx.fs.getFileContent(
+        `/Desktop/Projects/${entry.name}/tech-stack.json`
       );
-      const statusLine = contentLines.find(
-        (l) =>
-          l.toLowerCase().includes('progress') ||
-          l.toLowerCase().includes('live') ||
-          l.includes('.com')
-      );
-      const tech = techLine ?? '—';
-      let status = 'LIVE';
-      if (statusLine?.toLowerCase().includes('progress')) status = 'WIP';
-      lines.push(stdout(`  ${name.padEnd(20)} ${tech.padEnd(30)} ${status}`));
+      if (!raw) continue;
+      try {
+        const stack = JSON.parse(raw) as ProjectTechStack;
+        const tech = formatTechSummary(stack);
+        const status = stack.status.toUpperCase();
+        lines.push(
+          stdout(`  ${stack.name.padEnd(20)} ${tech.padEnd(36)} ${status}`)
+        );
+      } catch {
+        lines.push(error(`  ${entry.name}: malformed tech-stack.json`));
+      }
     }
+    lines.push(stdout(''));
+    lines.push(system("Tip: 'open <project>' opens it in Finder."));
     return lines;
   },
 };
@@ -240,18 +243,18 @@ const open: Command = {
     }
     const projectEntries = ctx.fs.listDirectory('/Desktop/Projects');
     if (projectEntries) {
-      const match = projectEntries.find((e) => {
-        const baseName = e.name.replace(/\.md$/, '');
-        return baseName.toLowerCase() === name.toLowerCase();
-      });
-      if (match && match.kind === 'file') {
+      const match = projectEntries.find(
+        (e) =>
+          e.kind === 'folder' && e.name.toLowerCase() === name.toLowerCase()
+      );
+      if (match && match.kind === 'folder') {
         ctx.openWindow({
           title: match.name,
-          component: 'text-editor',
-          size: { width: 560, height: 420 },
-          props: { filePath: `/Desktop/Projects/${match.name}` },
+          component: 'file-explorer',
+          size: { width: 620, height: 420 },
+          props: { initialPath: `/Desktop/Projects/${match.name}` },
         });
-        return [system(`Opened project: ${match.name.replace(/\.md$/, '')}`)];
+        return [system(`Opened project: ${match.name}`)];
       }
     }
     return [
@@ -431,9 +434,11 @@ function getOpenCompletions(partial: string, ctx: CommandContext): string[] {
   const projectEntries = ctx.fs.listDirectory('/Desktop/Projects');
   if (projectEntries) {
     for (const entry of projectEntries) {
-      const baseName = entry.name.replace(/\.md$/, '');
-      if (baseName.toLowerCase().startsWith(lower)) {
-        results.push(baseName);
+      if (
+        entry.kind === 'folder' &&
+        entry.name.toLowerCase().startsWith(lower)
+      ) {
+        results.push(entry.name);
       }
     }
   }

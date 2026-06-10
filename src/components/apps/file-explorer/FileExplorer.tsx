@@ -87,6 +87,15 @@ export function FileExplorer({ initialPath }: FileExplorerProps) {
           });
           break;
         case 'alias': {
+          if (/^https?:\/\//i.test(node.target)) {
+            openWindow({
+              title: 'Browser',
+              component: 'browser',
+              size: { width: 820, height: 600 },
+              props: { initialUrl: node.target },
+            });
+            break;
+          }
           const target = getNode(node.target);
           if (target?.kind === 'folder') navigateTo(node.target);
           else if (target?.kind === 'app')

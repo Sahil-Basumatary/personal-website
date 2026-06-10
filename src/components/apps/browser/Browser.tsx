@@ -23,13 +23,19 @@ function normalizeUrl(raw: string): string {
   return 'https://' + raw;
 }
 
-export function Browser() {
-  const [nav, setNav] = useState<NavState>({
-    entries: [HOME_URL],
-    index: 0,
-  });
-  const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+interface BrowserProps {
+  initialUrl?: string;
+}
+
+export function Browser({ initialUrl }: BrowserProps = {}) {
+  const seededUrl = initialUrl ? normalizeUrl(initialUrl) : null;
+  const [nav, setNav] = useState<NavState>(() =>
+    seededUrl
+      ? { entries: [HOME_URL, seededUrl], index: 1 }
+      : { entries: [HOME_URL], index: 0 }
+  );
+  const [inputValue, setInputValue] = useState(seededUrl ?? '');
+  const [isLoading, setIsLoading] = useState(seededUrl !== null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const currentUrl = nav.entries[nav.index];

@@ -3,7 +3,9 @@ import type {
   FolderNode,
   FileNode,
   AppNode,
+  AliasNode,
 } from '@/types/file-system';
+import { PROJECTS, type ProjectMeta } from './projects';
 
 function file(name: string, content: string): FileNode {
   return { name, kind: 'file', content };
@@ -19,6 +21,24 @@ function folder(name: string, items: FSNode[]): FolderNode {
 
 function app(name: string, component: string): AppNode {
   return { name, kind: 'app', component };
+}
+
+function alias(name: string, target: string): AliasNode {
+  return { name, kind: 'alias', target };
+}
+
+function projectFolder(meta: ProjectMeta): FolderNode {
+  const items: FSNode[] = [
+    file('README.md', meta.readme),
+    file('tech-stack.json', JSON.stringify(meta.techStack, null, 2)),
+  ];
+  if (meta.techStack.liveUrl) {
+    items.push(alias('Live Site', meta.techStack.liveUrl));
+  }
+  if (meta.techStack.githubUrl) {
+    items.push(alias('GitHub', meta.techStack.githubUrl));
+  }
+  return folder(meta.slug, items);
 }
 
 export const SYSTEM_DRIVE: FolderNode = folder('Macintosh HD', [
@@ -45,43 +65,7 @@ export const SYSTEM_DRIVE: FolderNode = folder('Macintosh HD', [
         "we'll have a genuine conversation.",
       ].join('\n')
     ),
-    folder('Projects', [
-      file(
-        'personal-blog.md',
-        [
-          '# Personal Blog',
-          '',
-          "My journal where I write about what I'm learning, my experiences,",
-          'and just life.',
-          '',
-          'React, Express, Clerk, PostgreSQL',
-          'blog.sahilbzy.com',
-        ].join('\n')
-      ),
-      file(
-        'pioni.md',
-        [
-          '# Pioni',
-          '',
-          'Live trading intelligence platform. Reads human emotions',
-          'and social sentiment to surface insights before the market',
-          'moves.',
-          '',
-          'Python, FastAPI, PostgreSQL',
-        ].join('\n')
-      ),
-      file(
-        'tennisly.md',
-        [
-          '# Tennisly',
-          '',
-          'Interactive tennis match visualization and data analytics.',
-          '',
-          'Java, Spring Boot, PostgreSQL, React',
-          'Work in progress.',
-        ].join('\n')
-      ),
-    ]),
+    folder('Projects', PROJECTS.map(projectFolder)),
     file(
       'Skills.json',
       JSON.stringify(

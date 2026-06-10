@@ -60,7 +60,7 @@ function renderContent(
     case 'code-playground':
       return <CodePlayground />;
     case 'browser':
-      return <Browser />;
+      return <Browser initialUrl={props?.initialUrl as string | undefined} />;
     case 'minesweeper':
       return <Minesweeper />;
     default:

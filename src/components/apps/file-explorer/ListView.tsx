@@ -73,7 +73,13 @@ function ListRow({
   );
 
   const icon =
-    node.kind === 'folder' ? '📁' : node.kind === 'app' ? '💎' : '📄';
+    node.kind === 'folder'
+      ? '📁'
+      : node.kind === 'app'
+        ? '💎'
+        : node.kind === 'alias'
+          ? '🔗'
+          : '📄';
 
   return (
     <div
