@@ -8,6 +8,7 @@ import { FileExplorer } from '@/components/apps/file-explorer/FileExplorer';
 import { TextEditor } from '@/components/apps/text-editor/TextEditor';
 import { CodePlayground } from '@/components/apps/code-playground/CodePlayground';
 import { Browser } from '@/components/apps/browser/Browser';
+import { ContactForm } from '@/components/apps/contact';
 import { Minesweeper } from '@/components/apps/minesweeper/Minesweeper';
 import { EasterEggLayer } from '@/components/easter-eggs';
 import { useKonamiCode } from '@/hooks/use-konami-code';
@@ -61,6 +62,8 @@ function renderContent(
       return <CodePlayground />;
     case 'browser':
       return <Browser initialUrl={props?.initialUrl as string | undefined} />;
+    case 'contact-form':
+      return <ContactForm />;
     case 'minesweeper':
       return <Minesweeper />;
     default:

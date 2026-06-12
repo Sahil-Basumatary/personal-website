@@ -58,10 +58,9 @@ const DEFAULT_ICONS: DesktopIconData[] = [
     id: 'contact',
     label: 'Contact',
     iconType: 'file',
-    component: 'text-editor',
+    component: 'contact-form',
     windowTitle: 'Contact',
-    windowSize: { width: 480, height: 300 },
-    windowProps: { filePath: '/Desktop/Contact' },
+    windowSize: { width: 480, height: 480 },
   },
   {
     id: 'text-editor',
