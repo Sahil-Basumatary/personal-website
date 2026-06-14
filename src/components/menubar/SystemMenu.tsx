@@ -2,6 +2,9 @@
 import { useCallback } from 'react';
 import { useMenuBarContext } from './MenuBar';
 import { useWindowStore } from '@/stores/window-store';
+import { openUrl } from '@/lib/open-url';
+import { BOOKMARKS } from '@/lib/content/bookmarks';
+import { useRecentPosts } from '@/hooks/use-recent-posts';
 
 const SYSTEM_MENU_ID = 'system';
 
@@ -22,6 +25,7 @@ export function SystemMenu() {
   const { activeMenuId, openMenu, closeMenu, isAnyOpen } = useMenuBarContext();
   const openWindow = useWindowStore((s) => s.openWindow);
   const isOpen = activeMenuId === SYSTEM_MENU_ID;
+  const { posts, isLoading, hasError } = useRecentPosts(isOpen);
 
   const handleClick = useCallback(() => {
     if (isOpen) {
@@ -44,6 +48,9 @@ export function SystemMenu() {
     },
     [closeMenu]
   );
+
+  const blogBookmark =
+    BOOKMARKS.find((bookmark) => bookmark.label === 'Blog') ?? BOOKMARKS[0];
 
   return (
     <div
@@ -80,11 +87,69 @@ export function SystemMenu() {
           <button
             className="menubar-dropdown-item"
             onClick={() =>
+              handleItemClick(() => openUrl('https://blog.sahilbzy.com'))
+            }
+            role="menuitem"
+          >
+            <span>Blog</span>
+          </button>
+          <div className="system-menu-submenu-group">
+            <div
+              className="menubar-dropdown-item system-menu-submenu-trigger"
+              role="menuitem"
+            >
+              <span>Recent Documents</span>
+              <span className="menubar-dropdown-shortcut">▶</span>
+            </div>
+            <div className="menubar-dropdown system-menu-submenu-panel">
+              {isLoading && (
+                <>
+                  <button className="menubar-dropdown-item disabled" disabled>
+                    <span>Loading...</span>
+                  </button>
+                  <button className="menubar-dropdown-item disabled" disabled>
+                    <span>Loading...</span>
+                  </button>
+                  <button className="menubar-dropdown-item disabled" disabled>
+                    <span>Loading...</span>
+                  </button>
+                </>
+              )}
+              {!isLoading &&
+                posts.map((post) => (
+                  <button
+                    key={post.url}
+                    className="menubar-dropdown-item"
+                    onClick={() => handleItemClick(() => openUrl(post.url))}
+                    role="menuitem"
+                  >
+                    <span>{post.title}</span>
+                  </button>
+                ))}
+              {!isLoading && posts.length === 0 && (
+                <button className="menubar-dropdown-item disabled" disabled>
+                  <span>No recent posts</span>
+                </button>
+              )}
+              {!isLoading && hasError && (
+                <>
+                  <div className="menubar-dropdown-divider" role="separator" />
+                  <button className="menubar-dropdown-item disabled" disabled>
+                    <span>Using fallback posts</span>
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+          <button
+            className="menubar-dropdown-item"
+            onClick={() =>
               handleItemClick(() =>
                 openWindow({
                   title: 'Browser',
                   component: 'browser',
                   size: { width: 640, height: 460 },
+                  props: { initialUrl: blogBookmark.url },
                 })
               )
             }

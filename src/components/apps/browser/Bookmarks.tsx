@@ -1,13 +1,10 @@
 'use client';
 
-export interface Bookmark {
-  label: string;
-  url: string;
-}
+import type { BrowserBookmark } from '@/lib/content/bookmarks';
 
 interface BookmarksProps {
-  bookmarks: Bookmark[];
-  onClick: (bookmark: Bookmark) => void;
+  bookmarks: BrowserBookmark[];
+  onClick: (bookmark: BrowserBookmark) => void;
 }
 
 export function Bookmarks({ bookmarks, onClick }: BookmarksProps) {

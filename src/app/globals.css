@@ -882,6 +882,22 @@ body {
   .system-menu-dropdown {
     min-width: 200px;
   }
+  .system-menu-submenu-group {
+    position: relative;
+  }
+  .system-menu-submenu-trigger {
+    cursor: default;
+  }
+  .system-menu-submenu-panel {
+    display: none;
+    position: absolute;
+    top: -2px;
+    left: calc(100% - 2px);
+    min-width: 260px;
+  }
+  .system-menu-submenu-group:hover .system-menu-submenu-panel {
+    display: block;
+  }
   .menubar-dropdown-item {
     display: flex;
     align-items: center;

@@ -43,9 +43,10 @@ interface FileSystemState {
   listDirectory: (path: string) => FSNode[] | null;
   resolvePath: (cwd: string, relative: string) => string;
   getFileContent: (path: string) => string | null;
+  setFolderChildren: (path: string, nodes: FSNode[]) => boolean;
 }
 
-export const useFileSystemStore = create<FileSystemState>()((_, get) => ({
+export const useFileSystemStore = create<FileSystemState>()((set, get) => ({
   root: SYSTEM_DRIVE,
   getNode: (path) => traverseToNode(get().root, path),
   listDirectory: (path) => {
@@ -58,5 +59,17 @@ export const useFileSystemStore = create<FileSystemState>()((_, get) => ({
     const node = traverseToNode(get().root, path);
     if (!node || node.kind !== 'file') return null;
     return node.content;
+  },
+  setFolderChildren: (path, nodes) => {
+    const root = structuredClone(get().root) as FolderNode;
+    const target = traverseToNode(root, path);
+    if (!target || target.kind !== 'folder') return false;
+    const children: Record<string, FSNode> = {};
+    for (const node of nodes) {
+      children[node.name] = node;
+    }
+    target.children = children;
+    set({ root });
+    return true;
   },
 }));

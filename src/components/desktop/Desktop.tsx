@@ -5,8 +5,10 @@ import { useWindowStore } from '@/stores/window-store';
 import { ContextMenu } from '@/components/ui';
 import { DesktopIcon } from './DesktopIcon';
 import type { DesktopIconData } from '@/types/desktop';
+import { useBlogPostsFolderBootstrap } from '@/hooks/use-recent-posts';
 
 export function Desktop() {
+  useBlogPostsFolderBootstrap();
   const icons = useDesktopStore((s) => s.icons);
   const selectedIconIds = useDesktopStore((s) => s.selectedIconIds);
   const selectIcon = useDesktopStore((s) => s.selectIcon);

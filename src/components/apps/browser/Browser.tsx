@@ -2,15 +2,10 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { Toolbar } from './Toolbar';
-import { Bookmarks, type Bookmark } from './Bookmarks';
+import { Bookmarks } from './Bookmarks';
+import { BOOKMARKS, type BrowserBookmark } from '@/lib/content/bookmarks';
 
 const HOME_URL = 'about:home';
-
-const DEFAULT_BOOKMARKS: Bookmark[] = [
-  { label: 'Blog', url: 'https://blog.sahilbzy.com' },
-  { label: 'Pioni', url: 'https://pioni.onrender.com' },
-  { label: 'GitHub', url: 'https://github.com/Sahil-Basumatary' },
-];
 
 interface NavState {
   entries: string[];
@@ -109,7 +104,7 @@ export function Browser({ initialUrl }: BrowserProps = {}) {
   );
 
   const handleBookmarkClick = useCallback(
-    (bm: Bookmark) => navigateTo(bm.url),
+    (bm: BrowserBookmark) => navigateTo(bm.url),
     [navigateTo]
   );
 
@@ -131,7 +126,7 @@ export function Browser({ initialUrl }: BrowserProps = {}) {
         canGoForward={canGoForward}
         isLoading={isLoading}
       />
-      <Bookmarks bookmarks={DEFAULT_BOOKMARKS} onClick={handleBookmarkClick} />
+      <Bookmarks bookmarks={BOOKMARKS} onClick={handleBookmarkClick} />
       <div className="browser-viewport">
         {isHome ? (
           <div className="browser-home">

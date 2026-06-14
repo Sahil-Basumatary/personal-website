@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { useFileSystemStore } from '@/stores/file-system-store';
 import { useWindowStore } from '@/stores/window-store';
 import type { FSNode } from '@/types/file-system';
+import { openUrl } from '@/lib/open-url';
 import { Sidebar } from './Sidebar';
 import { ListView } from './ListView';
 import { IconView } from './IconView';
@@ -88,12 +89,7 @@ export function FileExplorer({ initialPath }: FileExplorerProps) {
           break;
         case 'alias': {
           if (/^https?:\/\//i.test(node.target)) {
-            openWindow({
-              title: 'Browser',
-              component: 'browser',
-              size: { width: 820, height: 600 },
-              props: { initialUrl: node.target },
-            });
+            openUrl(node.target);
             break;
           }
           const target = getNode(node.target);

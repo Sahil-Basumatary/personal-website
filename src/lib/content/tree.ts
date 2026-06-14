@@ -91,7 +91,12 @@ export const SYSTEM_DRIVE: FolderNode = folder('Macintosh HD', [
     ),
     folder('Games', [app('Minesweeper', 'minesweeper')]),
   ]),
-  folder('Documents', [file('Blog.webloc', 'https://blog.sahilbzy.com')]),
+  folder('Documents', [
+    file('Blog.webloc', 'https://blog.sahilbzy.com'),
+    folder('Blog Posts', [
+      file('Loading…', 'Loading recent posts from blog.sahilbzy.com...'),
+    ]),
+  ]),
   folder('Applications', [
     app('Terminal', 'terminal'),
     app('Text Editor', 'text-editor'),
