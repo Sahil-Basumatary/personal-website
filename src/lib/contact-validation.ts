@@ -16,11 +16,21 @@ export const FIELD_LIMITS = {
   message: 5000,
 } as const;
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_RE =
+  /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/;
+const UNICODE_SPACES_RE = /[\u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]/g;
 
 function readString(value: unknown): string {
   if (typeof value !== 'string') return '';
   return value.trim();
+}
+
+function normalizeText(value: string): string {
+  return value.normalize('NFKC').replace(UNICODE_SPACES_RE, ' ').trim();
+}
+
+function normalizeEmail(value: string): string {
+  return normalizeText(value).toLowerCase();
 }
 
 export function validateContact(input: unknown): ValidationResult {
@@ -29,10 +39,10 @@ export function validateContact(input: unknown): ValidationResult {
   }
 
   const raw = input as Record<string, unknown>;
-  const name = readString(raw.name);
-  const email = readString(raw.email);
-  const subject = readString(raw.subject);
-  const message = readString(raw.message);
+  const name = normalizeText(readString(raw.name));
+  const email = normalizeEmail(readString(raw.email));
+  const subject = normalizeText(readString(raw.subject));
+  const message = normalizeText(readString(raw.message));
 
   if (!name) return { ok: false, error: 'Please add your name.' };
   if (name.length > FIELD_LIMITS.name) {
@@ -48,6 +58,24 @@ export function validateContact(input: unknown): ValidationResult {
       ok: false,
       error: `Email must be ${FIELD_LIMITS.email} characters or fewer.`,
     };
+  }
+  if (/\s/u.test(email)) {
+    return { ok: false, error: 'That email looks invalid.' };
+  }
+  const [localPart = '', domainPart = '', ...extraParts] = email.split('@');
+  if (extraParts.length > 0 || !localPart || !domainPart) {
+    return { ok: false, error: 'That email looks invalid.' };
+  }
+  if (
+    localPart.startsWith('.') ||
+    localPart.endsWith('.') ||
+    domainPart.startsWith('.') ||
+    domainPart.endsWith('.')
+  ) {
+    return { ok: false, error: 'That email looks invalid.' };
+  }
+  if (localPart.includes('..') || domainPart.includes('..')) {
+    return { ok: false, error: 'That email looks invalid.' };
   }
   if (!EMAIL_RE.test(email)) {
     return { ok: false, error: 'That email looks invalid.' };
