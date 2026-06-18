@@ -6,6 +6,7 @@ import type {
   Position,
   Size,
 } from '@/types/window';
+import { trackWindowOpen } from '@/lib/analytics/client';
 
 const DEFAULT_SIZE: Size = { width: 400, height: 300 };
 const DEFAULT_MIN_SIZE: Size = { width: 200, height: 100 };
@@ -93,13 +94,15 @@ export const useWindowStore = create<WindowManagerState>()((set, get) => ({
       activeWindowId: id,
       nextZIndex: nextZIndex + 1,
     });
+    trackWindowOpen(config.component);
     return id;
   },
 
   closeWindow: (id: string) => {
     const { windows, activeWindowId } = get();
     if (!windows[id]) return;
-    const { [id]: _closed, ...remaining } = windows;
+    const remaining = { ...windows };
+    delete remaining[id];
     const newActiveId =
       activeWindowId === id ? findTopWindow(remaining) : activeWindowId;
     set({ windows: remaining, activeWindowId: newActiveId });

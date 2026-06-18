@@ -1,22 +1,4 @@
-const readinessItems = [
-  {
-    label: 'Authentication',
-    value: 'Clerk gated',
-    description: 'Only signed-in users in ADMIN_USER_IDS can reach this area.',
-  },
-  {
-    label: 'Database',
-    value: 'Schema ready',
-    description:
-      'Projects, skills, about, analytics, and messages tables exist.',
-  },
-  {
-    label: 'Public bundle',
-    value: 'Unaffected',
-    description:
-      'Clerk stays scoped to the admin layout for public-site speed.',
-  },
-];
+import { getAdminDashboardMetrics } from './queries';
 
 const upcomingSections = [
   {
@@ -39,22 +21,44 @@ const upcomingSections = [
   },
 ];
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+  const metrics = await getAdminDashboardMetrics();
+  const readinessItems = [
+    {
+      label: 'Page views',
+      value: metrics.pageViews.toLocaleString('en-GB'),
+      description: 'Public homepage visits tracked through /api/analytics.',
+    },
+    {
+      label: 'Unique visitors',
+      value: metrics.uniqueVisitors.toLocaleString('en-GB'),
+      description:
+        'Daily SHA-256 visitor hashes. No raw IP or user agent stored.',
+    },
+    {
+      label: 'App launches',
+      value: metrics.windowOpens.toLocaleString('en-GB'),
+      description:
+        'Internal desktop apps opened from the portfolio experience.',
+    },
+  ];
+
   return (
     <div className="admin-dashboard">
       <section className="admin-hero">
         <div>
           <p className="admin-kicker">Dashboard</p>
-          <h1>Admin panel foundation</h1>
+          <h1>Portfolio command center</h1>
           <p className="admin-hero__copy">
-            This is the secure workspace for managing portfolio content,
-            analytics, and contact messages as the next milestones come online.
+            A private view of portfolio activity and content operations. This
+            first analytics pass tracks visits and desktop interactions without
+            storing raw personal identifiers.
           </p>
         </div>
         <div className="admin-hero__badge">Phase 7</div>
       </section>
 
-      <section className="admin-card-grid" aria-label="Readiness status">
+      <section className="admin-card-grid" aria-label="Analytics overview">
         {readinessItems.map((item) => (
           <article className="admin-card" key={item.label}>
             <p className="admin-card__label">{item.label}</p>

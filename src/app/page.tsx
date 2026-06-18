@@ -1,4 +1,5 @@
 'use client';
+import { useEffect } from 'react';
 import { WindowManager } from '@/components/window';
 import { MenuBar, Dock } from '@/components/menubar';
 import { Desktop } from '@/components/desktop';
@@ -12,6 +13,7 @@ import { ContactForm } from '@/components/apps/contact';
 import { Minesweeper } from '@/components/apps/minesweeper/Minesweeper';
 import { EasterEggLayer } from '@/components/easter-eggs';
 import { useKonamiCode } from '@/hooks/use-konami-code';
+import { trackPageView } from '@/lib/analytics/client';
 
 function AboutComputerContent() {
   return (
@@ -74,6 +76,11 @@ function renderContent(
 export default function Home() {
   useKeyboardShortcuts();
   useKonamiCode();
+
+  useEffect(() => {
+    trackPageView();
+  }, []);
+
   return (
     <div className="os-shell">
       <MenuBar />
