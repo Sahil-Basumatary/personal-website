@@ -29,7 +29,7 @@ export function AnalyticsCharts({
       <section className="admin-chart-card admin-chart-card--wide">
         <div className="admin-chart-card__header">
           <p className="admin-kicker">Traffic</p>
-          <h2>Visits and visitors</h2>
+          <h2>Visits and daily visitors</h2>
         </div>
         <div className="admin-chart">
           <ResponsiveContainer width="100%" height="100%">
@@ -61,7 +61,7 @@ export function AnalyticsCharts({
               <Area
                 type="monotone"
                 dataKey="visitors"
-                name="Visitors"
+                name="Daily visitors"
                 stroke="#16130d"
                 fill="#e4ddcf"
                 strokeWidth={2}

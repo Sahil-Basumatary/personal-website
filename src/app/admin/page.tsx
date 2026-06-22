@@ -30,10 +30,10 @@ export default async function AdminDashboardPage() {
       description: 'Public homepage visits tracked through /api/analytics.',
     },
     {
-      label: 'Unique visitors',
-      value: metrics.uniqueVisitors.toLocaleString('en-GB'),
+      label: 'Daily visitors',
+      value: metrics.dailyVisitors.toLocaleString('en-GB'),
       description:
-        'Daily SHA-256 visitor hashes. No raw IP or user agent stored.',
+        'Daily SHA-256 visitor hashes. No long-term visitor ID stored.',
     },
     {
       label: 'App launches',

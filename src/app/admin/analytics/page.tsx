@@ -47,11 +47,11 @@ export default async function AdminAnalyticsPage() {
       description: `${formatNumber(analytics.summary.visits7d)} in the last 7 days.`,
     },
     {
-      label: 'Visitors',
-      value: formatNumber(analytics.summary.visitors30d),
+      label: 'Daily visitors',
+      value: formatNumber(analytics.summary.dailyVisitors30d),
       description: `${formatNumber(
-        analytics.summary.visitors7d
-      )} privacy-safe visitors in the last 7 days.`,
+        analytics.summary.dailyVisitors7d
+      )} daily unique visitors in the last 7 days.`,
     },
     {
       label: 'App launches',
@@ -70,7 +70,7 @@ export default async function AdminAnalyticsPage() {
           <h1>Portfolio intelligence</h1>
           <p className="admin-hero__copy">
             Understand how visitors explore the portfolio without collecting raw
-            IP addresses, raw user agents, or personal identifiers.
+            IP addresses, raw user agents, or long-term visitor identifiers.
           </p>
         </div>
         <p className="admin-hero__timestamp">Last 30 days</p>

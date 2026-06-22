@@ -5,10 +5,10 @@ import { db } from '@/db';
 
 export interface AnalyticsSummary {
   visits7d: number;
-  visitors7d: number;
+  dailyVisitors7d: number;
   appLaunches7d: number;
   visits30d: number;
-  visitors30d: number;
+  dailyVisitors30d: number;
   appLaunches30d: number;
 }
 
@@ -58,12 +58,20 @@ export async function getAnalyticsOverview(): Promise<AnalyticsOverview> {
     referrerRows,
   ] = await Promise.all([
     db.execute(sql`
+      with daily_uniques as (
+        select
+          created_at::date as date,
+          count(distinct visitor_hash)::int as visitors
+        from page_views
+        where created_at >= current_date - interval '29 days'
+        group by created_at::date
+      )
       select
-        count(*) filter (where created_at >= now() - interval '7 days')::int as visits_7d,
-        count(distinct visitor_hash) filter (where created_at >= now() - interval '7 days')::int as visitors_7d,
+        count(*) filter (where created_at >= current_date - interval '6 days')::int as visits_7d,
+        coalesce((select sum(visitors)::int from daily_uniques where date >= current_date - interval '6 days'), 0) as daily_visitors_7d,
         (select count(*)::int from window_opens where created_at >= now() - interval '7 days') as app_launches_7d,
-        count(*) filter (where created_at >= now() - interval '30 days')::int as visits_30d,
-        count(distinct visitor_hash) filter (where created_at >= now() - interval '30 days')::int as visitors_30d,
+        count(*) filter (where created_at >= current_date - interval '29 days')::int as visits_30d,
+        coalesce((select sum(visitors)::int from daily_uniques), 0) as daily_visitors_30d,
         (select count(*)::int from window_opens where created_at >= now() - interval '30 days') as app_launches_30d
       from page_views
     `),
@@ -132,10 +140,10 @@ export async function getAnalyticsOverview(): Promise<AnalyticsOverview> {
   return {
     summary: {
       visits7d: toNumber(summary.visits_7d),
-      visitors7d: toNumber(summary.visitors_7d),
+      dailyVisitors7d: toNumber(summary.daily_visitors_7d),
       appLaunches7d: toNumber(summary.app_launches_7d),
       visits30d: toNumber(summary.visits_30d),
-      visitors30d: toNumber(summary.visitors_30d),
+      dailyVisitors30d: toNumber(summary.daily_visitors_30d),
       appLaunches30d: toNumber(summary.app_launches_30d),
     },
     traffic: trafficRows.rows.map((row) => ({
