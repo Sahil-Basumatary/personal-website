@@ -1,4 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { db } from '@/db';
+import { contactSubmissions } from '@/db/schema';
+import { sendContactNotification } from '@/lib/email';
 import { validateContact } from '@/lib/contact-validation';
 import { checkRateLimit } from '@/lib/rate-limit';
 
@@ -69,17 +72,33 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Phase 7 swaps this for Resend + DB persistence. Until then, the function
-  // log is the source of truth — message preview is truncated to keep logs
-  // readable and to avoid pasting massive payloads into the platform UI.
-  console.log('[contact]', {
-    ip,
-    name: result.data.name,
-    email: result.data.email,
-    subject: result.data.subject,
-    messagePreview: result.data.message.slice(0, 100),
-    messageLength: result.data.message.length,
-  });
+  const inserted = await db
+    .insert(contactSubmissions)
+    .values({
+      name: result.data.name,
+      email: result.data.email,
+      subject: result.data.subject,
+      message: result.data.message,
+    })
+    .returning();
+  const submission = inserted.at(0);
 
-  return NextResponse.json({ ok: true });
+  if (submission) {
+    try {
+      await sendContactNotification(submission);
+    } catch (error) {
+      console.warn('[contact] notification email failed', error);
+    }
+  } else {
+    console.warn('[contact] submission insert did not return a row', { ip });
+  }
+
+  return NextResponse.json({
+    ok: true,
+    emailNotification: {
+      configured: Boolean(
+        process.env.RESEND_API_KEY && process.env.CONTACT_NOTIFY_TO
+      ),
+    },
+  });
 }

@@ -137,7 +137,7 @@ export function ContactForm() {
             onChange={(e) => update('subject', e.target.value)}
             placeholder="What's this about?"
             disabled={isSubmitting}
-            maxLength={200}
+            maxLength={160}
             required
           />
         </label>

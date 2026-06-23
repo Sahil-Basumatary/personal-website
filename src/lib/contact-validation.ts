@@ -12,7 +12,7 @@ export type ValidationResult =
 export const FIELD_LIMITS = {
   name: 100,
   email: 254,
-  subject: 200,
+  subject: 160,
   message: 5000,
 } as const;
 
