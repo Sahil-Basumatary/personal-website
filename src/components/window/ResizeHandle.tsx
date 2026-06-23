@@ -2,7 +2,7 @@
 import { useWindow } from './WindowContext';
 
 interface ResizeHandleProps {
-  onResizeStart?: (e: React.MouseEvent) => void;
+  onResizeStart?: (e: React.PointerEvent) => void;
   className?: string;
 }
 
@@ -16,14 +16,14 @@ function ResizeHandle({ onResizeStart, className }: ResizeHandleProps) {
   ]
     .filter(Boolean)
     .join(' ');
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handlePointerDown = (e: React.PointerEvent) => {
     e.stopPropagation();
     onResizeStart?.(e);
   };
   return (
     <div
       className={handleClasses}
-      onMouseDown={handleMouseDown}
+      onPointerDown={handlePointerDown}
       role="separator"
       aria-orientation="horizontal"
       aria-label="Resize window"

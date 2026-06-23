@@ -1,4 +1,5 @@
 'use client';
+import { useEffect } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useWindowStore } from '@/stores/window-store';
 import { ManagedWindow } from './ManagedWindow';
@@ -38,6 +39,21 @@ function ResolvedContent({
 
 function WindowManager({ renderContent }: WindowManagerProps) {
   const windowIds = useWindowStore(useShallow((s) => Object.keys(s.windows)));
+  const reflowWindows = useWindowStore((s) => s.reflowWindows);
+  useEffect(() => {
+    let frame = 0;
+    const handleViewportChange = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(reflowWindows);
+    };
+    window.addEventListener('resize', handleViewportChange);
+    window.addEventListener('orientationchange', handleViewportChange);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('resize', handleViewportChange);
+      window.removeEventListener('orientationchange', handleViewportChange);
+    };
+  }, [reflowWindows]);
   return (
     <div className="window-manager">
       {windowIds.map((id) => (

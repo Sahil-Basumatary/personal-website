@@ -19,7 +19,7 @@ function ManagedWindow({ windowId, children }: ManagedWindowProps) {
   const restoreWindow = useWindowStore((s) => s.restoreWindow);
   const collapseWindow = useWindowStore((s) => s.collapseWindow);
   const expandWindow = useWindowStore((s) => s.expandWindow);
-  const { onTitleBarMouseDown } = useWindowDrag(windowId);
+  const { onTitleBarPointerDown } = useWindowDrag(windowId);
   const { onResizeStart } = useWindowResize(windowId);
 
   const handleFocus = useCallback(() => {
@@ -70,8 +70,9 @@ function ManagedWindow({ windowId, children }: ManagedWindowProps) {
       onActiveChange={handleFocus}
       onCollapsedChange={handleCollapsedChange}
       style={windowStyle}
+      className={win.isMaximized ? 'maximized' : undefined}
     >
-      <div onMouseDown={onTitleBarMouseDown}>
+      <div onPointerDown={onTitleBarPointerDown}>
         <Window.TitleBar>
           <Window.TitleBar.Controls>
             <Window.TitleBar.CloseBox onClose={handleClose} />

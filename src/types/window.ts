@@ -50,6 +50,7 @@ interface WindowManagerActions {
   expandWindow: (id: string) => void;
   cascadeWindows: () => void;
   tileWindows: () => void;
+  reflowWindows: () => void;
 }
 
 export interface WindowManagerState extends WindowManagerActions {

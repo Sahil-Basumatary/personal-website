@@ -798,6 +798,18 @@ body {
   .window {
     pointer-events: auto;
   }
+  .app-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 120px;
+    padding: 16px;
+    font-family: var(--font-system);
+    font-size: 12px;
+    color: var(--border-shadow);
+    background: var(--surface-base);
+  }
   .os-shell {
     display: flex;
     flex-direction: column;
@@ -1340,7 +1352,13 @@ body {
     color: var(--color-text);
   }
   .contact-form-textarea {
-    font-family: var(--font-body);
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      sans-serif;
     font-size: 12px;
     padding: 6px 8px;
     background: var(--surface-base);
@@ -1356,6 +1374,18 @@ body {
     resize: vertical;
     min-height: 96px;
     line-height: 1.4;
+  }
+  .contact-form .input-field {
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      sans-serif;
+    font-size: 12px;
+    letter-spacing: 0;
+    text-transform: none;
   }
   .contact-form-textarea:focus {
     outline: 2px solid var(--color-accent);
@@ -2177,5 +2207,194 @@ body {
     font-size: 10px;
     color: #888888;
     letter-spacing: 1px;
+  }
+  @media (max-width: 767px) {
+    .os-shell {
+      height: 100dvh;
+    }
+    .menubar {
+      height: 32px;
+      padding: 0 4px;
+      font-size: 12px;
+    }
+    .menubar-left,
+    .menubar-right {
+      min-width: 0;
+    }
+    .menubar-left {
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .menubar-left::-webkit-scrollbar {
+      display: none;
+    }
+    .menubar-menu-trigger,
+    .menubar-icon-btn {
+      min-width: 38px;
+      min-height: 32px;
+      padding: 0 10px;
+      touch-action: manipulation;
+    }
+    .system-menu-trigger {
+      padding: 0 12px;
+    }
+    .menubar-dropdown {
+      position: fixed;
+      top: 32px;
+      left: 4px;
+      right: 4px;
+      width: auto;
+      min-width: 0;
+      max-height: calc(100dvh - 72px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+    .system-menu-dropdown {
+      min-width: 0;
+    }
+    .system-menu-submenu-panel {
+      display: block;
+      position: static;
+      margin: 2px 8px 4px 20px;
+      min-width: 0;
+      box-shadow: none;
+    }
+    .menubar-dropdown-item {
+      min-height: 38px;
+      padding: 8px 14px;
+      font-size: 13px;
+      touch-action: manipulation;
+    }
+    .desktop-icons {
+      padding: 12px 8px 72px;
+      gap: 8px;
+      align-content: flex-start;
+    }
+    .desktop-icon {
+      width: 82px;
+      min-height: 72px;
+      padding: 8px 4px;
+      touch-action: manipulation;
+    }
+    .desktop-icon-image {
+      width: 40px;
+      height: 40px;
+    }
+    .desktop-icon-svg {
+      width: 40px;
+      height: 40px;
+    }
+    .desktop-icon-label {
+      max-width: 78px;
+      font-size: 11px;
+      line-height: 1.25;
+    }
+    .window {
+      max-width: calc(100vw - 16px);
+      max-height: calc(100dvh - 66px);
+    }
+    .window-titlebar {
+      height: 32px;
+      padding: 0 6px;
+      touch-action: none;
+    }
+    .window-controls {
+      gap: 6px;
+    }
+    .window-control-box {
+      width: 22px;
+      height: 22px;
+      touch-action: manipulation;
+    }
+    .window-close-box.active::before,
+    .window-close-box.active::after {
+      width: 12px;
+    }
+    .window-zoom-box.active::before,
+    .window-zoom-box.active::after {
+      width: 8px;
+      height: 8px;
+    }
+    .window-collapse-box.active::after {
+      width: 12px;
+    }
+    .window-title {
+      font-size: 13px;
+      padding: 0 6px;
+    }
+    .window-content {
+      min-height: 0;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .window-resize-handle {
+      width: 32px;
+      height: 32px;
+      touch-action: none;
+    }
+    .window-resize-handle::after {
+      bottom: 6px;
+      right: 6px;
+      width: 16px;
+      height: 16px;
+    }
+    .dock {
+      height: 34px;
+      font-size: 11px;
+    }
+    .dock-left {
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .dock-left::-webkit-scrollbar {
+      display: none;
+    }
+    .dock-item {
+      min-height: 28px;
+      max-width: 120px;
+      padding: 4px 10px;
+      touch-action: manipulation;
+    }
+    .context-menu {
+      min-width: 190px;
+      max-width: calc(100vw - 16px);
+    }
+    .context-menu-item {
+      min-height: 38px;
+      padding: 8px 14px;
+      font-size: 13px;
+    }
+    .terminal,
+    .text-editor-statusbar,
+    .playground-statusbar,
+    .browser-statusbar {
+      font-size: 11px;
+    }
+    .playground-body {
+      flex-direction: column;
+    }
+    .playground-divider {
+      width: 100%;
+      height: 4px;
+    }
+  }
+  @media (max-width: 767px) and (orientation: landscape) {
+    .window-titlebar {
+      height: 28px;
+    }
+    .window-control-box {
+      width: 20px;
+      height: 20px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
