@@ -11,19 +11,27 @@ interface ResizeState {
 export function useWindowResize(windowId: string) {
   const resizeRef = useRef<ResizeState | null>(null);
   const handlersRef = useRef<{
-    onMouseMove: (e: MouseEvent) => void;
-    onMouseUp: () => void;
+    onPointerMove: (e: PointerEvent) => void;
+    onPointerUp: () => void;
   } | null>(null);
   const resizeWindow = useWindowStore((s) => s.resizeWindow);
   const focusWindow = useWindowStore((s) => s.focusWindow);
 
   const cleanup = useCallback(() => {
     if (!handlersRef.current) return;
-    document.removeEventListener('mousemove', handlersRef.current.onMouseMove);
-    document.removeEventListener('mouseup', handlersRef.current.onMouseUp);
+    document.removeEventListener(
+      'pointermove',
+      handlersRef.current.onPointerMove
+    );
+    document.removeEventListener('pointerup', handlersRef.current.onPointerUp);
+    document.removeEventListener(
+      'pointercancel',
+      handlersRef.current.onPointerUp
+    );
     handlersRef.current = null;
     document.body.style.userSelect = '';
     document.body.style.cursor = '';
+    document.body.style.touchAction = '';
   }, []);
 
   useEffect(() => {
@@ -31,7 +39,7 @@ export function useWindowResize(windowId: string) {
   }, [cleanup]);
 
   const onResizeStart = useCallback(
-    (e: React.MouseEvent) => {
+    (e: React.PointerEvent) => {
       if (e.button !== 0) return;
       e.preventDefault();
       focusWindow(windowId);
@@ -43,7 +51,7 @@ export function useWindowResize(windowId: string) {
         initialWidth: win.size.width,
         initialHeight: win.size.height,
       };
-      const onMouseMove = (ev: MouseEvent) => {
+      const onPointerMove = (ev: PointerEvent) => {
         const state = resizeRef.current;
         if (!state) return;
         const deltaX = ev.clientX - state.startX;
@@ -53,15 +61,17 @@ export function useWindowResize(windowId: string) {
           height: state.initialHeight + deltaY,
         });
       };
-      const onMouseUp = () => {
+      const onPointerUp = () => {
         resizeRef.current = null;
         cleanup();
       };
-      handlersRef.current = { onMouseMove, onMouseUp };
+      handlersRef.current = { onPointerMove, onPointerUp };
       document.body.style.userSelect = 'none';
       document.body.style.cursor = 'nwse-resize';
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
+      document.body.style.touchAction = 'none';
+      document.addEventListener('pointermove', onPointerMove);
+      document.addEventListener('pointerup', onPointerUp);
+      document.addEventListener('pointercancel', onPointerUp);
     },
     [windowId, focusWindow, resizeWindow, cleanup]
   );
