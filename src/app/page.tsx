@@ -1,19 +1,59 @@
 'use client';
 import { useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { WindowManager } from '@/components/window';
 import { MenuBar, Dock } from '@/components/menubar';
 import { Desktop } from '@/components/desktop';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
-import { Terminal } from '@/components/apps/terminal/Terminal';
-import { FileExplorer } from '@/components/apps/file-explorer/FileExplorer';
-import { TextEditor } from '@/components/apps/text-editor/TextEditor';
-import { CodePlayground } from '@/components/apps/code-playground/CodePlayground';
-import { Browser } from '@/components/apps/browser/Browser';
-import { ContactForm } from '@/components/apps/contact';
-import { Minesweeper } from '@/components/apps/minesweeper/Minesweeper';
 import { EasterEggLayer } from '@/components/easter-eggs';
 import { useKonamiCode } from '@/hooks/use-konami-code';
 import { trackPageView } from '@/lib/analytics/client';
+
+function AppLoading() {
+  return <div className="app-loading">Loading...</div>;
+}
+
+const Terminal = dynamic(
+  () =>
+    import('@/components/apps/terminal/Terminal').then((mod) => mod.Terminal),
+  { ssr: false, loading: AppLoading }
+);
+const FileExplorer = dynamic(
+  () =>
+    import('@/components/apps/file-explorer/FileExplorer').then(
+      (mod) => mod.FileExplorer
+    ),
+  { ssr: false, loading: AppLoading }
+);
+const TextEditor = dynamic(
+  () =>
+    import('@/components/apps/text-editor/TextEditor').then(
+      (mod) => mod.TextEditor
+    ),
+  { ssr: false, loading: AppLoading }
+);
+const CodePlayground = dynamic(
+  () =>
+    import('@/components/apps/code-playground/CodePlayground').then(
+      (mod) => mod.CodePlayground
+    ),
+  { ssr: false, loading: AppLoading }
+);
+const Browser = dynamic(
+  () => import('@/components/apps/browser/Browser').then((mod) => mod.Browser),
+  { ssr: false, loading: AppLoading }
+);
+const ContactForm = dynamic(
+  () => import('@/components/apps/contact').then((mod) => mod.ContactForm),
+  { ssr: false, loading: AppLoading }
+);
+const Minesweeper = dynamic(
+  () =>
+    import('@/components/apps/minesweeper/Minesweeper').then(
+      (mod) => mod.Minesweeper
+    ),
+  { ssr: false, loading: AppLoading }
+);
 
 function AboutComputerContent() {
   return (
