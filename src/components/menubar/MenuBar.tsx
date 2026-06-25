@@ -76,7 +76,7 @@ export function MenuBar() {
 
   useEffect(() => {
     if (!activeMenuId) return;
-    const handleOutside = (e: MouseEvent) => {
+    const handleOutside = (e: PointerEvent) => {
       if (
         menuBarRef.current &&
         !menuBarRef.current.contains(e.target as Node)
@@ -87,10 +87,10 @@ export function MenuBar() {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') closeMenu();
     };
-    document.addEventListener('mousedown', handleOutside);
+    document.addEventListener('pointerdown', handleOutside);
     document.addEventListener('keydown', handleKey);
     return () => {
-      document.removeEventListener('mousedown', handleOutside);
+      document.removeEventListener('pointerdown', handleOutside);
       document.removeEventListener('keydown', handleKey);
     };
   }, [activeMenuId, closeMenu]);

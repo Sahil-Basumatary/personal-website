@@ -59,7 +59,7 @@ export function SystemMenu() {
     >
       <button
         className={`menubar-menu-trigger system-menu-trigger ${isOpen ? 'active' : ''}`}
-        onMouseDown={handleClick}
+        onPointerDown={handleClick}
         aria-label="System Menu"
         aria-expanded={isOpen}
         aria-haspopup="menu"

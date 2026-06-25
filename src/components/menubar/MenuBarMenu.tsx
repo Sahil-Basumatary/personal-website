@@ -49,7 +49,7 @@ export function MenuBarMenu({ id, label, items }: MenuBarMenuProps) {
       <button
         ref={triggerRef}
         className={`menubar-menu-trigger ${isOpen ? 'active' : ''}`}
-        onMouseDown={handleClick}
+        onPointerDown={handleClick}
         role="menuitem"
         aria-expanded={isOpen}
         aria-haspopup="menu"

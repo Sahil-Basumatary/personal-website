@@ -1,5 +1,5 @@
 'use client';
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import type { DesktopIconData } from '@/types/desktop';
 
 interface DesktopIconProps {
@@ -171,6 +171,7 @@ export function DesktopIcon({
   onSelect,
   onOpen,
 }: DesktopIconProps) {
+  const lastTouchTapRef = useRef(0);
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
@@ -178,6 +179,19 @@ export function DesktopIcon({
       onSelect(icon.id, additive);
     },
     [icon.id, onSelect]
+  );
+  const handlePointerUp = useCallback(
+    (e: React.PointerEvent) => {
+      if (e.pointerType === 'mouse') return;
+      const now = Date.now();
+      if (selected && now - lastTouchTapRef.current < 600) {
+        onOpen(icon);
+        lastTouchTapRef.current = 0;
+        return;
+      }
+      lastTouchTapRef.current = now;
+    },
+    [icon, selected, onOpen]
   );
 
   const handleDoubleClick = useCallback(
@@ -201,12 +215,13 @@ export function DesktopIcon({
     <div
       className={`desktop-icon ${selected ? 'selected' : ''}`}
       onMouseDown={handleMouseDown}
+      onPointerUp={handlePointerUp}
       onDoubleClick={handleDoubleClick}
       onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
       aria-label={icon.label}
-      aria-selected={selected}
+      aria-pressed={selected}
     >
       <div className="desktop-icon-image">
         <IconGraphic type={icon.iconType} />

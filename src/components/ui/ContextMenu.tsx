@@ -63,6 +63,11 @@ function ContextMenuTrigger({
   className = '',
 }: ContextMenuTriggerProps) {
   const { open } = useContextMenu();
+  const longPressRef = useRef<{
+    timer: ReturnType<typeof setTimeout>;
+    x: number;
+    y: number;
+  } | null>(null);
   const handleContextMenu = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
@@ -70,8 +75,51 @@ function ContextMenuTrigger({
     },
     [open]
   );
+  const clearLongPress = useCallback(() => {
+    if (!longPressRef.current) return;
+    clearTimeout(longPressRef.current.timer);
+    longPressRef.current = null;
+  }, []);
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      if (e.pointerType === 'mouse') return;
+      clearLongPress();
+      const x = e.clientX;
+      const y = e.clientY;
+      longPressRef.current = {
+        x,
+        y,
+        timer: setTimeout(() => {
+          open(x, y);
+          longPressRef.current = null;
+        }, 520),
+      };
+    },
+    [clearLongPress, open]
+  );
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent) => {
+      const press = longPressRef.current;
+      if (!press) return;
+      if (
+        Math.abs(e.clientX - press.x) > 8 ||
+        Math.abs(e.clientY - press.y) > 8
+      ) {
+        clearLongPress();
+      }
+    },
+    [clearLongPress]
+  );
+  useEffect(() => clearLongPress, [clearLongPress]);
   return (
-    <div onContextMenu={handleContextMenu} className={className}>
+    <div
+      onContextMenu={handleContextMenu}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={clearLongPress}
+      onPointerCancel={clearLongPress}
+      className={className}
+    >
       {children}
     </div>
   );
