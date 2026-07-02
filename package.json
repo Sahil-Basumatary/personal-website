@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -22,7 +23,8 @@
     "db:studio": "drizzle-kit studio",
     "prepare": "husky",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "chromatic": "chromatic --exit-zero-on-changes"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.5.2",
@@ -66,6 +68,8 @@
     "@types/react-dom": "^19",
     "@vitest/browser-playwright": "^4.0.18",
     "@vitest/coverage-v8": "^4.0.18",
+    "axe-core": "^4.12.1",
+    "chromatic": "^18.0.1",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
@@ -81,6 +85,7 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vite": "^7.3.1",
-    "vitest": "^4.0.18"
+    "vitest": "^4.0.18",
+    "vitest-axe": "^0.1.0"
   }
 }
