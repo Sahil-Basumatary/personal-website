@@ -1,4 +1,4 @@
-import { AnalyticsCharts } from './analytics-charts';
+import { AnalyticsChartsLazy } from './analytics-charts-lazy';
 import { getAnalyticsOverview, type CountBreakdown } from './queries';
 
 function formatNumber(value: number): string {
@@ -86,7 +86,7 @@ export default async function AdminAnalyticsPage() {
         ))}
       </section>
 
-      <AnalyticsCharts
+      <AnalyticsChartsLazy
         traffic={analytics.traffic}
         popularApps={analytics.popularApps}
         devices={analytics.devices}

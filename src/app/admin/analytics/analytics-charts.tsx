@@ -13,7 +13,7 @@ import {
 } from 'recharts';
 import type { CountBreakdown, TrafficPoint } from './queries';
 
-interface AnalyticsChartsProps {
+export interface AnalyticsChartsProps {
   traffic: TrafficPoint[];
   popularApps: CountBreakdown[];
   devices: CountBreakdown[];
