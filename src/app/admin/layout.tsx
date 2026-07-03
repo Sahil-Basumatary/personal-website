@@ -13,7 +13,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
   await requireAdmin();
 
   return (
-    <ClerkProvider>
+    <ClerkProvider dynamic>
       <div className="admin-shell">
         <aside className="admin-sidebar">
           <div className="admin-sidebar__brand">
