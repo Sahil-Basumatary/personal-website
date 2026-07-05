@@ -1,6 +1,10 @@
 import { SerwistProvider } from '@serwist/turbopack/react';
 import type { Metadata } from 'next';
 import ReactDOM from 'react-dom';
+import {
+  buildStructuredData,
+  serializeJsonLd,
+} from '@/lib/seo/structured-data';
 import { SITE, SITE_URL } from '@/lib/site';
 import './globals.css';
 
@@ -77,6 +81,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: serializeJsonLd(buildStructuredData()),
+          }}
+        />
         <SerwistProvider swUrl="/serwist/sw.js">{children}</SerwistProvider>
       </body>
     </html>
