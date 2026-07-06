@@ -1,4 +1,5 @@
 import { SerwistProvider } from '@serwist/turbopack/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata } from 'next';
 import ReactDOM from 'react-dom';
 import {
@@ -88,6 +89,9 @@ export default function RootLayout({
           }}
         />
         <SerwistProvider swUrl="/serwist/sw.js">{children}</SerwistProvider>
+        {/* Injects its script client-side, so strict-dynamic nonce propagation
+            covers it without threading a per-request nonce. */}
+        <SpeedInsights />
       </body>
     </html>
   );
