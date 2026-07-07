@@ -91,7 +91,7 @@ const DEFAULT_ICONS: DesktopIconData[] = [
 export const useDesktopStore = create<DesktopState>()((set) => ({
   icons: DEFAULT_ICONS,
   selectedIconIds: [],
-  wallpaper: 'default',
+  wallpaper: 'photo',
   selectIcon: (id, additive = false) =>
     set((state) => ({
       selectedIconIds: additive

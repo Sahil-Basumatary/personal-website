@@ -11,6 +11,7 @@ export interface DesktopIconData {
 }
 
 export type WallpaperType =
+  | 'photo'
   | 'default'
   | 'solid-blue'
   | 'solid-grey'

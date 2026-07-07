@@ -2,7 +2,9 @@
 
 @font-face {
   font-family: 'ChicagoFLF';
-  src: url('/fonts/ChicagoFLF.ttf') format('truetype');
+  src:
+    url('/fonts/ChicagoFLF.woff2') format('woff2'),
+    url('/fonts/ChicagoFLF.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -1010,6 +1012,82 @@ body {
       rgba(255, 255, 255, 0.05) 8px
     );
   }
+  .wallpaper-photo {
+    background-color: #000;
+    background-image: url('/wallpapers/pro-black.webp');
+    background-size: cover;
+    background-position: center;
+  }
+  .desktop-photos {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(120px, 7vw, 88px);
+    pointer-events: none;
+  }
+  .photo-frame {
+    display: flex;
+    flex-direction: column;
+    background: var(--window-active-bg);
+    border-width: 2px;
+    border-style: solid;
+    border-top-color: var(--border-highlight);
+    border-left-color: var(--border-highlight);
+    border-bottom-color: var(--border-shadow);
+    border-right-color: var(--border-shadow);
+    box-shadow:
+      2px 2px 0 #000,
+      3px 3px 12px rgba(0, 0, 0, 0.5);
+  }
+  .photo-frame-titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 20px;
+    background: repeating-linear-gradient(
+      0deg,
+      var(--surface-primary) 0px,
+      var(--surface-primary) 1px,
+      var(--titlebar-stripe) 1px,
+      var(--titlebar-stripe) 2px
+    );
+    border-bottom: 1px solid var(--border-shadow);
+  }
+  .photo-frame-title {
+    font-family: var(--font-system);
+    font-size: 12px;
+    color: var(--color-text);
+    background: var(--surface-primary);
+    padding: 0 8px;
+  }
+  .photo-frame-body {
+    margin: 2px;
+    border-width: 2px;
+    border-style: solid;
+    border-top-color: var(--border-shadow);
+    border-left-color: var(--border-shadow);
+    border-bottom-color: var(--border-highlight);
+    border-right-color: var(--border-highlight);
+    background: var(--surface-base);
+    font-size: 0;
+  }
+  .photo-frame-img {
+    display: block;
+    height: clamp(280px, 44vh, 460px);
+    width: auto;
+  }
+  @media (max-width: 768px) {
+    .desktop-photos {
+      flex-direction: column;
+      gap: clamp(16px, 5vh, 44px);
+    }
+    .photo-frame-img {
+      height: clamp(190px, 30vh, 320px);
+    }
+  }
   .desktop-icons {
     position: absolute;
     inset: 0;
@@ -1024,7 +1102,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 75px;
+    width: 78px;
     padding: 4px;
     cursor: default;
     border-radius: 2px;
@@ -1042,8 +1120,8 @@ body {
     color: var(--color-accent-foreground);
   }
   .desktop-icon-image {
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1051,7 +1129,7 @@ body {
   }
   .desktop-icon-label {
     font-family: var(--font-body);
-    font-size: 10px;
+    font-size: 12px;
     text-align: center;
     color: #ffffff;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);

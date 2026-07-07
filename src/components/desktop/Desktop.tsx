@@ -4,6 +4,7 @@ import { useDesktopStore } from '@/stores/desktop-store';
 import { useWindowStore } from '@/stores/window-store';
 import { ContextMenu } from '@/components/ui';
 import { DesktopIcon } from './DesktopIcon';
+import { DesktopWallpaper } from './DesktopWallpaper';
 import type { DesktopIconData } from '@/types/desktop';
 import { useBlogPostsFolderBootstrap } from '@/hooks/use-recent-posts';
 
@@ -41,6 +42,7 @@ export function Desktop() {
   return (
     <ContextMenu>
       <ContextMenu.Trigger className={`desktop wallpaper-${wallpaper}`}>
+        {wallpaper === 'photo' && <DesktopWallpaper />}
         <div className="desktop-icons" onMouseDown={handleBackgroundClick}>
           {icons.map((icon) => (
             <DesktopIcon
