@@ -1,16 +1,26 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
+import { isAdminUserId } from '@/lib/auth/admin-allowlist';
 import { buildContentSecurityPolicy, generateNonce } from '@/lib/security/csp';
 
 const isAdminRoute = createRouteMatcher(['/admin(.*)', '/api/admin(.*)']);
 
 export default clerkMiddleware(async (auth, request) => {
-  if (isAdminRoute(request)) {
-    await auth.protect();
-  }
-
   const nonce = generateNonce();
   const csp = buildContentSecurityPolicy(nonce);
+
+  if (isAdminRoute(request)) {
+    const { userId } = await auth();
+
+    if (!isAdminUserId(userId)) {
+      const notFoundResponse = NextResponse.rewrite(
+        new URL('/404', request.url),
+        { status: 404 }
+      );
+      notFoundResponse.headers.set('Content-Security-Policy-Report-Only', csp);
+      return notFoundResponse;
+    }
+  }
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-nonce', nonce);

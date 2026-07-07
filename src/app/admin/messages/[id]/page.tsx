@@ -65,7 +65,6 @@ export default async function AdminMessageDetailPage({
         </div>
         <ReplyForm
           id={submission.id}
-          to={submission.email}
           subject={submission.subject}
           name={submission.name}
         />

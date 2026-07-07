@@ -119,6 +119,9 @@ export function ContactForm() {
             name="email"
             type="email"
             autoComplete="email"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             value={form.email}
             onChange={(e) => update('email', e.target.value)}
             placeholder="you@example.com"

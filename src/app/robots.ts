@@ -6,7 +6,6 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      // Authenticated dashboard and server endpoints must stay out of indexes.
       disallow: ['/admin', '/api'],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,

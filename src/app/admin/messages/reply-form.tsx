@@ -17,18 +17,16 @@ function SubmitButton() {
 
 interface ReplyFormProps {
   id: string;
-  to: string;
   subject: string;
   name: string;
 }
 
-export function ReplyForm({ id, to, subject, name }: ReplyFormProps) {
+export function ReplyForm({ id, subject, name }: ReplyFormProps) {
   const [state, formAction] = useActionState(sendReply, idleFormState);
 
   return (
     <form action={formAction} className="admin-form">
       <input type="hidden" name="id" value={id} />
-      <input type="hidden" name="to" value={to} />
       <div className="admin-field">
         <label className="admin-label" htmlFor="reply-subject">
           Subject
