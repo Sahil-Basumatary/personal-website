@@ -7,7 +7,10 @@ import {
   serializeJsonLd,
 } from '@/lib/seo/structured-data';
 import { SITE, SITE_URL } from '@/lib/site';
+import { ServiceWorkerCleanup } from './service-worker-cleanup';
 import './globals.css';
+
+const isProduction = process.env.NODE_ENV === 'production';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -88,7 +91,14 @@ export default function RootLayout({
             __html: serializeJsonLd(buildStructuredData()),
           }}
         />
-        <SerwistProvider swUrl="/serwist/sw.js">{children}</SerwistProvider>
+        {isProduction ? (
+          <SerwistProvider swUrl="/serwist/sw.js">{children}</SerwistProvider>
+        ) : (
+          <>
+            <ServiceWorkerCleanup />
+            {children}
+          </>
+        )}
         {/* Injects its script client-side, so strict-dynamic nonce propagation
             covers it without threading a per-request nonce. */}
         <SpeedInsights />
