@@ -12,6 +12,8 @@ import './globals.css';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {

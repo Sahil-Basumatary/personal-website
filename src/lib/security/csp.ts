@@ -20,12 +20,15 @@ export function buildContentSecurityPolicy(nonce: string): string {
       isDev ? " 'unsafe-eval'" : ''
     }`,
     // Next and Tailwind inject inline styles; nonced styles are impractical here.
-    `style-src 'self' 'unsafe-inline'`,
+    // jsdelivr: Monaco streams its editor stylesheet from the CDN.
+    `style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net`,
     `img-src 'self' data: blob: https://img.clerk.com`,
-    `font-src 'self'`,
+    // data: covers Monaco's inlined codicon icon font.
+    `font-src 'self' data:`,
     `worker-src 'self' blob:`,
     // ws: covers the dev HMR socket; Clerk FAPI + telemetry for auth.
-    `connect-src 'self' https://*.clerk.accounts.dev https://clerk.sahilbzy.com https://clerk-telemetry.com${
+    // jsdelivr: Pyodide (code-playground) fetches its wasm runtime and packages.
+    `connect-src 'self' https://*.clerk.accounts.dev https://clerk.sahilbzy.com https://clerk-telemetry.com https://cdn.jsdelivr.net${
       isDev ? ' ws:' : ''
     }`,
     // The Browser app is a deliberate embedder of arbitrary external sites.
