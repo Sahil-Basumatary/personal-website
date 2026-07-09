@@ -17,7 +17,7 @@ export default clerkMiddleware(async (auth, request) => {
         new URL('/404', request.url),
         { status: 404 }
       );
-      notFoundResponse.headers.set('Content-Security-Policy-Report-Only', csp);
+      notFoundResponse.headers.set('Content-Security-Policy', csp);
       return notFoundResponse;
     }
   }
@@ -25,12 +25,11 @@ export default clerkMiddleware(async (auth, request) => {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-nonce', nonce);
   // Next reads the nonce from the enforced-name CSP request header to thread it
-  // into framework scripts and force dynamic rendering. The browser only ever
-  // receives the Report-Only variant below, so nothing is blocked yet.
+  // into framework scripts and force dynamic rendering.
   requestHeaders.set('Content-Security-Policy', csp);
 
   const response = NextResponse.next({ request: { headers: requestHeaders } });
-  response.headers.set('Content-Security-Policy-Report-Only', csp);
+  response.headers.set('Content-Security-Policy', csp);
   return response;
 });
 

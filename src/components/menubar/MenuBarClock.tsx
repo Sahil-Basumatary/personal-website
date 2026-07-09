@@ -31,7 +31,11 @@ export function MenuBarClock() {
   }, [now]);
 
   return (
-    <span className="menubar-clock" title={formatDate(now)}>
+    <span
+      className="menubar-clock"
+      title={formatDate(now)}
+      suppressHydrationWarning
+    >
       {formatTime(now)}
     </span>
   );
