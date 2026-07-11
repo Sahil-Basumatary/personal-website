@@ -71,7 +71,7 @@ There is no sign-up/sign-in element on the portfolio.
 
 Requirements:
 
-- Node.js 22
+- Node.js 24 (`engines.node` is `24.x`; Vercel and local tools should follow that)
 - pnpm 10
 - A Neon database for database-backed routes
 - Clerk, Resend and Sentry credentials for their respective integrations
@@ -79,6 +79,7 @@ Requirements:
 ```bash
 git clone https://github.com/Sahil-Basumatary/personal-website.git
 cd personal-website
+nvm use   # or any Node 24 install matching .nvmrc
 pnpm install
 cp .env.example .env.local
 pnpm dev
