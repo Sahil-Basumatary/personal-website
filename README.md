@@ -1,4 +1,4 @@
-# Sahil's Computer
+# My Personal Website/portfolio
 
 [sahilbzy.com](https://www.sahilbzy.com) is my portfolio rebuilt as a working Mac OS 9 desktop.
 
@@ -41,7 +41,7 @@ There are also a few terminal commands, shortcuts and desktop interactions that 
 
 ## My Architecture decisions
 
-### First report and then enforce
+### Security
 
 The Content Security Policy was deployed in Report-Only mode before enforcement. I tested the desktop, Monaco, Pyodide, Clerk and Sentry against the production build, fixed the violations, then turned on blocking.
 
@@ -51,7 +51,7 @@ The final policy uses a fresh nonce and `strict-dynamic`. For this personal port
 
 The site records page views and app launches in its own Postgres database. I use daily salted hash for visitor counting and not raw IP addresses. Vercel Speed Insights for Web Vitals, while Sentry handles errors and traces.
 
-### The admin is private
+### Private Admin
 
 There is no sign-up/sign-in element on the portfolio.
 
