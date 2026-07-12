@@ -1,6 +1,7 @@
 'use client';
 import { useCallback } from 'react';
 import { Window } from './Window';
+import { WindowErrorBoundary } from './WindowErrorBoundary';
 import { useWindowStore } from '@/stores/window-store';
 import { useWindowDrag } from '@/hooks/use-window-drag';
 import { useWindowResize } from '@/hooks/use-window-resize';
@@ -82,7 +83,15 @@ function ManagedWindow({ windowId, children }: ManagedWindowProps) {
           <Window.TitleBar.Title>{win.title}</Window.TitleBar.Title>
         </Window.TitleBar>
       </div>
-      <Window.Content>{children}</Window.Content>
+      <Window.Content>
+        <WindowErrorBoundary
+          windowId={windowId}
+          windowTitle={win.title}
+          onClose={handleClose}
+        >
+          {children}
+        </WindowErrorBoundary>
+      </Window.Content>
       <Window.ResizeHandle onResizeStart={onResizeStart} />
     </Window>
   );

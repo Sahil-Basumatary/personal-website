@@ -18,3 +18,6 @@ export { ManagedWindow } from './ManagedWindow';
 export type { ManagedWindowProps } from './ManagedWindow';
 export { WindowManager } from './WindowManager';
 export type { WindowManagerProps } from './WindowManager';
+export { WindowErrorBoundary } from './WindowErrorBoundary';
+export { WindowCrashRecovery } from './WindowCrashRecovery';
+export type { WindowCrashRecoveryProps } from './WindowCrashRecovery';

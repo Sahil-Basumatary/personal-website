@@ -79,4 +79,24 @@ describe('ManagedWindow', () => {
     );
     expect(container).toBeEmptyDOMElement();
   });
+
+  it('contains a crashed app without tearing down the chrome', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    function Boom(): never {
+      throw new Error('app boom');
+    }
+    const id = openTestWindow();
+    render(
+      <ManagedWindow windowId={id}>
+        <Boom />
+      </ManagedWindow>
+    );
+    expect(screen.getByText('Terminal')).toBeInTheDocument();
+    expect(
+      screen.getByRole('alertdialog', {
+        name: /Terminal.*unexpectedly quit/i,
+      })
+    ).toBeInTheDocument();
+    expect(useWindowStore.getState().windows[id]).toBeDefined();
+  });
 });
