@@ -28,6 +28,26 @@ export default defineConfig({
         'src/**/index.ts',
         'src/app/**/layout.tsx',
       ],
+      thresholds: {
+        'src/lib/content/map-portfolio.ts': {
+          statements: 100,
+          branches: 100,
+          functions: 100,
+          lines: 100,
+        },
+        'src/lib/content/build-system-drive.ts': {
+          statements: 100,
+          branches: 100,
+          functions: 100,
+          lines: 100,
+        },
+        'src/lib/content/portfolio-format.ts': {
+          statements: 100,
+          branches: 100,
+          functions: 100,
+          lines: 100,
+        },
+      },
     },
   },
 });

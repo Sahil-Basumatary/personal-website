@@ -2,10 +2,8 @@ import type { FSNode } from '@/types/file-system';
 import type { WindowConfig } from '@/types/window';
 import type { EasterEggOverlay } from '@/lib/easter-eggs';
 import { buildCowsay, FORTUNES, pickRandom } from '@/lib/easter-eggs';
-import {
-  formatTechSummary,
-  type ProjectTechStack,
-} from '@/lib/content/projects';
+import { clipColumn, formatTechTags } from '@/lib/content/portfolio-format';
+import type { PortfolioProjectMeta } from '@/types/portfolio';
 
 export interface OutputLine {
   text: string;
@@ -181,8 +179,10 @@ const projects: Command = {
     const lines: OutputLine[] = [
       accent('Projects'),
       stdout(''),
-      stdout(`  ${'Name'.padEnd(20)} ${'Tech'.padEnd(36)} Status`),
-      stdout(`  ${'─'.repeat(20)} ${'─'.repeat(36)} ${'─'.repeat(8)}`),
+      stdout(
+        `  ${'Name'.padEnd(18)} ${'Summary'.padEnd(42)} ${'Tech'.padEnd(28)}`
+      ),
+      stdout(`  ${'─'.repeat(18)} ${'─'.repeat(42)} ${'─'.repeat(28)}`),
     ];
     for (const entry of entries) {
       if (entry.kind !== 'folder') continue;
@@ -191,11 +191,15 @@ const projects: Command = {
       );
       if (!raw) continue;
       try {
-        const stack = JSON.parse(raw) as ProjectTechStack;
-        const tech = formatTechSummary(stack);
-        const status = stack.status.toUpperCase();
+        const meta = JSON.parse(raw) as PortfolioProjectMeta;
+        if (!Array.isArray(meta.techStack)) {
+          throw new Error('invalid techStack');
+        }
+        const name = clipColumn(meta.title || entry.name, 18);
+        const summary = clipColumn(meta.summary || '—', 42);
+        const tech = clipColumn(formatTechTags(meta.techStack), 28);
         lines.push(
-          stdout(`  ${stack.name.padEnd(20)} ${tech.padEnd(36)} ${status}`)
+          stdout(`  ${name.padEnd(18)} ${summary.padEnd(42)} ${tech}`)
         );
       } catch {
         lines.push(error(`  ${entry.name}: malformed tech-stack.json`));

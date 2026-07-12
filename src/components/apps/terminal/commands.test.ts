@@ -154,7 +154,7 @@ describe('skills and projects', () => {
     expect(text).toContain('TypeScript, Python');
   });
 
-  it('projects lists project rows and flags malformed metadata', () => {
+  it('projects lists summary and tech tags and flags malformed metadata', () => {
     const dirs: Record<string, FSNode[]> = {
       ...DIRS,
       '/Desktop/Projects': [
@@ -167,6 +167,9 @@ describe('skills and projects', () => {
     const out = COMMANDS.projects.execute([], ctx);
     const text = out.map((l) => l.text).join('\n');
     expect(text).toContain('Pioni');
+    expect(text).toContain('Live trading intelligence');
+    expect(text).toContain('Python');
+    expect(text).not.toContain('LIVE');
     expect(out.some((l) => l.type === 'error')).toBe(true);
   });
 });
