@@ -83,7 +83,7 @@ export const BUNDLED_PORTFOLIO: PortfolioContent = {
         'See `tech-stack.json` for the full breakdown.',
       ].join('\n'),
       techStack: ['Python', 'FastAPI', 'PostgreSQL', 'Render'],
-      liveUrl: 'https://pioni.onrender.com',
+      liveUrl: 'https://www.pioni.ai',
       githubUrl: null,
     },
     {

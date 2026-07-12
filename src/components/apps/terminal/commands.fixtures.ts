@@ -24,7 +24,7 @@ export const FILES: Record<string, string> = {
     title: 'Pioni',
     summary: 'Live trading intelligence — reads sentiment before markets move.',
     techStack: ['Python', 'FastAPI', 'PostgreSQL', 'Render'],
-    liveUrl: 'https://pioni.onrender.com',
+    liveUrl: 'https://www.pioni.ai',
     githubUrl: null,
   }),
   '/Desktop/Projects/broken/tech-stack.json': '{ not json',
