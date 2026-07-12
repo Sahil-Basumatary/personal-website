@@ -818,6 +818,49 @@ body {
     height: 100vh;
     overflow: hidden;
   }
+  .connectivity-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-shrink: 0;
+    padding: 4px 10px;
+    background: var(--surface-primary);
+    border-bottom: 1px solid var(--border-shadow);
+    box-shadow: 0 1px 0 var(--border-highlight);
+    font-family: var(--font-system);
+    font-size: 12px;
+    color: var(--text-primary, #000000);
+    z-index: 40;
+  }
+  .connectivity-banner[data-state='offline'] {
+    background: #e6d8a8;
+  }
+  .connectivity-banner[data-state='reconnected'] {
+    background: #c8d8c0;
+  }
+  .connectivity-banner__message {
+    margin: 0;
+  }
+  .connectivity-banner__dismiss,
+  .offline-retry {
+    font-family: var(--font-system);
+    font-size: 12px;
+    padding: 2px 10px;
+    background: var(--surface-primary);
+    border-top: 1px solid var(--border-highlight);
+    border-left: 1px solid var(--border-highlight);
+    border-bottom: 1px solid var(--border-shadow);
+    border-right: 1px solid var(--border-shadow);
+    cursor: pointer;
+  }
+  .connectivity-banner__dismiss:active,
+  .offline-retry:active {
+    border-top-color: var(--border-shadow);
+    border-left-color: var(--border-shadow);
+    border-bottom-color: var(--border-highlight);
+    border-right-color: var(--border-highlight);
+  }
   .os-content {
     flex: 1;
     position: relative;

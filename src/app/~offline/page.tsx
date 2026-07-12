@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { OfflineRetryControls } from '@/components/desktop/OfflineRetryControls';
 
 export const metadata: Metadata = {
   title: 'Offline',
@@ -18,6 +19,7 @@ export default function OfflinePage() {
       <section
         role="alertdialog"
         aria-labelledby="offline-title"
+        aria-describedby="offline-copy"
         style={{
           width: 'min(420px, 100%)',
           background: '#cccccc',
@@ -62,10 +64,14 @@ export default function OfflinePage() {
           >
             You are offline
           </h1>
-          <p style={{ fontSize: 13, lineHeight: 1.4, margin: 0 }}>
+          <p
+            id="offline-copy"
+            style={{ fontSize: 13, lineHeight: 1.4, margin: 0 }}
+          >
             This page could not be loaded because there is no network
             connection. Reconnect and try again.
           </p>
+          <OfflineRetryControls />
         </div>
       </section>
     </main>

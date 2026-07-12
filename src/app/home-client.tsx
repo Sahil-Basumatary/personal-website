@@ -10,7 +10,10 @@ import { EasterEggLayer } from '@/components/easter-eggs';
 import { useKonamiCode } from '@/hooks/use-konami-code';
 import { useSyncFileSystemRoot } from '@/hooks/use-sync-file-system-root';
 import { trackPageView } from '@/lib/analytics/client';
+import { writePortfolioCache } from '@/lib/content/portfolio-cache';
+import { ConnectivityBanner } from '@/components/desktop/ConnectivityBanner';
 import type { FolderNode } from '@/types/file-system';
+import type { PortfolioContent } from '@/types/portfolio';
 
 function AppLoading() {
   return <div className="app-loading">Loading...</div>;
@@ -118,9 +121,10 @@ function renderContent(
 
 interface HomeClientProps {
   root: FolderNode;
+  content: PortfolioContent;
 }
 
-export function HomeClient({ root }: HomeClientProps) {
+export function HomeClient({ root, content }: HomeClientProps) {
   useSyncFileSystemRoot(root);
   useKeyboardShortcuts();
   useKonamiCode();
@@ -129,9 +133,18 @@ export function HomeClient({ root }: HomeClientProps) {
     trackPageView();
   }, []);
 
+  useEffect(() => {
+    try {
+      writePortfolioCache(window.localStorage, content);
+    } catch {
+      // Private mode / quota failures should not break the desktop.
+    }
+  }, [content]);
+
   return (
     <div className="os-shell">
       <MenuBar />
+      <ConnectivityBanner />
       <main className="os-content">
         <Desktop />
         <WindowManager renderContent={renderContent} />

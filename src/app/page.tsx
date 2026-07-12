@@ -4,5 +4,5 @@ import { HomeClient } from './home-client';
 
 export default async function Home() {
   const { content } = await loadPortfolioContent();
-  return <HomeClient root={buildSystemDrive(content)} />;
+  return <HomeClient root={buildSystemDrive(content)} content={content} />;
 }
