@@ -35,3 +35,5 @@ export type {
   DialogActionsProps,
   DialogCloseProps,
 } from './Dialog';
+export { PlatinumLoading } from './PlatinumLoading';
+export type { PlatinumLoadingProps } from './PlatinumLoading';

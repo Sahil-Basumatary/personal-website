@@ -5,6 +5,7 @@ import { useWindowStore } from '@/stores/window-store';
 import { openUrl } from '@/lib/open-url';
 import { BOOKMARKS } from '@/lib/content/bookmarks';
 import { useRecentPosts } from '@/hooks/use-recent-posts';
+import { PlatinumLoading } from '@/components/ui';
 
 const SYSTEM_MENU_ID = 'system';
 
@@ -103,17 +104,16 @@ export function SystemMenu() {
             </div>
             <div className="menubar-dropdown system-menu-submenu-panel">
               {isLoading && (
-                <>
-                  <button className="menubar-dropdown-item disabled" disabled>
-                    <span>Loading...</span>
-                  </button>
-                  <button className="menubar-dropdown-item disabled" disabled>
-                    <span>Loading...</span>
-                  </button>
-                  <button className="menubar-dropdown-item disabled" disabled>
-                    <span>Loading...</span>
-                  </button>
-                </>
+                <div
+                  className="menubar-dropdown-item disabled"
+                  role="menuitem"
+                  aria-disabled="true"
+                >
+                  <PlatinumLoading
+                    variant="inline"
+                    label="Loading recent documents…"
+                  />
+                </div>
               )}
               {!isLoading &&
                 posts.map((post) => (

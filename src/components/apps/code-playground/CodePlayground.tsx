@@ -6,12 +6,13 @@ import type { BeforeMount, OnMount, Monaco } from '@monaco-editor/react';
 import type { editor } from 'monaco-editor';
 import { OutputPanel, type OutputLine } from './OutputPanel';
 import { DEFAULT_CODE, SNIPPETS, type Language } from './snippets';
+import { PlatinumLoading } from '@/components/ui';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
   ssr: false,
   loading: () => (
     <div className="playground">
-      <div className="playground-editor-loading">Loading editor…</div>
+      <PlatinumLoading label="Loading editor…" />
     </div>
   ),
 });

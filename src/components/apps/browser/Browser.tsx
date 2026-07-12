@@ -4,6 +4,7 @@ import { useState, useCallback, useRef } from 'react';
 import { Toolbar } from './Toolbar';
 import { Bookmarks } from './Bookmarks';
 import { BOOKMARKS, type BrowserBookmark } from '@/lib/content/bookmarks';
+import { PlatinumLoading } from '@/components/ui';
 
 const HOME_URL = 'about:home';
 
@@ -148,9 +149,7 @@ export function Browser({ initialUrl }: BrowserProps = {}) {
           />
         )}
         {isLoading && (
-          <div className="browser-loading">
-            <div className="browser-loading-bar" />
-          </div>
+          <PlatinumLoading variant="bar" label={`Loading ${currentUrl}…`} />
         )}
       </div>
       <div className="browser-statusbar">

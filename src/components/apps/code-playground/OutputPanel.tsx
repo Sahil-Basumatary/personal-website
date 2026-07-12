@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { PlatinumLoading } from '@/components/ui';
 
 export interface OutputLine {
   type: 'log' | 'error' | 'warn' | 'info' | 'system';
@@ -36,8 +37,10 @@ export function OutputPanel({ lines, pyodideStatus }: OutputPanelProps) {
         ))}
         {pyodideStatus === 'loading' && lines.length === 0 && (
           <div className="playground-output-loading">
-            <span className="playground-spinner" />
-            Initializing Python runtime…
+            <PlatinumLoading
+              variant="inline"
+              label="Initializing Python runtime…"
+            />
           </div>
         )}
         <div ref={endRef} />

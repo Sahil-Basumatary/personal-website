@@ -12,53 +12,71 @@ import { useSyncFileSystemRoot } from '@/hooks/use-sync-file-system-root';
 import { trackPageView } from '@/lib/analytics/client';
 import { writePortfolioCache } from '@/lib/content/portfolio-cache';
 import { ConnectivityBanner } from '@/components/desktop/ConnectivityBanner';
+import { PlatinumLoading } from '@/components/ui';
 import type { FolderNode } from '@/types/file-system';
 import type { PortfolioContent } from '@/types/portfolio';
-
-function AppLoading() {
-  return <div className="app-loading">Loading...</div>;
-}
 
 const Terminal = dynamic(
   () =>
     import('@/components/apps/terminal/Terminal').then((mod) => mod.Terminal),
-  { ssr: false, loading: AppLoading }
+  {
+    ssr: false,
+    loading: () => <PlatinumLoading label="Opening Terminal…" />,
+  }
 );
 const FileExplorer = dynamic(
   () =>
     import('@/components/apps/file-explorer/FileExplorer').then(
       (mod) => mod.FileExplorer
     ),
-  { ssr: false, loading: AppLoading }
+  {
+    ssr: false,
+    loading: () => <PlatinumLoading label="Opening Finder…" />,
+  }
 );
 const TextEditor = dynamic(
   () =>
     import('@/components/apps/text-editor/TextEditor').then(
       (mod) => mod.TextEditor
     ),
-  { ssr: false, loading: AppLoading }
+  {
+    ssr: false,
+    loading: () => <PlatinumLoading label="Opening Text Editor…" />,
+  }
 );
 const CodePlayground = dynamic(
   () =>
     import('@/components/apps/code-playground/CodePlayground').then(
       (mod) => mod.CodePlayground
     ),
-  { ssr: false, loading: AppLoading }
+  {
+    ssr: false,
+    loading: () => <PlatinumLoading label="Opening Code Playground…" />,
+  }
 );
 const Browser = dynamic(
   () => import('@/components/apps/browser/Browser').then((mod) => mod.Browser),
-  { ssr: false, loading: AppLoading }
+  {
+    ssr: false,
+    loading: () => <PlatinumLoading label="Opening Browser…" />,
+  }
 );
 const ContactForm = dynamic(
   () => import('@/components/apps/contact').then((mod) => mod.ContactForm),
-  { ssr: false, loading: AppLoading }
+  {
+    ssr: false,
+    loading: () => <PlatinumLoading label="Opening Contact…" />,
+  }
 );
 const Minesweeper = dynamic(
   () =>
     import('@/components/apps/minesweeper/Minesweeper').then(
       (mod) => mod.Minesweeper
     ),
-  { ssr: false, loading: AppLoading }
+  {
+    ssr: false,
+    loading: () => <PlatinumLoading label="Opening Minesweeper…" />,
+  }
 );
 
 function AboutComputerContent() {

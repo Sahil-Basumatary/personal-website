@@ -4,14 +4,13 @@ import { useState, useCallback, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import type { BeforeMount, OnMount } from '@monaco-editor/react';
 import { useFileSystemStore, getExtension } from '@/stores/file-system-store';
+import { PlatinumLoading } from '@/components/ui';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
   ssr: false,
   loading: () => (
     <div className="text-editor">
-      <div className="text-editor-empty">
-        <p className="text-editor-empty-hint">Loading editor…</p>
-      </div>
+      <PlatinumLoading label="Loading editor…" />
     </div>
   ),
 });
