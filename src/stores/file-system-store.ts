@@ -39,6 +39,7 @@ function traverseToNode(root: FolderNode, path: string): FSNode | null {
 
 interface FileSystemState {
   root: FolderNode;
+  hydrateRoot: (root: FolderNode) => void;
   getNode: (path: string) => FSNode | null;
   listDirectory: (path: string) => FSNode[] | null;
   resolvePath: (cwd: string, relative: string) => string;
@@ -48,6 +49,7 @@ interface FileSystemState {
 
 export const useFileSystemStore = create<FileSystemState>()((set, get) => ({
   root: SYSTEM_DRIVE,
+  hydrateRoot: (root) => set({ root }),
   getNode: (path) => traverseToNode(get().root, path),
   listDirectory: (path) => {
     const node = traverseToNode(get().root, path);

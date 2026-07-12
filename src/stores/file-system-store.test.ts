@@ -55,6 +55,12 @@ describe('file system store', () => {
     expect(getFileContent('/Desktop')).toBeNull();
   });
 
+  it('hydrates the root filesystem without cloning', () => {
+    const nextRoot = structuredClone(SYSTEM_DRIVE) as typeof SYSTEM_DRIVE;
+    useFileSystemStore.getState().hydrateRoot(nextRoot);
+    expect(useFileSystemStore.getState().root).toBe(nextRoot);
+  });
+
   it('replaces folder children immutably', () => {
     const note: FileNode = { name: 'note.txt', kind: 'file', content: 'hi' };
     const ok = useFileSystemStore

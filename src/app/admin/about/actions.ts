@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { db } from '@/db';
 import { aboutContent } from '@/db/schema';
 import { requireAdmin } from '@/lib/auth/require-admin';
+import { revalidatePortfolio } from '@/lib/content/revalidate-portfolio';
 
 const MAX_ABOUT_LENGTH = 20000;
 
@@ -55,6 +56,7 @@ export async function updateAboutContent(
   }
 
   revalidatePath('/admin/about');
+  revalidatePortfolio();
 
   return { status: 'success', message: 'About content saved.' };
 }

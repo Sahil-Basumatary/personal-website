@@ -11,6 +11,7 @@ import {
   formSuccess,
 } from '@/app/admin/_lib/form-state';
 import { requireAdmin } from '@/lib/auth/require-admin';
+import { revalidatePortfolio } from '@/lib/content/revalidate-portfolio';
 
 const skillSchema = z.object({
   name: z.string().trim().min(1).max(120),
@@ -52,6 +53,7 @@ export async function createSkill(
   });
 
   revalidatePath('/admin/skills');
+  revalidatePortfolio();
 
   return formSuccess('Skill created.');
 }
@@ -77,6 +79,7 @@ export async function updateSkill(
   await db.update(skills).set(parsed.data).where(eq(skills.id, id.data));
 
   revalidatePath('/admin/skills');
+  revalidatePortfolio();
 
   return formSuccess('Skill updated.');
 }
@@ -88,6 +91,7 @@ export async function deleteSkill(formData: FormData): Promise<void> {
 
   await db.delete(skills).where(eq(skills.id, id));
   revalidatePath('/admin/skills');
+  revalidatePortfolio();
 }
 
 export async function reorderSkill(formData: FormData): Promise<void> {
@@ -118,4 +122,5 @@ export async function reorderSkill(formData: FormData): Promise<void> {
     .where(eq(skills.id, target.id));
 
   revalidatePath('/admin/skills');
+  revalidatePortfolio();
 }

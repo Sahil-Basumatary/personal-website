@@ -11,6 +11,7 @@ import {
   formSuccess,
 } from '@/app/admin/_lib/form-state';
 import { requireAdmin } from '@/lib/auth/require-admin';
+import { revalidatePortfolio } from '@/lib/content/revalidate-portfolio';
 
 const optionalUrl = z
   .string()
@@ -100,6 +101,7 @@ export async function createProject(
   });
 
   revalidatePath('/admin/projects');
+  revalidatePortfolio();
 
   return formSuccess('Project created.');
 }
@@ -132,6 +134,7 @@ export async function updateProject(
     .where(eq(projects.id, id.data));
 
   revalidatePath('/admin/projects');
+  revalidatePortfolio();
 
   return formSuccess('Project updated.');
 }
@@ -143,6 +146,7 @@ export async function deleteProject(formData: FormData): Promise<void> {
 
   await db.delete(projects).where(eq(projects.id, id));
   revalidatePath('/admin/projects');
+  revalidatePortfolio();
 }
 
 export async function reorderProject(formData: FormData): Promise<void> {
@@ -173,4 +177,5 @@ export async function reorderProject(formData: FormData): Promise<void> {
     .where(eq(projects.id, target.id));
 
   revalidatePath('/admin/projects');
+  revalidatePortfolio();
 }
