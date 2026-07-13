@@ -1,3 +1,5 @@
+import { AdminConfirmForm } from '@/app/admin/_components/AdminConfirmForm';
+import { AdminPendingForm } from '@/app/admin/_components/AdminPendingForm';
 import { deleteSkill, reorderSkill } from './actions';
 import { getSkills } from './queries';
 import { SkillForm } from './skill-form';
@@ -53,37 +55,34 @@ export default async function AdminSkillsPage() {
                     </div>
                   </div>
                   <div className="admin-resource__actions">
-                    <form action={reorderSkill}>
+                    <AdminPendingForm
+                      action={reorderSkill}
+                      label="Up"
+                      pendingLabel="…"
+                      className="admin-link-button"
+                      disabled={index === 0}
+                    >
                       <input type="hidden" name="id" value={skill.id} />
                       <input type="hidden" name="direction" value="up" />
-                      <button
-                        type="submit"
-                        className="admin-link-button"
-                        disabled={index === 0}
-                      >
-                        Up
-                      </button>
-                    </form>
-                    <form action={reorderSkill}>
+                    </AdminPendingForm>
+                    <AdminPendingForm
+                      action={reorderSkill}
+                      label="Down"
+                      pendingLabel="…"
+                      className="admin-link-button"
+                      disabled={index === skillList.length - 1}
+                    >
                       <input type="hidden" name="id" value={skill.id} />
                       <input type="hidden" name="direction" value="down" />
-                      <button
-                        type="submit"
-                        className="admin-link-button"
-                        disabled={index === skillList.length - 1}
-                      >
-                        Down
-                      </button>
-                    </form>
-                    <form action={deleteSkill}>
+                    </AdminPendingForm>
+                    <AdminConfirmForm
+                      action={deleteSkill}
+                      itemName={skill.name}
+                      label="Delete"
+                      className="admin-link-button admin-link-button--danger"
+                    >
                       <input type="hidden" name="id" value={skill.id} />
-                      <button
-                        type="submit"
-                        className="admin-link-button admin-link-button--danger"
-                      >
-                        Delete
-                      </button>
-                    </form>
+                    </AdminConfirmForm>
                   </div>
                 </div>
                 <details className="admin-resource__details">

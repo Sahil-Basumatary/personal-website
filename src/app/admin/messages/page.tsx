@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { AdminConfirmForm } from '@/app/admin/_components/AdminConfirmForm';
+import { AdminPendingForm } from '@/app/admin/_components/AdminPendingForm';
 import { deleteContactSubmission, markContactSubmissionRead } from './actions';
 import { getContactSubmissions } from './queries';
 
@@ -61,22 +63,23 @@ export default async function AdminMessagesPage() {
                 </Link>
                 <div className="admin-resource__actions">
                   {!submission.read ? (
-                    <form action={markContactSubmissionRead}>
-                      <input type="hidden" name="id" value={submission.id} />
-                      <button type="submit" className="admin-link-button">
-                        Mark read
-                      </button>
-                    </form>
-                  ) : null}
-                  <form action={deleteContactSubmission}>
-                    <input type="hidden" name="id" value={submission.id} />
-                    <button
-                      type="submit"
-                      className="admin-link-button admin-link-button--danger"
+                    <AdminPendingForm
+                      action={markContactSubmissionRead}
+                      label="Mark read"
+                      pendingLabel="Saving…"
+                      className="admin-link-button"
                     >
-                      Delete
-                    </button>
-                  </form>
+                      <input type="hidden" name="id" value={submission.id} />
+                    </AdminPendingForm>
+                  ) : null}
+                  <AdminConfirmForm
+                    action={deleteContactSubmission}
+                    itemName={submission.subject}
+                    label="Delete"
+                    className="admin-link-button admin-link-button--danger"
+                  >
+                    <input type="hidden" name="id" value={submission.id} />
+                  </AdminConfirmForm>
                 </div>
               </article>
             ))}

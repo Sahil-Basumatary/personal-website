@@ -489,6 +489,17 @@
   color: #9a3324;
 }
 
+.admin-confirm-form {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.admin-confirm-form .admin-feedback {
+  max-width: 220px;
+}
+
 .admin-resource__details {
   padding-top: 4px;
 }

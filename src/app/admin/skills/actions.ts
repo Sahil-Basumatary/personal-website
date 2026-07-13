@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { db } from '@/db';
 import { skills } from '@/db/schema';
+import { ACTION_FAILURE_MESSAGE } from '@/app/admin/_lib/action-errors';
 import {
   type AdminFormState,
   formError,
@@ -41,21 +42,25 @@ export async function createSkill(
 ): Promise<AdminFormState> {
   await requireAdmin();
 
-  const parsed = parseSkill(formData);
+  try {
+    const parsed = parseSkill(formData);
 
-  if (!parsed.success) {
-    return formError('Check the skill fields and try again.');
+    if (!parsed.success) {
+      return formError('Check the skill fields and try again.');
+    }
+
+    await db.insert(skills).values({
+      ...parsed.data,
+      order: await getNextSkillOrder(),
+    });
+
+    revalidatePath('/admin/skills');
+    revalidatePortfolio();
+
+    return formSuccess('Skill created.');
+  } catch {
+    return formError(ACTION_FAILURE_MESSAGE);
   }
-
-  await db.insert(skills).values({
-    ...parsed.data,
-    order: await getNextSkillOrder(),
-  });
-
-  revalidatePath('/admin/skills');
-  revalidatePortfolio();
-
-  return formSuccess('Skill created.');
 }
 
 export async function updateSkill(
@@ -64,63 +69,85 @@ export async function updateSkill(
 ): Promise<AdminFormState> {
   await requireAdmin();
 
-  const id = idSchema.safeParse(formData.get('id'));
+  try {
+    const id = idSchema.safeParse(formData.get('id'));
 
-  if (!id.success) {
-    return formError('Invalid skill id.');
+    if (!id.success) {
+      return formError('Invalid skill id.');
+    }
+
+    const parsed = parseSkill(formData);
+
+    if (!parsed.success) {
+      return formError('Check the skill fields and try again.');
+    }
+
+    await db.update(skills).set(parsed.data).where(eq(skills.id, id.data));
+
+    revalidatePath('/admin/skills');
+    revalidatePortfolio();
+
+    return formSuccess('Skill updated.');
+  } catch {
+    return formError(ACTION_FAILURE_MESSAGE);
   }
-
-  const parsed = parseSkill(formData);
-
-  if (!parsed.success) {
-    return formError('Check the skill fields and try again.');
-  }
-
-  await db.update(skills).set(parsed.data).where(eq(skills.id, id.data));
-
-  revalidatePath('/admin/skills');
-  revalidatePortfolio();
-
-  return formSuccess('Skill updated.');
 }
 
-export async function deleteSkill(formData: FormData): Promise<void> {
+export async function deleteSkill(formData: FormData): Promise<AdminFormState> {
   await requireAdmin();
 
-  const id = idSchema.parse(formData.get('id'));
+  try {
+    const id = idSchema.safeParse(formData.get('id'));
+    if (!id.success) {
+      return formError('Invalid skill id.');
+    }
 
-  await db.delete(skills).where(eq(skills.id, id));
-  revalidatePath('/admin/skills');
-  revalidatePortfolio();
+    await db.delete(skills).where(eq(skills.id, id.data));
+    revalidatePath('/admin/skills');
+    revalidatePortfolio();
+
+    return formSuccess('Skill deleted.');
+  } catch {
+    return formError(ACTION_FAILURE_MESSAGE);
+  }
 }
 
 export async function reorderSkill(formData: FormData): Promise<void> {
   await requireAdmin();
 
-  const id = idSchema.parse(formData.get('id'));
-  const direction = directionSchema.parse(formData.get('direction'));
-  const ordered = await db
-    .select({ id: skills.id, order: skills.order })
-    .from(skills)
-    .orderBy(asc(skills.order), asc(skills.name));
-  const currentIndex = ordered.findIndex((skill) => skill.id === id);
-  const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-  const current = ordered[currentIndex];
-  const target = ordered[targetIndex];
+  try {
+    const id = idSchema.safeParse(formData.get('id'));
+    const direction = directionSchema.safeParse(formData.get('direction'));
+    if (!id.success || !direction.success) {
+      return;
+    }
 
-  if (!current || !target) {
-    return;
+    const ordered = await db
+      .select({ id: skills.id, order: skills.order })
+      .from(skills)
+      .orderBy(asc(skills.order), asc(skills.name));
+    const currentIndex = ordered.findIndex((skill) => skill.id === id.data);
+    const targetIndex =
+      direction.data === 'up' ? currentIndex - 1 : currentIndex + 1;
+    const current = ordered[currentIndex];
+    const target = ordered[targetIndex];
+
+    if (!current || !target) {
+      return;
+    }
+
+    await db
+      .update(skills)
+      .set({ order: target.order })
+      .where(eq(skills.id, current.id));
+    await db
+      .update(skills)
+      .set({ order: current.order })
+      .where(eq(skills.id, target.id));
+
+    revalidatePath('/admin/skills');
+    revalidatePortfolio();
+  } catch {
+    // Keep the list usable; the next refresh shows the last known order.
   }
-
-  await db
-    .update(skills)
-    .set({ order: target.order })
-    .where(eq(skills.id, current.id));
-  await db
-    .update(skills)
-    .set({ order: current.order })
-    .where(eq(skills.id, target.id));
-
-  revalidatePath('/admin/skills');
-  revalidatePortfolio();
 }

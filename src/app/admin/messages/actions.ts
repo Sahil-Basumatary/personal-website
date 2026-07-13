@@ -2,10 +2,10 @@
 
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { db } from '@/db';
 import { contactSubmissions } from '@/db/schema';
+import { ACTION_FAILURE_MESSAGE } from '@/app/admin/_lib/action-errors';
 import {
   type AdminFormState,
   formError,
@@ -23,14 +23,24 @@ const replySchema = z.object({
 
 export async function deleteContactSubmission(
   formData: FormData
-): Promise<void> {
+): Promise<AdminFormState> {
   await requireAdmin();
 
-  const id = idSchema.parse(formData.get('id'));
+  try {
+    const id = idSchema.safeParse(formData.get('id'));
+    if (!id.success) {
+      return formError('Invalid message id.');
+    }
 
-  await db.delete(contactSubmissions).where(eq(contactSubmissions.id, id));
-  revalidatePath('/admin/messages');
-  redirect('/admin/messages');
+    await db
+      .delete(contactSubmissions)
+      .where(eq(contactSubmissions.id, id.data));
+    revalidatePath('/admin/messages');
+
+    return formSuccess('Message deleted.');
+  } catch {
+    return formError(ACTION_FAILURE_MESSAGE);
+  }
 }
 
 export async function markContactSubmissionRead(
@@ -38,14 +48,21 @@ export async function markContactSubmissionRead(
 ): Promise<void> {
   await requireAdmin();
 
-  const id = idSchema.parse(formData.get('id'));
+  try {
+    const id = idSchema.safeParse(formData.get('id'));
+    if (!id.success) {
+      return;
+    }
 
-  await db
-    .update(contactSubmissions)
-    .set({ read: true })
-    .where(eq(contactSubmissions.id, id));
-  revalidatePath('/admin/messages');
-  revalidatePath(`/admin/messages/${id}`);
+    await db
+      .update(contactSubmissions)
+      .set({ read: true })
+      .where(eq(contactSubmissions.id, id.data));
+    revalidatePath('/admin/messages');
+    revalidatePath(`/admin/messages/${id.data}`);
+  } catch {
+    // Leave the row unread so the operator can retry.
+  }
 }
 
 export async function sendReply(

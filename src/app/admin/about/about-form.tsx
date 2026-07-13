@@ -2,9 +2,11 @@
 
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { type AboutFormState, updateAboutContent } from './actions';
-
-const initialState: AboutFormState = { status: 'idle', message: '' };
+import {
+  idleFormState,
+  type AdminFormState,
+} from '@/app/admin/_lib/form-state';
+import { updateAboutContent } from './actions';
 
 function SaveButton() {
   const { pending } = useFormStatus();
@@ -21,7 +23,10 @@ interface AboutFormProps {
 }
 
 export function AboutForm({ initialContent }: AboutFormProps) {
-  const [state, formAction] = useActionState(updateAboutContent, initialState);
+  const [state, formAction] = useActionState<AdminFormState, FormData>(
+    updateAboutContent,
+    idleFormState
+  );
 
   return (
     <form action={formAction} className="admin-form">

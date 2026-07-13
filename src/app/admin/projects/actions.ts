@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { db } from '@/db';
 import { projects } from '@/db/schema';
+import { ACTION_FAILURE_MESSAGE } from '@/app/admin/_lib/action-errors';
 import {
   type AdminFormState,
   formError,
@@ -85,25 +86,29 @@ export async function createProject(
 ): Promise<AdminFormState> {
   await requireAdmin();
 
-  const parsed = parseProject(formData);
+  try {
+    const parsed = parseProject(formData);
 
-  if (!parsed.success) {
-    return formError('Check the project fields and try again.');
+    if (!parsed.success) {
+      return formError('Check the project fields and try again.');
+    }
+
+    if (await isSlugTaken(parsed.data.slug)) {
+      return formError('That project slug is already in use.');
+    }
+
+    await db.insert(projects).values({
+      ...parsed.data,
+      order: await getNextProjectOrder(),
+    });
+
+    revalidatePath('/admin/projects');
+    revalidatePortfolio();
+
+    return formSuccess('Project created.');
+  } catch {
+    return formError(ACTION_FAILURE_MESSAGE);
   }
-
-  if (await isSlugTaken(parsed.data.slug)) {
-    return formError('That project slug is already in use.');
-  }
-
-  await db.insert(projects).values({
-    ...parsed.data,
-    order: await getNextProjectOrder(),
-  });
-
-  revalidatePath('/admin/projects');
-  revalidatePortfolio();
-
-  return formSuccess('Project created.');
 }
 
 export async function updateProject(
@@ -112,70 +117,94 @@ export async function updateProject(
 ): Promise<AdminFormState> {
   await requireAdmin();
 
-  const id = idSchema.safeParse(formData.get('id'));
+  try {
+    const id = idSchema.safeParse(formData.get('id'));
 
-  if (!id.success) {
-    return formError('Invalid project id.');
+    if (!id.success) {
+      return formError('Invalid project id.');
+    }
+
+    const parsed = parseProject(formData);
+
+    if (!parsed.success) {
+      return formError('Check the project fields and try again.');
+    }
+
+    if (await isSlugTaken(parsed.data.slug, id.data)) {
+      return formError('That project slug is already in use.');
+    }
+
+    await db
+      .update(projects)
+      .set({ ...parsed.data, updatedAt: new Date() })
+      .where(eq(projects.id, id.data));
+
+    revalidatePath('/admin/projects');
+    revalidatePortfolio();
+
+    return formSuccess('Project updated.');
+  } catch {
+    return formError(ACTION_FAILURE_MESSAGE);
   }
-
-  const parsed = parseProject(formData);
-
-  if (!parsed.success) {
-    return formError('Check the project fields and try again.');
-  }
-
-  if (await isSlugTaken(parsed.data.slug, id.data)) {
-    return formError('That project slug is already in use.');
-  }
-
-  await db
-    .update(projects)
-    .set({ ...parsed.data, updatedAt: new Date() })
-    .where(eq(projects.id, id.data));
-
-  revalidatePath('/admin/projects');
-  revalidatePortfolio();
-
-  return formSuccess('Project updated.');
 }
 
-export async function deleteProject(formData: FormData): Promise<void> {
+export async function deleteProject(
+  formData: FormData
+): Promise<AdminFormState> {
   await requireAdmin();
 
-  const id = idSchema.parse(formData.get('id'));
+  try {
+    const id = idSchema.safeParse(formData.get('id'));
+    if (!id.success) {
+      return formError('Invalid project id.');
+    }
 
-  await db.delete(projects).where(eq(projects.id, id));
-  revalidatePath('/admin/projects');
-  revalidatePortfolio();
+    await db.delete(projects).where(eq(projects.id, id.data));
+    revalidatePath('/admin/projects');
+    revalidatePortfolio();
+
+    return formSuccess('Project deleted.');
+  } catch {
+    return formError(ACTION_FAILURE_MESSAGE);
+  }
 }
 
 export async function reorderProject(formData: FormData): Promise<void> {
   await requireAdmin();
 
-  const id = idSchema.parse(formData.get('id'));
-  const direction = directionSchema.parse(formData.get('direction'));
-  const ordered = await db
-    .select({ id: projects.id, order: projects.order })
-    .from(projects)
-    .orderBy(asc(projects.order), asc(projects.createdAt));
-  const currentIndex = ordered.findIndex((project) => project.id === id);
-  const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-  const current = ordered[currentIndex];
-  const target = ordered[targetIndex];
+  try {
+    const id = idSchema.safeParse(formData.get('id'));
+    const direction = directionSchema.safeParse(formData.get('direction'));
+    if (!id.success || !direction.success) {
+      return;
+    }
 
-  if (!current || !target) {
-    return;
+    const ordered = await db
+      .select({ id: projects.id, order: projects.order })
+      .from(projects)
+      .orderBy(asc(projects.order), asc(projects.createdAt));
+    const currentIndex = ordered.findIndex((project) => project.id === id.data);
+    const targetIndex =
+      direction.data === 'up' ? currentIndex - 1 : currentIndex + 1;
+    const current = ordered[currentIndex];
+    const target = ordered[targetIndex];
+
+    if (!current || !target) {
+      return;
+    }
+
+    await db
+      .update(projects)
+      .set({ order: target.order, updatedAt: new Date() })
+      .where(eq(projects.id, current.id));
+    await db
+      .update(projects)
+      .set({ order: current.order, updatedAt: new Date() })
+      .where(eq(projects.id, target.id));
+
+    revalidatePath('/admin/projects');
+    revalidatePortfolio();
+  } catch {
+    // Keep the list usable; the next refresh shows the last known order.
   }
-
-  await db
-    .update(projects)
-    .set({ order: target.order, updatedAt: new Date() })
-    .where(eq(projects.id, current.id));
-  await db
-    .update(projects)
-    .set({ order: current.order, updatedAt: new Date() })
-    .where(eq(projects.id, target.id));
-
-  revalidatePath('/admin/projects');
-  revalidatePortfolio();
 }

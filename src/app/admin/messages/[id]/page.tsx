@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { AdminConfirmForm } from '@/app/admin/_components/AdminConfirmForm';
 import { deleteContactSubmission } from '../actions';
 import { getContactSubmission } from '../queries';
 import { ReplyForm } from '../reply-form';
@@ -41,15 +42,15 @@ export default async function AdminMessageDetailPage({
           <Link className="admin-sidebar__site-link" href="/admin/messages">
             Back to inbox
           </Link>
-          <form action={deleteContactSubmission}>
+          <AdminConfirmForm
+            action={deleteContactSubmission}
+            itemName={submission.subject}
+            label="Delete message"
+            className="admin-link-button admin-link-button--danger"
+            redirectTo="/admin/messages"
+          >
             <input type="hidden" name="id" value={submission.id} />
-            <button
-              type="submit"
-              className="admin-link-button admin-link-button--danger"
-            >
-              Delete message
-            </button>
-          </form>
+          </AdminConfirmForm>
         </div>
       </section>
 

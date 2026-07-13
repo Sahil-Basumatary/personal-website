@@ -1,3 +1,5 @@
+import { AdminConfirmForm } from '@/app/admin/_components/AdminConfirmForm';
+import { AdminPendingForm } from '@/app/admin/_components/AdminPendingForm';
 import { deleteProject, reorderProject } from './actions';
 import { ProjectForm } from './project-form';
 import { getProjects } from './queries';
@@ -51,37 +53,34 @@ export default async function AdminProjectsPage() {
                     <p>{project.summary}</p>
                   </div>
                   <div className="admin-resource__actions">
-                    <form action={reorderProject}>
+                    <AdminPendingForm
+                      action={reorderProject}
+                      label="Up"
+                      pendingLabel="…"
+                      className="admin-link-button"
+                      disabled={index === 0}
+                    >
                       <input type="hidden" name="id" value={project.id} />
                       <input type="hidden" name="direction" value="up" />
-                      <button
-                        type="submit"
-                        className="admin-link-button"
-                        disabled={index === 0}
-                      >
-                        Up
-                      </button>
-                    </form>
-                    <form action={reorderProject}>
+                    </AdminPendingForm>
+                    <AdminPendingForm
+                      action={reorderProject}
+                      label="Down"
+                      pendingLabel="…"
+                      className="admin-link-button"
+                      disabled={index === projectList.length - 1}
+                    >
                       <input type="hidden" name="id" value={project.id} />
                       <input type="hidden" name="direction" value="down" />
-                      <button
-                        type="submit"
-                        className="admin-link-button"
-                        disabled={index === projectList.length - 1}
-                      >
-                        Down
-                      </button>
-                    </form>
-                    <form action={deleteProject}>
+                    </AdminPendingForm>
+                    <AdminConfirmForm
+                      action={deleteProject}
+                      itemName={project.title}
+                      label="Delete"
+                      className="admin-link-button admin-link-button--danger"
+                    >
                       <input type="hidden" name="id" value={project.id} />
-                      <button
-                        type="submit"
-                        className="admin-link-button admin-link-button--danger"
-                      >
-                        Delete
-                      </button>
-                    </form>
+                    </AdminConfirmForm>
                   </div>
                 </div>
                 <details className="admin-resource__details">
