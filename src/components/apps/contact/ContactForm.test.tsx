@@ -71,4 +71,21 @@ describe('ContactForm', () => {
     await user.click(screen.getByRole('button', { name: 'Clear' }));
     expect(name).toHaveValue('');
   });
+
+  it('shows inline errors, a summary, and focuses the first invalid field', async () => {
+    const user = userEvent.setup();
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    render(<ContactForm />);
+    await user.click(screen.getByRole('button', { name: 'Send' }));
+
+    expect(
+      screen.getByText(
+        /The message could not be sent because of the following problems/
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByText('Please add your name.')).toBeInTheDocument();
+    expect(screen.getByLabelText('Name')).toHaveFocus();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
 });

@@ -1,16 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Button, Input, Dialog } from '@/components/ui';
+import {
+  CONTACT_FIELD_ORDER,
+  FIELD_LIMITS,
+  validateContactFields,
+  type ContactField,
+  type ContactSubmission,
+} from '@/lib/contact-validation';
 
-interface ContactFormState {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-}
-
-const EMPTY_FORM: ContactFormState = {
+const EMPTY_FORM: ContactSubmission = {
   name: '',
   email: '',
   subject: '',
@@ -33,28 +33,72 @@ const GENERIC_ERROR =
 const NETWORK_ERROR =
   "Couldn't reach the server. Check your connection and try again.";
 
+const FIELD_LABELS: Record<ContactField, string> = {
+  name: 'Name',
+  email: 'Email',
+  subject: 'Subject',
+  message: 'Message',
+};
+
 export function ContactForm() {
-  const [form, setForm] = useState<ContactFormState>(EMPTY_FORM);
+  const [form, setForm] = useState<ContactSubmission>(EMPTY_FORM);
+  const [fieldErrors, setFieldErrors] = useState<
+    Partial<Record<ContactField, string>>
+  >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dialog, setDialog] = useState<DialogState>({ kind: 'closed' });
+  const nameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const subjectRef = useRef<HTMLInputElement>(null);
+  const messageRef = useRef<HTMLTextAreaElement>(null);
 
-  function update<K extends keyof ContactFormState>(
-    key: K,
-    value: ContactFormState[K]
-  ) {
+  const fieldRefs: Record<
+    ContactField,
+    React.RefObject<HTMLInputElement | HTMLTextAreaElement | null>
+  > = {
+    name: nameRef,
+    email: emailRef,
+    subject: subjectRef,
+    message: messageRef,
+  };
+
+  function update<K extends ContactField>(key: K, value: ContactSubmission[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
+    setFieldErrors((prev) => {
+      if (!prev[key]) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  }
+
+  function focusFirstInvalid(
+    fields: Partial<Record<ContactField, string>>
+  ): void {
+    const first = CONTACT_FIELD_ORDER.find((field) => fields[field]);
+    if (!first) return;
+    fieldRefs[first].current?.focus();
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (isSubmitting) return;
+
+    const validation = validateContactFields(form);
+    if (!validation.ok) {
+      setFieldErrors(validation.fields);
+      focusFirstInvalid(validation.fields);
+      return;
+    }
+
+    setFieldErrors({});
     setIsSubmitting(true);
 
     try {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify(validation.data),
       });
 
       let data: ContactApiResponse | null = null;
@@ -82,6 +126,7 @@ export function ContactForm() {
 
   function handleReset() {
     setForm(EMPTY_FORM);
+    setFieldErrors({});
   }
 
   function closeDialog() {
@@ -89,6 +134,10 @@ export function ContactForm() {
   }
 
   const dialogIsOpen = dialog.kind !== 'closed';
+  const issues = CONTACT_FIELD_ORDER.flatMap((field) => {
+    const message = fieldErrors[field];
+    return message ? [{ field, message }] : [];
+  });
 
   return (
     <div className="contact-form">
@@ -97,71 +146,151 @@ export function ContactForm() {
         <p className="contact-form-subtitle">Drop a note. I read everything.</p>
       </header>
       <form className="contact-form-fields" onSubmit={handleSubmit} noValidate>
-        <label className="contact-form-row" htmlFor="contact-name">
-          <span className="contact-form-label">Name</span>
-          <Input
-            id="contact-name"
-            name="name"
-            type="text"
-            autoComplete="name"
-            value={form.name}
-            onChange={(e) => update('name', e.target.value)}
-            placeholder="Your name"
-            disabled={isSubmitting}
-            maxLength={100}
-            required
-          />
-        </label>
-        <label className="contact-form-row" htmlFor="contact-email">
-          <span className="contact-form-label">Email</span>
-          <Input
-            id="contact-email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            autoCapitalize="none"
-            autoCorrect="off"
-            spellCheck={false}
-            value={form.email}
-            onChange={(e) => update('email', e.target.value)}
-            placeholder="you@example.com"
-            disabled={isSubmitting}
-            maxLength={254}
-            required
-          />
-        </label>
-        <label className="contact-form-row" htmlFor="contact-subject">
-          <span className="contact-form-label">Subject</span>
-          <Input
-            id="contact-subject"
-            name="subject"
-            type="text"
-            value={form.subject}
-            onChange={(e) => update('subject', e.target.value)}
-            placeholder="What's this about?"
-            disabled={isSubmitting}
-            maxLength={160}
-            required
-          />
-        </label>
-        <label
-          className="contact-form-row contact-form-row-stack"
-          htmlFor="contact-message"
-        >
-          <span className="contact-form-label">Message</span>
-          <textarea
-            id="contact-message"
-            name="message"
-            className="contact-form-textarea"
-            rows={6}
-            value={form.message}
-            onChange={(e) => update('message', e.target.value)}
-            placeholder="Say hi, send me a problem to solve, or just tell me what you're building."
-            disabled={isSubmitting}
-            maxLength={5000}
-            required
-          />
-        </label>
+        {issues.length > 0 ? (
+          <div
+            className="contact-form-summary"
+            role="alert"
+            aria-live="assertive"
+          >
+            <p className="contact-form-summary__title">
+              The message could not be sent because of the following problems:
+            </p>
+            <ul className="contact-form-summary__list">
+              {issues.map(({ field, message }) => (
+                <li key={field}>
+                  <a
+                    href={`#contact-${field}`}
+                    className="contact-form-summary__link"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      fieldRefs[field].current?.focus();
+                    }}
+                  >
+                    {FIELD_LABELS[field]}: {message}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+        <div className="contact-form-row">
+          <label className="contact-form-label" htmlFor="contact-name">
+            Name
+          </label>
+          <div className="contact-form-control">
+            <Input
+              ref={nameRef}
+              id="contact-name"
+              name="name"
+              type="text"
+              autoComplete="name"
+              value={form.name}
+              onChange={(e) => update('name', e.target.value)}
+              placeholder="Your name"
+              disabled={isSubmitting}
+              maxLength={FIELD_LIMITS.name}
+              required
+              aria-invalid={Boolean(fieldErrors.name)}
+              aria-describedby={
+                fieldErrors.name ? 'contact-name-error' : undefined
+              }
+            />
+            {fieldErrors.name ? (
+              <p id="contact-name-error" className="contact-form-error">
+                {fieldErrors.name}
+              </p>
+            ) : null}
+          </div>
+        </div>
+        <div className="contact-form-row">
+          <label className="contact-form-label" htmlFor="contact-email">
+            Email
+          </label>
+          <div className="contact-form-control">
+            <Input
+              ref={emailRef}
+              id="contact-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              value={form.email}
+              onChange={(e) => update('email', e.target.value)}
+              placeholder="you@example.com"
+              disabled={isSubmitting}
+              maxLength={FIELD_LIMITS.email}
+              required
+              aria-invalid={Boolean(fieldErrors.email)}
+              aria-describedby={
+                fieldErrors.email ? 'contact-email-error' : undefined
+              }
+            />
+            {fieldErrors.email ? (
+              <p id="contact-email-error" className="contact-form-error">
+                {fieldErrors.email}
+              </p>
+            ) : null}
+          </div>
+        </div>
+        <div className="contact-form-row">
+          <label className="contact-form-label" htmlFor="contact-subject">
+            Subject
+          </label>
+          <div className="contact-form-control">
+            <Input
+              ref={subjectRef}
+              id="contact-subject"
+              name="subject"
+              type="text"
+              value={form.subject}
+              onChange={(e) => update('subject', e.target.value)}
+              placeholder="What's this about?"
+              disabled={isSubmitting}
+              maxLength={FIELD_LIMITS.subject}
+              required
+              aria-invalid={Boolean(fieldErrors.subject)}
+              aria-describedby={
+                fieldErrors.subject ? 'contact-subject-error' : undefined
+              }
+            />
+            {fieldErrors.subject ? (
+              <p id="contact-subject-error" className="contact-form-error">
+                {fieldErrors.subject}
+              </p>
+            ) : null}
+          </div>
+        </div>
+        <div className="contact-form-row contact-form-row-stack">
+          <label className="contact-form-label" htmlFor="contact-message">
+            Message
+          </label>
+          <div className="contact-form-control">
+            <textarea
+              ref={messageRef}
+              id="contact-message"
+              name="message"
+              className="contact-form-textarea"
+              rows={6}
+              value={form.message}
+              onChange={(e) => update('message', e.target.value)}
+              placeholder="Say hi, send me a problem to solve, or just tell me what you're building."
+              disabled={isSubmitting}
+              maxLength={FIELD_LIMITS.message}
+              required
+              aria-invalid={Boolean(fieldErrors.message)}
+              aria-describedby={
+                fieldErrors.message ? 'contact-message-error' : undefined
+              }
+            />
+            {fieldErrors.message ? (
+              <p id="contact-message-error" className="contact-form-error">
+                {fieldErrors.message}
+              </p>
+            ) : null}
+          </div>
+        </div>
         <div className="contact-form-actions">
           <Button
             type="button"

@@ -1,6 +1,10 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { validateContact, FIELD_LIMITS } from './contact-validation';
+import {
+  validateContact,
+  validateContactFields,
+  FIELD_LIMITS,
+} from './contact-validation';
 
 function validInput(overrides: Record<string, unknown> = {}) {
   return {
@@ -80,5 +84,26 @@ describe('validateContact', () => {
   it('ignores non-string fields by treating them as empty', () => {
     const result = validateContact(validInput({ name: 123 }));
     expect(result.ok).toBe(false);
+  });
+});
+
+describe('validateContactFields', () => {
+  it('returns every invalid field in document order', () => {
+    const result = validateContactFields({
+      name: '',
+      email: 'bad',
+      subject: '',
+      message: '',
+    });
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues.map((issue) => issue.field)).toEqual([
+      'name',
+      'email',
+      'subject',
+      'message',
+    ]);
+    expect(result.fields.name).toBe('Please add your name.');
+    expect(result.fields.email).toBe('That email looks invalid.');
   });
 });
