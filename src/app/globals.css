@@ -2141,6 +2141,31 @@ body {
     color: var(--border-shadow);
     font-size: 11px;
   }
+  .finder-missing {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    padding: 24px;
+    text-align: center;
+  }
+  .finder-missing__title {
+    margin: 0;
+    font-family: var(--font-system);
+    font-size: 13px;
+    font-weight: normal;
+  }
+  .finder-missing__hint {
+    margin: 0;
+    max-width: 280px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--border-shadow);
+  }
   .finder-grid {
     display: flex;
     flex-wrap: wrap;
@@ -2304,6 +2329,77 @@ body {
     font-size: 11px;
     color: var(--border-shadow);
     margin: 0;
+  }
+  .browser-nav-btn--external {
+    width: auto;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+  .browser-embed-recovery {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    padding: 24px;
+    text-align: center;
+    background: var(--surface-primary);
+  }
+  .browser-embed-recovery__title {
+    margin: 0;
+    font-family: var(--font-system);
+    font-size: 14px;
+    font-weight: normal;
+  }
+  .browser-embed-recovery__copy {
+    margin: 0;
+    max-width: 320px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--color-text);
+  }
+  .browser-embed-recovery__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .unknown-application {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    min-height: 120px;
+    padding: 16px 18px;
+    background: var(--surface-primary);
+    font-family: var(--font-body);
+    overflow: auto;
+  }
+  .unknown-application__copy {
+    flex: 1;
+    min-width: 0;
+  }
+  .unknown-application__title {
+    margin: 0 0 8px 0;
+    font-family: var(--font-system);
+    font-size: 13px;
+    font-weight: normal;
+  }
+  .unknown-application__description {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .unknown-application__actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
   }
   .browser-statusbar {
     display: flex;

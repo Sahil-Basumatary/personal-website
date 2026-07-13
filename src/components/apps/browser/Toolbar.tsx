@@ -10,8 +10,10 @@ interface ToolbarProps {
   onForward: () => void;
   onRefresh: () => void;
   onHome: () => void;
+  onOpenExternal: () => void;
   canGoBack: boolean;
   canGoForward: boolean;
+  canOpenExternal: boolean;
   isLoading: boolean;
 }
 
@@ -23,8 +25,10 @@ export function Toolbar({
   onForward,
   onRefresh,
   onHome,
+  onOpenExternal,
   canGoBack,
   canGoForward,
+  canOpenExternal,
   isLoading,
 }: ToolbarProps) {
   const handleKeyDown = useCallback(
@@ -66,6 +70,14 @@ export function Toolbar({
         </button>
         <button className="browser-nav-btn" onClick={onHome} title="Home">
           ⌂
+        </button>
+        <button
+          className="browser-nav-btn browser-nav-btn--external"
+          onClick={onOpenExternal}
+          disabled={!canOpenExternal}
+          title="Open Externally"
+        >
+          Open Externally
         </button>
       </div>
       <input

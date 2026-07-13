@@ -13,6 +13,7 @@ import { trackPageView } from '@/lib/analytics/client';
 import { writePortfolioCache } from '@/lib/content/portfolio-cache';
 import { ConnectivityBanner } from '@/components/desktop/ConnectivityBanner';
 import { PlatinumLoading } from '@/components/ui';
+import { UnknownApplication } from '@/components/system/UnknownApplication';
 import type { FolderNode } from '@/types/file-system';
 import type { PortfolioContent } from '@/types/portfolio';
 
@@ -111,7 +112,7 @@ function AboutComputerContent() {
 }
 
 function renderContent(
-  _windowId: string,
+  windowId: string,
   component: string,
   props?: Record<string, unknown>
 ) {
@@ -123,6 +124,7 @@ function renderContent(
     case 'file-explorer':
       return <FileExplorer initialPath={props?.initialPath as string} />;
     case 'text-editor':
+    case 'notepad':
       return <TextEditor filePath={props?.filePath as string} />;
     case 'code-playground':
       return <CodePlayground />;
@@ -133,7 +135,7 @@ function renderContent(
     case 'minesweeper':
       return <Minesweeper />;
     default:
-      return <div style={{ padding: 16, fontSize: 12 }}>{component}</div>;
+      return <UnknownApplication windowId={windowId} component={component} />;
   }
 }
 

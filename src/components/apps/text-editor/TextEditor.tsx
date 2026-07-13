@@ -129,11 +129,24 @@ export function TextEditor({ filePath }: TextEditorProps) {
   if (!filePath) {
     return (
       <div className="text-editor">
-        <div className="text-editor-empty">
-          <p className="text-editor-empty-title">SimpleText</p>
-          <p className="text-editor-empty-hint">
-            Open a file from Finder to view its contents.
-          </p>
+        <div className="text-editor-body">
+          <MonacoEditor
+            value=""
+            language="plaintext"
+            theme="platinum"
+            beforeMount={handleBeforeMount}
+            onMount={handleMount}
+            options={EDITOR_OPTIONS}
+          />
+        </div>
+        <div className="text-editor-statusbar">
+          <span className="text-editor-statusbar-left">
+            untitled — Ln {cursor.line}, Col {cursor.col}
+          </span>
+          <div className="text-editor-statusbar-right">
+            <span>plaintext</span>
+            <span className="text-editor-badge">Read-Only</span>
+          </div>
         </div>
       </div>
     );
@@ -143,7 +156,9 @@ export function TextEditor({ filePath }: TextEditorProps) {
     return (
       <div className="text-editor">
         <div className="text-editor-empty">
-          <p className="text-editor-empty-title">File Not Found</p>
+          <p className="text-editor-empty-title">
+            The document could not be found.
+          </p>
           <p className="text-editor-empty-hint">{filePath}</p>
         </div>
       </div>

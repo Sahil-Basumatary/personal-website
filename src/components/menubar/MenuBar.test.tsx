@@ -51,6 +51,9 @@ describe('MenuBar', () => {
     render(<MenuBar />);
     await user.click(screen.getByRole('menuitem', { name: 'File' }));
     await user.click(screen.getByRole('menuitem', { name: /New Window/ }));
-    expect(Object.keys(useWindowStore.getState().windows)).toHaveLength(1);
+    const windows = Object.values(useWindowStore.getState().windows);
+    expect(windows).toHaveLength(1);
+    expect(windows[0]?.title).toBe('untitled');
+    expect(windows[0]?.component).toBe('text-editor');
   });
 });

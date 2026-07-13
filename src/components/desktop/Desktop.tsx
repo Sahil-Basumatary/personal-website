@@ -7,6 +7,7 @@ import { DesktopIcon } from './DesktopIcon';
 import { DesktopWallpaper } from './DesktopWallpaper';
 import type { DesktopIconData } from '@/types/desktop';
 import { useBlogPostsFolderBootstrap } from '@/hooks/use-recent-posts';
+import { openUntitledDocument } from '@/lib/window-titles';
 
 export function Desktop() {
   useBlogPostsFolderBootstrap();
@@ -16,6 +17,7 @@ export function Desktop() {
   const clearSelection = useDesktopStore((s) => s.clearSelection);
   const wallpaper = useDesktopStore((s) => s.wallpaper);
   const openWindow = useWindowStore((s) => s.openWindow);
+  const windows = useWindowStore((s) => s.windows);
 
   const handleOpenIcon = useCallback(
     (icon: DesktopIconData) => {
@@ -58,7 +60,10 @@ export function Desktop() {
       <ContextMenu.Content>
         <ContextMenu.Item
           onSelect={() =>
-            openWindow({ title: 'Untitled', component: 'notepad' })
+            openUntitledDocument(
+              openWindow,
+              Object.values(windows).map((win) => win.title)
+            )
           }
         >
           New Window

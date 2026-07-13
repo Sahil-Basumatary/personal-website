@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Toolbar } from './Toolbar';
 import { Bookmarks } from './Bookmarks';
 import { BOOKMARKS, type BrowserBookmark } from '@/lib/content/bookmarks';
 import { PlatinumLoading } from '@/components/ui';
+import { BROWSER_EMBED_TIMEOUT_MS, openExternalUrl } from '@/lib/open-external';
 
 const HOME_URL = 'about:home';
 
@@ -12,6 +13,8 @@ interface NavState {
   entries: string[];
   index: number;
 }
+
+type EmbedStatus = 'idle' | 'loading' | 'ready' | 'timed-out';
 
 function normalizeUrl(raw: string): string {
   if (raw === HOME_URL) return raw;
@@ -21,9 +24,13 @@ function normalizeUrl(raw: string): string {
 
 interface BrowserProps {
   initialUrl?: string;
+  embedTimeoutMs?: number;
 }
 
-export function Browser({ initialUrl }: BrowserProps = {}) {
+export function Browser({
+  initialUrl,
+  embedTimeoutMs = BROWSER_EMBED_TIMEOUT_MS,
+}: BrowserProps = {}) {
   const seededUrl = initialUrl ? normalizeUrl(initialUrl) : null;
   const [nav, setNav] = useState<NavState>(() =>
     seededUrl
@@ -31,18 +38,46 @@ export function Browser({ initialUrl }: BrowserProps = {}) {
       : { entries: [HOME_URL], index: 0 }
   );
   const [inputValue, setInputValue] = useState(seededUrl ?? '');
-  const [isLoading, setIsLoading] = useState(seededUrl !== null);
+  const [embedStatus, setEmbedStatus] = useState<EmbedStatus>(
+    seededUrl ? 'loading' : 'idle'
+  );
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const loadGeneration = useRef(0);
 
   const currentUrl = nav.entries[nav.index];
   const isHome = currentUrl === HOME_URL;
   const canGoBack = nav.index > 0;
   const canGoForward = nav.index < nav.entries.length - 1;
+  const isLoading = embedStatus === 'loading';
+  const timedOut = embedStatus === 'timed-out';
 
-  const syncUi = useCallback((url: string) => {
-    setInputValue(url === HOME_URL ? '' : url);
-    setIsLoading(url !== HOME_URL);
+  const beginLoad = useCallback(() => {
+    loadGeneration.current += 1;
+    setEmbedStatus('loading');
   }, []);
+
+  const syncUi = useCallback(
+    (url: string) => {
+      setInputValue(url === HOME_URL ? '' : url);
+      if (url === HOME_URL) {
+        loadGeneration.current += 1;
+        setEmbedStatus('idle');
+        return;
+      }
+      beginLoad();
+    },
+    [beginLoad]
+  );
+
+  useEffect(() => {
+    if (embedStatus !== 'loading' || isHome) return;
+    const generation = loadGeneration.current;
+    const timer = window.setTimeout(() => {
+      if (loadGeneration.current !== generation) return;
+      setEmbedStatus('timed-out');
+    }, embedTimeoutMs);
+    return () => window.clearTimeout(timer);
+  }, [embedStatus, isHome, currentUrl, embedTimeoutMs]);
 
   const navigateTo = useCallback(
     (raw: string) => {
@@ -80,7 +115,7 @@ export function Browser({ initialUrl }: BrowserProps = {}) {
 
   const handleRefresh = useCallback(() => {
     if (isHome) return;
-    setIsLoading(true);
+    beginLoad();
     const iframe = iframeRef.current;
     if (iframe) {
       const src = iframe.src;
@@ -89,7 +124,7 @@ export function Browser({ initialUrl }: BrowserProps = {}) {
         iframe.src = src;
       });
     }
-  }, [isHome]);
+  }, [isHome, beginLoad]);
 
   const handleHome = useCallback(() => {
     navigateTo(HOME_URL);
@@ -110,8 +145,13 @@ export function Browser({ initialUrl }: BrowserProps = {}) {
   );
 
   const handleIframeLoad = useCallback(() => {
-    setIsLoading(false);
+    setEmbedStatus((status) => (status === 'timed-out' ? status : 'ready'));
   }, []);
+
+  const handleOpenExternal = useCallback(() => {
+    if (isHome) return;
+    openExternalUrl(currentUrl);
+  }, [isHome, currentUrl]);
 
   return (
     <div className="browser">
@@ -123,8 +163,10 @@ export function Browser({ initialUrl }: BrowserProps = {}) {
         onForward={handleForward}
         onRefresh={handleRefresh}
         onHome={handleHome}
+        onOpenExternal={handleOpenExternal}
         canGoBack={canGoBack}
         canGoForward={canGoForward}
+        canOpenExternal={!isHome}
         isLoading={isLoading}
       />
       <Bookmarks bookmarks={BOOKMARKS} onClick={handleBookmarkClick} />
@@ -135,6 +177,43 @@ export function Browser({ initialUrl }: BrowserProps = {}) {
             <p className="browser-home-subtitle">
               Type a URL or choose a bookmark
             </p>
+          </div>
+        ) : timedOut ? (
+          <div
+            className="browser-embed-recovery"
+            role="status"
+            aria-live="polite"
+          >
+            <h2 className="browser-embed-recovery__title">
+              This page could not be shown here.
+            </h2>
+            <p className="browser-embed-recovery__copy">
+              The site took too long to load in Browser, or it blocks embedding.
+              Open it in your system browser, or try loading it again.
+            </p>
+            <div className="browser-embed-recovery__actions">
+              <button
+                type="button"
+                className="btn primary"
+                onClick={handleOpenExternal}
+              >
+                Open Externally
+              </button>
+              <button
+                type="button"
+                className="btn secondary"
+                onClick={handleRefresh}
+              >
+                Try Again
+              </button>
+              <button
+                type="button"
+                className="btn secondary"
+                onClick={handleHome}
+              >
+                Home
+              </button>
+            </div>
           </div>
         ) : (
           <iframe
@@ -154,7 +233,13 @@ export function Browser({ initialUrl }: BrowserProps = {}) {
       </div>
       <div className="browser-statusbar">
         <span className="browser-statusbar-text">
-          {isLoading ? `Loading ${currentUrl}…` : isHome ? 'Home' : currentUrl}
+          {isLoading
+            ? `Loading ${currentUrl}…`
+            : timedOut
+              ? 'Embed unavailable'
+              : isHome
+                ? 'Home'
+                : currentUrl}
         </span>
       </div>
     </div>

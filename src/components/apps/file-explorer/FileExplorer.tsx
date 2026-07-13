@@ -27,7 +27,12 @@ export function FileExplorer({ initialPath }: FileExplorerProps) {
   const getNode = useFileSystemStore((s) => s.getNode);
   const openWindow = useWindowStore((s) => s.openWindow);
 
-  const items = listDirectory(currentPath) ?? [];
+  const items = listDirectory(currentPath);
+  const folderMissing = items === null;
+  const folderName =
+    currentPath === '/'
+      ? 'Macintosh HD'
+      : (currentPath.split('/').filter(Boolean).at(-1) ?? currentPath);
 
   const navigateTo = useCallback(
     (path: string) => {
@@ -164,7 +169,24 @@ export function FileExplorer({ initialPath }: FileExplorerProps) {
       <div className="finder-body">
         <Sidebar currentPath={currentPath} onNavigate={navigateTo} />
         <div className="finder-content" onClick={handleContentBgClick}>
-          {viewMode === 'list' ? (
+          {folderMissing ? (
+            <div className="finder-missing" role="status" aria-live="polite">
+              <p className="finder-missing__title">
+                The folder &ldquo;{folderName}&rdquo; could not be found.
+              </p>
+              <p className="finder-missing__hint">
+                It may have been moved, renamed, or thrown away. Open Macintosh
+                HD to continue.
+              </p>
+              <button
+                type="button"
+                className="btn primary"
+                onClick={() => navigateTo('/')}
+              >
+                Open Macintosh HD
+              </button>
+            </div>
+          ) : viewMode === 'list' ? (
             <ListView
               items={items}
               selectedItems={selectedItems}

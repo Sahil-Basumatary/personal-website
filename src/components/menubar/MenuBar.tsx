@@ -12,6 +12,7 @@ import { MenuBarMenu, type MenuItemData } from './MenuBarMenu';
 import { MenuBarClock } from './MenuBarClock';
 import { useWindowStore } from '@/stores/window-store';
 import { useAudioStore } from '@/stores/audio-store';
+import { openUntitledDocument } from '@/lib/window-titles';
 
 interface MenuBarContextValue {
   activeMenuId: string | null;
@@ -68,6 +69,7 @@ export function MenuBar() {
   const cascadeWindows = useWindowStore((s) => s.cascadeWindows);
   const tileWindows = useWindowStore((s) => s.tileWindows);
   const activeWindowId = useWindowStore((s) => s.activeWindowId);
+  const windows = useWindowStore((s) => s.windows);
   const isMuted = useAudioStore((s) => s.isMuted);
   const toggleMute = useAudioStore((s) => s.toggleMute);
 
@@ -100,7 +102,11 @@ export function MenuBar() {
       type: 'item',
       label: 'New Window',
       shortcut: '⌘N',
-      action: () => openWindow({ title: 'Untitled', component: 'notepad' }),
+      action: () =>
+        openUntitledDocument(
+          openWindow,
+          Object.values(windows).map((win) => win.title)
+        ),
     },
     { type: 'divider' },
     {
