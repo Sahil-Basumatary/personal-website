@@ -9,6 +9,7 @@ import type {
 import { trackWindowOpen } from '@/lib/analytics/client';
 import { WINDOW_TITLEBAR_HEIGHT } from '@/lib/content-rect';
 import { readPrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
+import { useAudioStore } from '@/stores/audio-store';
 
 const DEFAULT_SIZE: Size = { width: 400, height: 300 };
 const DEFAULT_MIN_SIZE: Size = { width: 200, height: 100 };
@@ -184,6 +185,7 @@ export const useWindowStore = create<WindowManagerState>()((set, get) => ({
         : null,
     });
     trackWindowOpen(config.component);
+    useAudioStore.getState().playSound('windowOpen');
     return id;
   },
 
@@ -199,6 +201,7 @@ export const useWindowStore = create<WindowManagerState>()((set, get) => ({
       activeWindowId: newActiveId,
       zoomEffect: zoomEffect?.windowId === id ? null : (zoomEffect ?? null),
     });
+    useAudioStore.getState().playSound('windowClose');
   },
 
   requestCloseWindow: (id: string) => {

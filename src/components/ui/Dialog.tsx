@@ -8,6 +8,7 @@ import {
   useRef,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { useAudioStore } from '@/stores/audio-store';
 
 interface DialogContextValue {
   isOpen: boolean;
@@ -94,6 +95,10 @@ function DialogContent({
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, close]);
+  useEffect(() => {
+    if (!isOpen) return;
+    useAudioStore.getState().playSound('alert');
+  }, [isOpen]);
   useEffect(() => {
     if (!isOpen || !dialogRef.current) return;
     const focusable = dialogRef.current.querySelectorAll<HTMLElement>(

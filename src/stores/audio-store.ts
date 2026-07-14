@@ -1,60 +1,55 @@
 import { create } from 'zustand';
+import {
+  DEFAULT_MUTED,
+  FIXED_VOLUME,
+  isCoreSoundName,
+  nextMuted,
+  readAudioMuted,
+  shouldPlaySound,
+  writeAudioMuted,
+  type CoreSoundName,
+} from '@/lib/audio/audio-state';
+import { playCoreSound } from '@/lib/audio/play-core-sound';
 
-export type SoundName =
-  | 'startup'
-  | 'click'
-  | 'alert'
-  | 'windowOpen'
-  | 'windowClose'
-  | 'error'
-  | 'trash';
+export type SoundName = CoreSoundName;
 
 interface AudioState {
   isMuted: boolean;
-  volume: number;
   toggleMute: () => void;
-  setVolume: (volume: number) => void;
   playSound: (sound: SoundName) => void;
 }
 
-const SOUND_PATHS: Record<SoundName, string> = {
-  startup: '/sounds/startup.mp3',
-  click: '/sounds/click.mp3',
-  alert: '/sounds/alert.mp3',
-  windowOpen: '/sounds/window-open.mp3',
-  windowClose: '/sounds/window-close.mp3',
-  error: '/sounds/error.mp3',
-  trash: '/sounds/trash.mp3',
-};
-
-const audioCache = new Map<string, HTMLAudioElement>();
-
-function getCachedAudio(src: string): HTMLAudioElement {
-  let audio = audioCache.get(src);
-  if (!audio) {
-    audio = new Audio(src);
-    audioCache.set(src, audio);
+function readInitialMuted(): boolean {
+  if (typeof window === 'undefined') return DEFAULT_MUTED;
+  try {
+    return readAudioMuted(window.localStorage);
+  } catch {
+    return DEFAULT_MUTED;
   }
-  return audio;
+}
+
+function persistMuted(isMuted: boolean): void {
+  if (typeof window === 'undefined') return;
+  try {
+    writeAudioMuted(window.localStorage, isMuted);
+  } catch {
+    // private mode / quota — preference stays in-memory only
+  }
 }
 
 export const useAudioStore = create<AudioState>()((set, get) => ({
-  isMuted: false,
-  volume: 0.5,
-  toggleMute: () => set((s) => ({ isMuted: !s.isMuted })),
-  setVolume: (volume) => set({ volume: Math.max(0, Math.min(1, volume)) }),
-  playSound: (sound) => {
-    const { isMuted, volume } = get();
-    if (isMuted || typeof window === 'undefined') return;
-    const src = SOUND_PATHS[sound];
-    if (!src) return;
-    try {
-      const audio = getCachedAudio(src);
-      audio.volume = volume;
-      audio.currentTime = 0;
-      audio.play().catch(() => {});
-    } catch {
-      // gracefully handle missing audio files
+  isMuted: readInitialMuted(),
+  toggleMute: () => {
+    const isMuted = nextMuted(get().isMuted);
+    persistMuted(isMuted);
+    set({ isMuted });
+    if (shouldPlaySound(isMuted)) {
+      void playCoreSound('click', FIXED_VOLUME);
     }
+  },
+  playSound: (sound) => {
+    if (!isCoreSoundName(sound)) return;
+    if (!shouldPlaySound(get().isMuted)) return;
+    void playCoreSound(sound, FIXED_VOLUME);
   },
 }));

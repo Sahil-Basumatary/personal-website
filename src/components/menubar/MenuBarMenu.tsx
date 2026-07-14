@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useRef } from 'react';
 import { useMenuBarContext } from './MenuBar';
+import { useAudioStore } from '@/stores/audio-store';
 
 export interface MenuItemData {
   type: 'item' | 'divider';
@@ -38,6 +39,7 @@ export function MenuBarMenu({ id, label, items }: MenuBarMenuProps) {
   const handleItemClick = useCallback(
     (item: MenuItemData) => {
       if (item.disabled) return;
+      useAudioStore.getState().playSound('click');
       item.action?.();
       closeMenu();
     },

@@ -6,6 +6,7 @@ import { openUrl } from '@/lib/open-url';
 import { BOOKMARKS } from '@/lib/content/bookmarks';
 import { useRecentPosts } from '@/hooks/use-recent-posts';
 import { PlatinumLoading } from '@/components/ui';
+import { useAudioStore } from '@/stores/audio-store';
 
 const SYSTEM_MENU_ID = 'system';
 
@@ -44,6 +45,7 @@ export function SystemMenu() {
 
   const handleItemClick = useCallback(
     (action: () => void) => {
+      useAudioStore.getState().playSound('click');
       action();
       closeMenu();
     },
