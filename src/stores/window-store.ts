@@ -7,6 +7,8 @@ import type {
   Size,
 } from '@/types/window';
 import { trackWindowOpen } from '@/lib/analytics/client';
+import { WINDOW_TITLEBAR_HEIGHT } from '@/lib/content-rect';
+import { readPrefersReducedMotion } from '@/hooks/use-prefers-reduced-motion';
 
 const DEFAULT_SIZE: Size = { width: 400, height: 300 };
 const DEFAULT_MIN_SIZE: Size = { width: 200, height: 100 };
@@ -117,14 +119,27 @@ function findTopWindow(
   return topId;
 }
 
+function windowFrameRect(win: WindowState) {
+  return {
+    x: win.position.x,
+    y: win.position.y,
+    width: win.size.width,
+    height: win.isCollapsed ? WINDOW_TITLEBAR_HEIGHT : win.size.height,
+  };
+}
+
 export const useWindowStore = create<WindowManagerState>()((set, get) => ({
   windows: {},
   activeWindowId: null,
   nextZIndex: 1,
+  zoomEffect: null,
 
   openWindow: (config: WindowConfig) => {
     const id = generateId();
-    const { nextZIndex, windows } = get();
+    const { nextZIndex, windows, zoomEffect } = get();
+    if (zoomEffect) {
+      get().completeZoomEffect();
+    }
     const minSize = config.minSize ?? DEFAULT_MIN_SIZE;
     const size = fitSize(config.size ?? DEFAULT_SIZE, minSize);
     const windowCount = Object.keys(windows).length;
@@ -132,6 +147,8 @@ export const useWindowStore = create<WindowManagerState>()((set, get) => ({
       config.position !== undefined
         ? clampPosition(config.position, size)
         : getInitialPosition(windowCount, size);
+    const shouldZoom =
+      Boolean(config.originRect) && !readPrefersReducedMotion();
     const newWindow: WindowState = {
       id,
       title: config.title,
@@ -144,25 +161,94 @@ export const useWindowStore = create<WindowManagerState>()((set, get) => ({
       isMinimized: false,
       isMaximized: false,
       isCollapsed: false,
+      isZoomingOpen: shouldZoom,
+      openOriginRect: config.originRect,
       zIndex: nextZIndex,
     };
     set({
-      windows: { ...windows, [id]: newWindow },
+      windows: { ...get().windows, [id]: newWindow },
       activeWindowId: id,
       nextZIndex: nextZIndex + 1,
+      zoomEffect: shouldZoom
+        ? {
+            windowId: id,
+            phase: 'open',
+            from: config.originRect!,
+            to: {
+              x: position.x,
+              y: position.y,
+              width: size.width,
+              height: size.height,
+            },
+          }
+        : null,
     });
     trackWindowOpen(config.component);
     return id;
   },
 
   closeWindow: (id: string) => {
-    const { windows, activeWindowId } = get();
+    const { windows, activeWindowId, zoomEffect } = get();
     if (!windows[id]) return;
     const remaining = { ...windows };
     delete remaining[id];
     const newActiveId =
       activeWindowId === id ? findTopWindow(remaining) : activeWindowId;
-    set({ windows: remaining, activeWindowId: newActiveId });
+    set({
+      windows: remaining,
+      activeWindowId: newActiveId,
+      zoomEffect: zoomEffect?.windowId === id ? null : (zoomEffect ?? null),
+    });
+  },
+
+  requestCloseWindow: (id: string) => {
+    const { windows, zoomEffect } = get();
+    const win = windows[id];
+    if (!win) return;
+    if (zoomEffect) {
+      get().completeZoomEffect();
+    }
+    const current = get().windows[id];
+    if (!current) return;
+    if (!current.openOriginRect || readPrefersReducedMotion()) {
+      get().closeWindow(id);
+      return;
+    }
+    set({
+      windows: {
+        ...get().windows,
+        [id]: { ...current, isZoomingClose: true },
+      },
+      zoomEffect: {
+        windowId: id,
+        phase: 'close',
+        from: windowFrameRect(current),
+        to: current.openOriginRect,
+      },
+    });
+  },
+
+  completeZoomEffect: () => {
+    const { zoomEffect, windows } = get();
+    if (!zoomEffect) return;
+    if (zoomEffect.phase === 'open') {
+      const win = windows[zoomEffect.windowId];
+      if (!win) {
+        set({ zoomEffect: null });
+        return;
+      }
+      set({
+        windows: {
+          ...windows,
+          [win.id]: { ...win, isZoomingOpen: false },
+        },
+        zoomEffect: null,
+      });
+      return;
+    }
+    const closingId = zoomEffect.windowId;
+    set({ zoomEffect: null });
+    get().closeWindow(closingId);
   },
 
   focusWindow: (id: string) => {

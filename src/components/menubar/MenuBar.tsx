@@ -65,7 +65,7 @@ export function MenuBar() {
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const menuBarRef = useRef<HTMLDivElement>(null);
   const openWindow = useWindowStore((s) => s.openWindow);
-  const closeWindow = useWindowStore((s) => s.closeWindow);
+  const closeWindow = useWindowStore((s) => s.requestCloseWindow);
   const cascadeWindows = useWindowStore((s) => s.cascadeWindows);
   const tileWindows = useWindowStore((s) => s.tileWindows);
   const activeWindowId = useWindowStore((s) => s.activeWindowId);

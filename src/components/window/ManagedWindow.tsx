@@ -15,7 +15,7 @@ function ManagedWindow({ windowId, children }: ManagedWindowProps) {
   const win = useWindowStore((s) => s.windows[windowId]);
   const isActive = useWindowStore((s) => s.activeWindowId === windowId);
   const focusWindow = useWindowStore((s) => s.focusWindow);
-  const closeWindow = useWindowStore((s) => s.closeWindow);
+  const closeWindow = useWindowStore((s) => s.requestCloseWindow);
   const maximizeWindow = useWindowStore((s) => s.maximizeWindow);
   const restoreWindow = useWindowStore((s) => s.restoreWindow);
   const collapseWindow = useWindowStore((s) => s.collapseWindow);
@@ -52,6 +52,7 @@ function ManagedWindow({ windowId, children }: ManagedWindowProps) {
 
   if (!win) return null;
 
+  const isHiddenForZoom = Boolean(win.isZoomingOpen || win.isZoomingClose);
   const windowStyle: React.CSSProperties = {
     position: 'absolute',
     left: win.position.x,
@@ -59,6 +60,8 @@ function ManagedWindow({ windowId, children }: ManagedWindowProps) {
     width: win.size.width,
     zIndex: win.zIndex,
     display: win.isMinimized ? 'none' : undefined,
+    visibility: isHiddenForZoom ? 'hidden' : undefined,
+    pointerEvents: isHiddenForZoom ? 'none' : undefined,
   };
   if (!win.isCollapsed) {
     windowStyle.height = win.size.height;

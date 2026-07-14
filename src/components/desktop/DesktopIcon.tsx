@@ -6,7 +6,7 @@ interface DesktopIconProps {
   icon: DesktopIconData;
   selected: boolean;
   onSelect: (id: string, additive: boolean) => void;
-  onOpen: (icon: DesktopIconData) => void;
+  onOpen: (icon: DesktopIconData, originEl?: HTMLElement | null) => void;
 }
 
 function IconGraphic({ type }: { type: DesktopIconData['iconType'] }) {
@@ -172,6 +172,16 @@ export function DesktopIcon({
   onOpen,
 }: DesktopIconProps) {
   const lastTouchTapRef = useRef(0);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  const originFromRoot = useCallback(() => {
+    const root = rootRef.current;
+    if (!root) return null;
+    return (
+      (root.querySelector('.desktop-icon-image') as HTMLElement | null) ?? root
+    );
+  }, []);
+
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
@@ -185,34 +195,35 @@ export function DesktopIcon({
       if (e.pointerType === 'mouse') return;
       const now = Date.now();
       if (selected && now - lastTouchTapRef.current < 600) {
-        onOpen(icon);
+        onOpen(icon, originFromRoot());
         lastTouchTapRef.current = 0;
         return;
       }
       lastTouchTapRef.current = now;
     },
-    [icon, selected, onOpen]
+    [icon, selected, onOpen, originFromRoot]
   );
 
   const handleDoubleClick = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
-      onOpen(icon);
+      onOpen(icon, originFromRoot());
     },
-    [icon, onOpen]
+    [icon, onOpen, originFromRoot]
   );
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === 'Enter') {
-        onOpen(icon);
+        onOpen(icon, originFromRoot());
       }
     },
-    [icon, onOpen]
+    [icon, onOpen, originFromRoot]
   );
 
   return (
     <div
+      ref={rootRef}
       className={`desktop-icon ${selected ? 'selected' : ''}`}
       onMouseDown={handleMouseDown}
       onPointerUp={handlePointerUp}

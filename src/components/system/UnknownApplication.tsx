@@ -11,7 +11,7 @@ export function UnknownApplication({
   windowId,
   component,
 }: UnknownApplicationProps) {
-  const closeWindow = useWindowStore((s) => s.closeWindow);
+  const closeWindow = useWindowStore((s) => s.requestCloseWindow);
   const titleId = `unknown-app-title-${windowId}`;
   const descriptionId = `unknown-app-description-${windowId}`;
 

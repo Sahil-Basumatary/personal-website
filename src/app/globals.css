@@ -834,6 +834,23 @@ body {
     inset: 0;
     pointer-events: none;
   }
+  .window-zoom-outline {
+    position: absolute;
+    box-sizing: border-box;
+    border: 1px dashed #000000;
+    box-shadow: 0 0 0 1px #ffffff;
+    background: transparent;
+    pointer-events: none;
+    z-index: 10000;
+    transition:
+      left 220ms ease-out,
+      top 220ms ease-out,
+      width 220ms ease-out,
+      height 220ms ease-out;
+  }
+  .window-zoom-outline--close {
+    transition-timing-function: ease-in;
+  }
   .window {
     pointer-events: auto;
   }

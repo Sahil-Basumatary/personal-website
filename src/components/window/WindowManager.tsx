@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { useWindowStore } from '@/stores/window-store';
 import { ManagedWindow } from './ManagedWindow';
+import { WindowZoomOverlay } from './WindowZoomOverlay';
 
 interface WindowManagerProps {
   renderContent?: (
@@ -65,6 +66,7 @@ function WindowManager({ renderContent }: WindowManagerProps) {
           )}
         </ManagedWindow>
       ))}
+      <WindowZoomOverlay />
     </div>
   );
 }

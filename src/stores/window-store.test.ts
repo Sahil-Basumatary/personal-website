@@ -14,6 +14,7 @@ beforeEach(() => {
     windows: {},
     activeWindowId: null,
     nextZIndex: 1,
+    zoomEffect: null,
   });
 });
 
@@ -75,5 +76,47 @@ describe('resize and maximize', () => {
     const after = useWindowStore.getState().windows[id];
     expect(after.isMaximized).toBe(false);
     expect(after.size).toEqual(before);
+  });
+});
+
+describe('window zoom rectangles', () => {
+  it('starts an open zoom when an origin rect is provided', () => {
+    const origin = { x: 10, y: 20, width: 32, height: 32 };
+    const id = useWindowStore.getState().openWindow({
+      title: 'Finder',
+      component: 'file-explorer',
+      originRect: origin,
+    });
+    const state = useWindowStore.getState();
+    expect(state.windows[id].isZoomingOpen).toBe(true);
+    expect(state.windows[id].openOriginRect).toEqual(origin);
+    expect(state.zoomEffect).toMatchObject({
+      windowId: id,
+      phase: 'open',
+      from: origin,
+    });
+    useWindowStore.getState().completeZoomEffect();
+    expect(useWindowStore.getState().windows[id].isZoomingOpen).toBe(false);
+    expect(useWindowStore.getState().zoomEffect).toBeNull();
+  });
+
+  it('zooms back to the origin on close when known', () => {
+    const origin = { x: 12, y: 24, width: 32, height: 32 };
+    const id = useWindowStore.getState().openWindow({
+      title: 'About Me',
+      component: 'text-editor',
+      originRect: origin,
+    });
+    useWindowStore.getState().completeZoomEffect();
+    useWindowStore.getState().requestCloseWindow(id);
+    const state = useWindowStore.getState();
+    expect(state.windows[id].isZoomingClose).toBe(true);
+    expect(state.zoomEffect).toMatchObject({
+      windowId: id,
+      phase: 'close',
+      to: origin,
+    });
+    useWindowStore.getState().completeZoomEffect();
+    expect(useWindowStore.getState().windows[id]).toBeUndefined();
   });
 });

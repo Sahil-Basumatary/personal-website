@@ -7,7 +7,7 @@ interface IconViewProps {
   items: FSNode[];
   selectedItems: Set<string>;
   onSelect: (name: string, additive: boolean) => void;
-  onOpen: (node: FSNode) => void;
+  onOpen: (node: FSNode, originEl?: HTMLElement | null) => void;
 }
 
 function ItemIcon({ kind }: { kind: FSNode['kind'] }) {
@@ -125,7 +125,7 @@ function GridItem({
   node: FSNode;
   selected: boolean;
   onSelect: (name: string, additive: boolean) => void;
-  onOpen: (node: FSNode) => void;
+  onOpen: (node: FSNode, originEl?: HTMLElement | null) => void;
 }) {
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
@@ -138,7 +138,10 @@ function GridItem({
   const handleDoubleClick = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
-      onOpen(node);
+      const root = e.currentTarget as HTMLElement;
+      const origin =
+        (root.querySelector('.finder-grid-icon') as HTMLElement | null) ?? root;
+      onOpen(node, origin);
     },
     [node, onOpen]
   );

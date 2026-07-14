@@ -5,6 +5,7 @@ import { useFileSystemStore } from '@/stores/file-system-store';
 import { useWindowStore } from '@/stores/window-store';
 import type { FSNode } from '@/types/file-system';
 import { openUrl } from '@/lib/open-url';
+import { measureOriginRect } from '@/lib/content-rect';
 import { Sidebar } from './Sidebar';
 import { ListView } from './ListView';
 import { IconView } from './IconView';
@@ -77,9 +78,10 @@ export function FileExplorer({ initialPath }: FileExplorerProps) {
   }, []);
 
   const handleOpen = useCallback(
-    (node: FSNode) => {
+    (node: FSNode, originEl?: HTMLElement | null) => {
       const nodePath =
         currentPath === '/' ? `/${node.name}` : `${currentPath}/${node.name}`;
+      const originRect = measureOriginRect(originEl ?? null);
 
       switch (node.kind) {
         case 'folder':
@@ -90,6 +92,7 @@ export function FileExplorer({ initialPath }: FileExplorerProps) {
             title: node.name,
             component: node.component,
             size: { width: 600, height: 400 },
+            originRect,
           });
           break;
         case 'alias': {
@@ -100,13 +103,18 @@ export function FileExplorer({ initialPath }: FileExplorerProps) {
           const target = getNode(node.target);
           if (target?.kind === 'folder') navigateTo(node.target);
           else if (target?.kind === 'app')
-            openWindow({ title: target.name, component: target.component });
+            openWindow({
+              title: target.name,
+              component: target.component,
+              originRect,
+            });
           else
             openWindow({
               title: node.name,
               component: 'text-editor',
               size: { width: 500, height: 350 },
               props: { filePath: node.target },
+              originRect,
             });
           break;
         }
@@ -116,6 +124,7 @@ export function FileExplorer({ initialPath }: FileExplorerProps) {
             component: 'text-editor',
             size: { width: 500, height: 350 },
             props: { filePath: nodePath },
+            originRect,
           });
           break;
       }

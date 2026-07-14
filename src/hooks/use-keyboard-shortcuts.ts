@@ -23,13 +23,13 @@ export function useKeyboardShortcuts() {
     const handleKeyDown = (e: KeyboardEvent) => {
       const mod = e.metaKey || e.ctrlKey;
       if (!mod) return;
-      const { activeWindowId, closeWindow, minimizeWindow } =
+      const { activeWindowId, requestCloseWindow, minimizeWindow } =
         useWindowStore.getState();
       switch (e.key.toLowerCase()) {
         case 'w': {
           if (!activeWindowId) return;
           e.preventDefault();
-          closeWindow(activeWindowId);
+          requestCloseWindow(activeWindowId);
           break;
         }
         case 'm': {

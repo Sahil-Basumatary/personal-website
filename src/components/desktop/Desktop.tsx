@@ -8,6 +8,7 @@ import { DesktopWallpaper } from './DesktopWallpaper';
 import type { DesktopIconData } from '@/types/desktop';
 import { useBlogPostsFolderBootstrap } from '@/hooks/use-recent-posts';
 import { openUntitledDocument } from '@/lib/window-titles';
+import { measureOriginRect } from '@/lib/content-rect';
 
 export function Desktop() {
   useBlogPostsFolderBootstrap();
@@ -20,12 +21,13 @@ export function Desktop() {
   const windows = useWindowStore((s) => s.windows);
 
   const handleOpenIcon = useCallback(
-    (icon: DesktopIconData) => {
+    (icon: DesktopIconData, originEl?: HTMLElement | null) => {
       openWindow({
         title: icon.windowTitle ?? icon.label,
         component: icon.component,
         size: icon.windowSize,
         props: icon.windowProps,
+        originRect: measureOriginRect(originEl ?? null),
       });
     },
     [openWindow]

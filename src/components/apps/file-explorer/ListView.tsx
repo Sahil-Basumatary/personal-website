@@ -7,7 +7,7 @@ interface ListViewProps {
   items: FSNode[];
   selectedItems: Set<string>;
   onSelect: (name: string, additive: boolean) => void;
-  onOpen: (node: FSNode) => void;
+  onOpen: (node: FSNode, originEl?: HTMLElement | null) => void;
 }
 
 function getKindLabel(node: FSNode): string {
@@ -47,7 +47,7 @@ function ListRow({
   node: FSNode;
   selected: boolean;
   onSelect: (name: string, additive: boolean) => void;
-  onOpen: (node: FSNode) => void;
+  onOpen: (node: FSNode, originEl?: HTMLElement | null) => void;
 }) {
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
@@ -60,14 +60,14 @@ function ListRow({
   const handleDoubleClick = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
-      onOpen(node);
+      onOpen(node, e.currentTarget as HTMLElement);
     },
     [node, onOpen]
   );
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') onOpen(node);
+      if (e.key === 'Enter') onOpen(node, e.currentTarget as HTMLElement);
     },
     [node, onOpen]
   );
