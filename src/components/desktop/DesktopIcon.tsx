@@ -225,6 +225,7 @@ export function DesktopIcon({
     <div
       ref={rootRef}
       className={`desktop-icon ${selected ? 'selected' : ''}`}
+      data-help-anchor={icon.id}
       onMouseDown={handleMouseDown}
       onPointerUp={handlePointerUp}
       onDoubleClick={handleDoubleClick}

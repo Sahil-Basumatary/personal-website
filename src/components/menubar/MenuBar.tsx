@@ -13,6 +13,7 @@ import { MenuBarClock } from './MenuBarClock';
 import { useWindowStore } from '@/stores/window-store';
 import { useAudioStore } from '@/stores/audio-store';
 import { openUntitledDocument } from '@/lib/window-titles';
+import { openHelpCenter } from '@/stores/help-store';
 
 interface MenuBarContextValue {
   activeMenuId: string | null;
@@ -144,6 +145,14 @@ export function MenuBar() {
     { type: 'item', label: 'Tile Windows', action: tileWindows },
   ];
 
+  const helpItems: MenuItemData[] = [
+    {
+      type: 'item',
+      label: 'Help Cards',
+      action: () => openHelpCenter(),
+    },
+  ];
+
   const contextValue: MenuBarContextValue = {
     activeMenuId,
     openMenu,
@@ -160,10 +169,12 @@ export function MenuBar() {
           <MenuBarMenu id="edit" label="Edit" items={editItems} />
           <MenuBarMenu id="view" label="View" items={viewItems} />
           <MenuBarMenu id="special" label="Special" items={specialItems} />
+          <MenuBarMenu id="help" label="Help" items={helpItems} />
         </div>
         <div className="menubar-right">
           <button
             className="menubar-icon-btn"
+            data-help-anchor="menubar-audio"
             onClick={toggleMute}
             aria-label={isMuted ? 'Unmute' : 'Mute'}
           >

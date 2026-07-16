@@ -99,6 +99,7 @@ export function buildSystemDrive(content: PortfolioContent): FolderNode {
       app('Code Playground', 'code-playground'),
       app('Browser', 'browser'),
       app('Minesweeper', 'minesweeper'),
+      app('Help', 'help'),
     ]),
     folder('Trash', []),
     file('README.md', DRIVE_README),

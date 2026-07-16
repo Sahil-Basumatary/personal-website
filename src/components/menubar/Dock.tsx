@@ -33,7 +33,12 @@ export function Dock() {
   );
 
   return (
-    <div className="dock" role="toolbar" aria-label="Dock">
+    <div
+      className="dock"
+      role="toolbar"
+      aria-label="Dock"
+      data-help-anchor="dock"
+    >
       <div className="dock-left">
         {minimizedWindows.map((win) => (
           <button

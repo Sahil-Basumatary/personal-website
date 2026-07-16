@@ -86,6 +86,14 @@ const DEFAULT_ICONS: DesktopIconData[] = [
     windowTitle: 'Browser',
     windowSize: { width: 640, height: 460 },
   },
+  {
+    id: 'help',
+    label: 'Help',
+    iconType: 'app',
+    component: 'help',
+    windowTitle: 'Help',
+    windowSize: { width: 340, height: 440 },
+  },
 ];
 
 export const useDesktopStore = create<DesktopState>()((set) => ({

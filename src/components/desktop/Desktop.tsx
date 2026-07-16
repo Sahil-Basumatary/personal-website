@@ -9,6 +9,7 @@ import type { DesktopIconData } from '@/types/desktop';
 import { useBlogPostsFolderBootstrap } from '@/hooks/use-recent-posts';
 import { openUntitledDocument } from '@/lib/window-titles';
 import { measureOriginRect } from '@/lib/content-rect';
+import { openHelpCenter } from '@/stores/help-store';
 
 export function Desktop() {
   useBlogPostsFolderBootstrap();
@@ -22,6 +23,10 @@ export function Desktop() {
 
   const handleOpenIcon = useCallback(
     (icon: DesktopIconData, originEl?: HTMLElement | null) => {
+      if (icon.component === 'help') {
+        openHelpCenter();
+        return;
+      }
       openWindow({
         title: icon.windowTitle ?? icon.label,
         component: icon.component,
@@ -47,7 +52,11 @@ export function Desktop() {
     <ContextMenu>
       <ContextMenu.Trigger className={`desktop wallpaper-${wallpaper}`}>
         {wallpaper === 'photo' && <DesktopWallpaper />}
-        <div className="desktop-icons" onMouseDown={handleBackgroundClick}>
+        <div
+          className="desktop-icons"
+          data-help-anchor="desktop-icons"
+          onMouseDown={handleBackgroundClick}
+        >
           {icons.map((icon) => (
             <DesktopIcon
               key={icon.id}

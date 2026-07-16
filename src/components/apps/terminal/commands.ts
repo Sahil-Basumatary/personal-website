@@ -3,6 +3,7 @@ import type { WindowConfig } from '@/types/window';
 import type { EasterEggOverlay } from '@/lib/easter-eggs';
 import { buildCowsay, FORTUNES, pickRandom } from '@/lib/easter-eggs';
 import { clipColumn, formatTechTags } from '@/lib/content/portfolio-format';
+import { openHelpCenter } from '@/stores/help-store';
 import type { PortfolioProjectMeta } from '@/types/portfolio';
 
 export interface OutputLine {
@@ -237,6 +238,10 @@ const open: Command = {
         (e) => e.kind === 'app' && e.name.toLowerCase() === name.toLowerCase()
       );
       if (match && match.kind === 'app') {
+        if (match.component === 'help') {
+          openHelpCenter();
+          return [system(`Opened ${match.name}`)];
+        }
         ctx.openWindow({
           title: match.name,
           component: match.component,

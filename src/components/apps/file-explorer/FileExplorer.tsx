@@ -6,6 +6,7 @@ import { useWindowStore } from '@/stores/window-store';
 import type { FSNode } from '@/types/file-system';
 import { openUrl } from '@/lib/open-url';
 import { measureOriginRect } from '@/lib/content-rect';
+import { openHelpCenter } from '@/stores/help-store';
 import { Sidebar } from './Sidebar';
 import { ListView } from './ListView';
 import { IconView } from './IconView';
@@ -88,6 +89,10 @@ export function FileExplorer({ initialPath }: FileExplorerProps) {
           navigateTo(nodePath);
           break;
         case 'app':
+          if (node.component === 'help') {
+            openHelpCenter();
+            break;
+          }
           openWindow({
             title: node.name,
             component: node.component,
@@ -102,13 +107,17 @@ export function FileExplorer({ initialPath }: FileExplorerProps) {
           }
           const target = getNode(node.target);
           if (target?.kind === 'folder') navigateTo(node.target);
-          else if (target?.kind === 'app')
-            openWindow({
-              title: target.name,
-              component: target.component,
-              originRect,
-            });
-          else
+          else if (target?.kind === 'app') {
+            if (target.component === 'help') {
+              openHelpCenter();
+            } else {
+              openWindow({
+                title: target.name,
+                component: target.component,
+                originRect,
+              });
+            }
+          } else
             openWindow({
               title: node.name,
               component: 'text-editor',

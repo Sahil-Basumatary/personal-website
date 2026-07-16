@@ -14,6 +14,7 @@ import { writePortfolioCache } from '@/lib/content/portfolio-cache';
 import { ConnectivityBanner } from '@/components/desktop/ConnectivityBanner';
 import { PlatinumLoading } from '@/components/ui';
 import { UnknownApplication } from '@/components/system/UnknownApplication';
+import { HelpCoach } from '@/components/help/HelpCoach';
 import type { FolderNode } from '@/types/file-system';
 import type { PortfolioContent } from '@/types/portfolio';
 
@@ -165,12 +166,13 @@ export function HomeClient({ root, content }: HomeClientProps) {
     <div className="os-shell">
       <MenuBar />
       <ConnectivityBanner />
-      <main className="os-content">
+      <main className="os-content" data-help-anchor="desktop-stage">
         <Desktop />
         <WindowManager renderContent={renderContent} />
       </main>
       <Dock />
       <EasterEggLayer />
+      <HelpCoach />
     </div>
   );
 }
