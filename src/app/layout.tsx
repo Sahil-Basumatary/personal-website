@@ -75,6 +75,16 @@ function preloadFonts() {
     type: 'font/woff2',
     crossOrigin: 'anonymous',
   });
+  ReactDOM.preload('/fonts/Caveat-Regular.woff2', {
+    as: 'font',
+    type: 'font/woff2',
+    crossOrigin: 'anonymous',
+  });
+  ReactDOM.preload('/fonts/Caveat-Bold.woff2', {
+    as: 'font',
+    type: 'font/woff2',
+    crossOrigin: 'anonymous',
+  });
 }
 
 export default function RootLayout({
