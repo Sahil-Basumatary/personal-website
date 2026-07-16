@@ -8,6 +8,13 @@
       "when": 1781476277383,
       "tag": "0000_graceful_midnight",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1784246263272,
+      "tag": "0001_bouncy_starjammers",
+      "breakpoints": true
     }
   ]
 }

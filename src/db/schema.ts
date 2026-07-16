@@ -48,6 +48,33 @@ export const projects = pgTable(
   ]
 );
 
+export const projectStoryImages = pgTable(
+  'project_story_images',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    projectId: uuid('project_id')
+      .notNull()
+      .references(() => projects.id, { onDelete: 'cascade' }),
+    storageKey: varchar('storage_key', { length: 512 }).notNull(),
+    url: text('url').notNull(),
+    alt: varchar('alt', { length: 240 }).notNull(),
+    caption: text('caption'),
+    order: integer('display_order').default(0).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index('project_story_images_project_order_idx').on(
+      table.projectId,
+      table.order
+    ),
+  ]
+);
+
 export const skills = pgTable(
   'skills',
   {
@@ -126,6 +153,8 @@ export const contactSubmissions = pgTable(
 
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
+export type ProjectStoryImage = typeof projectStoryImages.$inferSelect;
+export type NewProjectStoryImage = typeof projectStoryImages.$inferInsert;
 export type Skill = typeof skills.$inferSelect;
 export type NewSkill = typeof skills.$inferInsert;
 export type AboutContent = typeof aboutContent.$inferSelect;
