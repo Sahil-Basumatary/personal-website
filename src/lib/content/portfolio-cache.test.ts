@@ -21,6 +21,7 @@ const sample: PortfolioContent = {
       techStack: ['TypeScript'],
       liveUrl: null,
       githubUrl: 'https://github.com/example/demo',
+      images: [],
     },
   ],
   skills: { languages: ['TypeScript'] },
@@ -113,6 +114,16 @@ describe('isPortfolioContent', () => {
             githubUrl: null,
           },
         ],
+      })
+    ).toBe(true);
+  });
+
+  it('accepts legacy cache projects that omit images', () => {
+    const { images: _images, ...legacyProject } = sample.projects[0];
+    expect(
+      isPortfolioContent({
+        ...sample,
+        projects: [legacyProject as (typeof sample.projects)[0]],
       })
     ).toBe(true);
   });

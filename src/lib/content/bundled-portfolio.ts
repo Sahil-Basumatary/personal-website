@@ -56,6 +56,7 @@ export const BUNDLED_PORTFOLIO: PortfolioContent = {
       ],
       liveUrl: 'https://blog.sahilbzy.com',
       githubUrl: null,
+      images: [],
     },
     {
       slug: 'pioni',
@@ -85,6 +86,7 @@ export const BUNDLED_PORTFOLIO: PortfolioContent = {
       techStack: ['Python', 'FastAPI', 'PostgreSQL', 'Render'],
       liveUrl: 'https://www.pioni.ai',
       githubUrl: null,
+      images: [],
     },
     {
       slug: 'tennisly',
@@ -114,6 +116,7 @@ export const BUNDLED_PORTFOLIO: PortfolioContent = {
       techStack: ['Java', 'TypeScript', 'React', 'Spring Boot', 'PostgreSQL'],
       liveUrl: null,
       githubUrl: null,
+      images: [],
     },
   ],
   skills: {

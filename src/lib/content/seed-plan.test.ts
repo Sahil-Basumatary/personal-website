@@ -20,6 +20,7 @@ const sample: PortfolioContent = {
       techStack: ['TypeScript'],
       liveUrl: 'https://example.com',
       githubUrl: null,
+      images: [],
     },
     {
       slug: 'beta',
@@ -29,6 +30,7 @@ const sample: PortfolioContent = {
       techStack: ['Python'],
       liveUrl: null,
       githubUrl: 'https://github.com/example/beta',
+      images: [],
     },
   ],
   skills: {

@@ -42,8 +42,44 @@ describe('mapProjectRecord', () => {
       techStack: ['React', 'Neon'],
       liveUrl: 'https://example.com',
       githubUrl: 'https://github.com/example/demo',
+      images: [],
     });
     expect(mapped.techStack).not.toBe(techStack);
+  });
+
+  it('orders and clones story images', () => {
+    const images = [
+      {
+        url: 'https://media.example/b.jpg',
+        alt: 'B',
+        caption: null,
+        order: 2,
+      },
+      {
+        url: 'https://media.example/a.jpg',
+        alt: 'A',
+        caption: 'First',
+        order: 1,
+      },
+    ];
+    const mapped = mapProjectRecord(
+      baseProject({ slug: 'demo', title: 'Demo', images })
+    );
+    expect(mapped.images).toEqual([
+      {
+        url: 'https://media.example/a.jpg',
+        alt: 'A',
+        caption: 'First',
+        order: 1,
+      },
+      {
+        url: 'https://media.example/b.jpg',
+        alt: 'B',
+        caption: null,
+        order: 2,
+      },
+    ]);
+    expect(mapped.images).not.toBe(images);
   });
 });
 

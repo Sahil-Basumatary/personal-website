@@ -1,4 +1,8 @@
-import type { PortfolioContent, PortfolioProject } from '@/types/portfolio';
+import type {
+  PortfolioContent,
+  PortfolioProject,
+  PortfolioStoryImage,
+} from '@/types/portfolio';
 
 export const PORTFOLIO_CACHE_KEY = 'sahilbzy:portfolio:v1';
 
@@ -14,9 +18,37 @@ function isStringArray(value: unknown): value is string[] {
   );
 }
 
+function isPortfolioStoryImage(value: unknown): value is PortfolioStoryImage {
+  if (!value || typeof value !== 'object') return false;
+  const image = value as PortfolioStoryImage;
+  return (
+    typeof image.url === 'string' &&
+    typeof image.alt === 'string' &&
+    (image.caption === null || typeof image.caption === 'string') &&
+    typeof image.order === 'number' &&
+    Number.isFinite(image.order)
+  );
+}
+
+function readProjectImages(project: {
+  images?: unknown;
+}): PortfolioStoryImage[] | null {
+  if (project.images === undefined) return [];
+  if (!Array.isArray(project.images)) return null;
+  if (!project.images.every(isPortfolioStoryImage)) return null;
+  return project.images.map((image) => ({
+    url: image.url,
+    alt: image.alt,
+    caption: image.caption,
+    order: image.order,
+  }));
+}
+
 function isPortfolioProject(value: unknown): value is PortfolioProject {
   if (!value || typeof value !== 'object') return false;
-  const project = value as PortfolioProject;
+  const project = value as PortfolioProject & { images?: unknown };
+  const images = readProjectImages(project);
+  if (images === null) return false;
   return (
     typeof project.slug === 'string' &&
     typeof project.title === 'string' &&
@@ -26,6 +58,19 @@ function isPortfolioProject(value: unknown): value is PortfolioProject {
     (project.liveUrl === null || typeof project.liveUrl === 'string') &&
     (project.githubUrl === null || typeof project.githubUrl === 'string')
   );
+}
+
+function normalizePortfolioContent(
+  content: PortfolioContent
+): PortfolioContent {
+  return {
+    about: content.about,
+    projects: content.projects.map((project) => ({
+      ...project,
+      images: Array.isArray(project.images) ? project.images : [],
+    })),
+    skills: content.skills,
+  };
 }
 
 export function isPortfolioContent(value: unknown): value is PortfolioContent {
@@ -54,7 +99,7 @@ export function parsePortfolioCache(
     return {
       version: 1,
       savedAt: record.savedAt,
-      content: record.content,
+      content: normalizePortfolioContent(record.content),
     };
   } catch {
     return null;
@@ -68,7 +113,7 @@ export function serializePortfolioCache(
   const record: PortfolioCacheRecord = {
     version: 1,
     savedAt,
-    content,
+    content: normalizePortfolioContent(content),
   };
   return JSON.stringify(record);
 }

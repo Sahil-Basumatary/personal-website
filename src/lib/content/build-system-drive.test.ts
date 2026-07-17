@@ -27,10 +27,18 @@ const sampleProject: PortfolioProject = {
   techStack: ['TypeScript', 'Next.js'],
   liveUrl: 'https://example.com',
   githubUrl: 'https://github.com/example/demo',
+  images: [
+    {
+      url: 'https://media.example/demo.jpg',
+      alt: 'Demo shot',
+      caption: null,
+      order: 0,
+    },
+  ],
 };
 
 describe('toProjectMetaFile', () => {
-  it('omits slug and readme from the on-disk meta file', () => {
+  it('omits slug, readme and images from the on-disk meta file', () => {
     expect(toProjectMetaFile(sampleProject)).toEqual({
       title: 'Demo',
       summary: 'Short summary',

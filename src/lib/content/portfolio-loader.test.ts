@@ -18,6 +18,7 @@ const fallback: PortfolioContent = {
       techStack: ['TypeScript'],
       liveUrl: null,
       githubUrl: null,
+      images: [],
     },
   ],
   skills: { languages: ['TypeScript'] },
@@ -33,6 +34,7 @@ const published: ProjectRecord = {
   githubUrl: null,
   status: 'published',
   order: 0,
+  images: [],
 };
 
 const draft: ProjectRecord = {

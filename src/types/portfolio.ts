@@ -1,3 +1,10 @@
+export interface PortfolioStoryImage {
+  url: string;
+  alt: string;
+  caption: string | null;
+  order: number;
+}
+
 export interface PortfolioProject {
   slug: string;
   title: string;
@@ -6,6 +13,7 @@ export interface PortfolioProject {
   techStack: string[];
   liveUrl: string | null;
   githubUrl: string | null;
+  images: PortfolioStoryImage[];
 }
 
 export type PortfolioSkills = Record<string, string[]>;
@@ -16,4 +24,7 @@ export interface PortfolioContent {
   skills: PortfolioSkills;
 }
 
-export type PortfolioProjectMeta = Omit<PortfolioProject, 'slug' | 'readme'>;
+export type PortfolioProjectMeta = Omit<
+  PortfolioProject,
+  'slug' | 'readme' | 'images'
+>;

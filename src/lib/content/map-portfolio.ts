@@ -2,6 +2,7 @@ import type {
   PortfolioContent,
   PortfolioProject,
   PortfolioSkills,
+  PortfolioStoryImage,
 } from '@/types/portfolio';
 
 export type ProjectStatus = 'draft' | 'published' | 'archived';
@@ -16,12 +17,31 @@ export interface ProjectRecord {
   githubUrl: string | null;
   status: ProjectStatus;
   order: number;
+  images?: readonly PortfolioStoryImage[];
 }
 
 export interface SkillRecord {
   name: string;
   category: string;
   order: number;
+}
+
+export function mapStoryImages(
+  images: readonly PortfolioStoryImage[] | undefined
+): PortfolioStoryImage[] {
+  if (!images?.length) return [];
+  return images
+    .slice()
+    .sort((a, b) => {
+      if (a.order !== b.order) return a.order - b.order;
+      return a.url.localeCompare(b.url);
+    })
+    .map((image) => ({
+      url: image.url,
+      alt: image.alt,
+      caption: image.caption,
+      order: image.order,
+    }));
 }
 
 export function mapProjectRecord(row: ProjectRecord): PortfolioProject {
@@ -33,6 +53,7 @@ export function mapProjectRecord(row: ProjectRecord): PortfolioProject {
     techStack: [...row.techStack],
     liveUrl: row.liveUrl,
     githubUrl: row.githubUrl,
+    images: mapStoryImages(row.images),
   };
 }
 
