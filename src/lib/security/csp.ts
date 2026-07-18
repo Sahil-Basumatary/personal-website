@@ -1,3 +1,5 @@
+import { storyImageCspOrigin } from './story-image-csp';
+
 const isDev = process.env.NODE_ENV !== 'production';
 
 // 128 bits of CSPRNG entropy, base64-encoded. Edge-runtime safe (no Buffer).
@@ -12,6 +14,15 @@ export function generateNonce(): string {
 // only the per-request nonce (and whatever that nonced code loads), so an
 // injected inline/host script cannot execute even if markup is compromised.
 export function buildContentSecurityPolicy(nonce: string): string {
+  const storyImageOrigin = storyImageCspOrigin(process.env.R2_PUBLIC_BASE_URL);
+  const imgSrc = [
+    `'self'`,
+    'data:',
+    'blob:',
+    'https://img.clerk.com',
+    ...(storyImageOrigin ? [storyImageOrigin] : []),
+  ].join(' ');
+
   const directives = [
     `default-src 'self'`,
     // wasm-unsafe-eval: Monaco (code-playground/text-editor) instantiates WASM.
@@ -22,7 +33,7 @@ export function buildContentSecurityPolicy(nonce: string): string {
     // Next and Tailwind inject inline styles; nonced styles are impractical here.
     // jsdelivr: Monaco streams its editor stylesheet from the CDN.
     `style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net`,
-    `img-src 'self' data: blob: https://img.clerk.com`,
+    `img-src ${imgSrc}`,
     // data: covers Monaco's inlined codicon icon font.
     `font-src 'self' data:`,
     `worker-src 'self' blob:`,

@@ -2,6 +2,7 @@ import { AdminConfirmForm } from '@/app/admin/_components/AdminConfirmForm';
 import { AdminPendingForm } from '@/app/admin/_components/AdminPendingForm';
 import { deleteProject, reorderProject } from './actions';
 import { ProjectForm } from './project-form';
+import { StoryImagesPanel } from './story-images-panel';
 import { getProjects } from './queries';
 
 export default async function AdminProjectsPage() {
@@ -15,7 +16,7 @@ export default async function AdminProjectsPage() {
           <h1>Projects</h1>
           <p className="admin-hero__copy">
             Manage portfolio projects, publishing status, links, tech stacks,
-            and display order from one editorial workspace.
+            story images, and display order from one editorial workspace.
           </p>
         </div>
         <p className="admin-hero__timestamp">{projectList.length} projects</p>
@@ -48,6 +49,9 @@ export default async function AdminProjectsPage() {
                   <div>
                     <p className="admin-resource__eyebrow">
                       {project.status} / {project.slug}
+                      {project.storyImages.length > 0
+                        ? ` / ${project.storyImages.length} images`
+                        : ''}
                     </p>
                     <h3>{project.title}</h3>
                     <p>{project.summary}</p>
@@ -86,6 +90,10 @@ export default async function AdminProjectsPage() {
                 <details className="admin-resource__details">
                   <summary>Edit project</summary>
                   <ProjectForm project={project} />
+                  <StoryImagesPanel
+                    projectId={project.id}
+                    images={project.storyImages}
+                  />
                 </details>
               </article>
             ))}

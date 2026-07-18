@@ -18,7 +18,12 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ['resend', 'postal-mime'],
+  serverExternalPackages: ['resend', 'postal-mime', '@aws-sdk/client-s3'],
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '3mb',
+    },
+  },
   async headers() {
     return [
       {

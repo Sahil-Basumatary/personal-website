@@ -13,6 +13,7 @@ import {
 } from '@/app/admin/_lib/form-state';
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { revalidatePortfolio } from '@/lib/content/revalidate-portfolio';
+import { deleteProjectStoryObjects } from './story-image-actions';
 
 const optionalUrl = z
   .string()
@@ -159,6 +160,7 @@ export async function deleteProject(
       return formError('Invalid project id.');
     }
 
+    await deleteProjectStoryObjects(id.data);
     await db.delete(projects).where(eq(projects.id, id.data));
     revalidatePath('/admin/projects');
     revalidatePortfolio();
