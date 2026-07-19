@@ -38,6 +38,8 @@ jobs:
           retention-days: 7
   e2e:
     runs-on: ubuntu-latest
+    env:
+      CI: true
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -46,8 +48,20 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm run e2e
+      - name: Install Playwright browsers
+        run: |
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            pnpm exec playwright install --with-deps chromium firefox webkit
+          else
+            pnpm exec playwright install --with-deps chromium
+          fi
+      - name: Run E2E
+        run: |
+          if [ "${{ github.event_name }}" = "push" ] && [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            pnpm run e2e
+          else
+            pnpm run e2e -- --project=chromium
+          fi
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
@@ -56,7 +70,7 @@ jobs:
           retention-days: 7
   visual:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.head.repo.full_name == github.repository || github.event_name == 'push'
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository || github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
         with:

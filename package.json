@@ -18,6 +18,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "e2e": "playwright test",
+    "e2e:chromium": "playwright test --project=chromium",
     "e2e:ui": "playwright test --ui",
     "e2e:report": "playwright show-report",
     "format": "prettier --write .",

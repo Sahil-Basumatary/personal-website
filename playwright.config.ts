@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 const PORT = Number(process.env.E2E_PORT ?? 3100);
 const BASE_URL = `http://127.0.0.1:${PORT}`;
+const useProdServer = process.env.CI === 'true' || process.env.E2E_PROD === '1';
 
 export default defineConfig({
   testDir: './e2e',
@@ -21,11 +22,25 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+    },
+    {
+      name: 'mobile-webkit',
+      use: { ...devices['iPhone 13'] },
+    },
   ],
   webServer: {
-    command: `pnpm exec next dev --port ${PORT}`,
+    command: useProdServer
+      ? `pnpm exec next build && pnpm exec next start --port ${PORT}`
+      : `pnpm exec next dev --port ${PORT}`,
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
-    timeout: 180_000,
+    timeout: 300_000,
   },
 });
