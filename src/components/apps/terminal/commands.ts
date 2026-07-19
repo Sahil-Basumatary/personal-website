@@ -4,6 +4,7 @@ import type { EasterEggOverlay } from '@/lib/easter-eggs';
 import { buildCowsay, FORTUNES, pickRandom } from '@/lib/easter-eggs';
 import { clipColumn, formatTechTags } from '@/lib/content/portfolio-format';
 import { openHelpCenter } from '@/stores/help-store';
+import { APP_VERSION } from '@/lib/app-version';
 import type { PortfolioProjectMeta } from '@/types/portfolio';
 
 export interface OutputLine {
@@ -332,9 +333,9 @@ const neofetch: Command = {
   execute: () => [
     accent('         .://:.         sahil@macintosh-hd'),
     accent('       .////////.       ------------------'),
-    accent('      ////////////      OS:     SahilOS v1.0'),
+    accent(`      ////////////      OS:     SahilOS v${APP_VERSION}`),
     accent('     //////////////     Host:   sahilbzy.com'),
-    accent('    ////////////////    Kernel: Next.js 15'),
+    accent('    ////////////////    Kernel: Next.js 16'),
     accent('   //////////////////   Shell:  Terminal.tsx'),
     accent('    ////////////////    Theme:  Mac OS 9 Platinum'),
     accent('     //////////////     Icons:  SVG handcrafted'),

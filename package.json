@@ -1,6 +1,6 @@
 {
   "name": "personal-website",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "packageManager": "pnpm@10.28.0",
   "engines": {
@@ -30,8 +30,8 @@
     "db:seed": "tsx scripts/seed-portfolio.ts",
     "prepare": "husky",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
-    "chromatic": "chromatic --exit-zero-on-changes"
+    "build-storybook": "rm -rf storybook-static && storybook build",
+    "chromatic": "pnpm build-storybook && chromatic --exit-zero-on-changes --storybook-build-dir=storybook-static"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1089.0",

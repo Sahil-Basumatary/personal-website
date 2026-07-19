@@ -16,6 +16,7 @@ import { PlatinumLoading } from '@/components/ui';
 import { UnknownApplication } from '@/components/system/UnknownApplication';
 import { HelpCoach } from '@/components/help/HelpCoach';
 import { usePortfolioStore } from '@/stores/portfolio-store';
+import { APP_VERSION } from '@/lib/app-version';
 import type { FolderNode } from '@/types/file-system';
 import type { PortfolioContent } from '@/types/portfolio';
 
@@ -104,7 +105,9 @@ function AboutComputerContent() {
       >
         Sahil&apos;s Computer
       </div>
-      <div style={{ marginBottom: 4, fontSize: 12 }}>Personal Website v1.0</div>
+      <div style={{ marginBottom: 4, fontSize: 12 }}>
+        Personal Website v{APP_VERSION}
+      </div>
       <div style={{ color: 'var(--border-shadow)', fontSize: 11 }}>
         Built with Next.js, React &amp; TypeScript
       </div>

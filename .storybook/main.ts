@@ -11,5 +11,9 @@ const config: StorybookConfig = {
   ],
   framework: '@storybook/nextjs-vite',
   staticDirs: ['../public'],
+  async viteFinal(config) {
+    // Vite also copies `public/` by default; with staticDirs that races (EEXIST on fonts/).
+    return { ...config, publicDir: false };
+  },
 };
 export default config;

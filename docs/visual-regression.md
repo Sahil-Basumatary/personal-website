@@ -15,11 +15,15 @@ accepted baseline so unintended visual changes surface in review instead of prod
 
 Configuration lives in [`chromatic.config.json`](../chromatic.config.json):
 
-| Option              | Value             | Why                                                      |
-| ------------------- | ----------------- | -------------------------------------------------------- |
-| `buildScriptName`   | `build-storybook` | Reuses the existing Storybook build script.              |
-| `exitZeroOnChanges` | `true`            | Visual diffs are reported, not treated as CI failures.   |
-| `onlyChanged`       | `true`            | TurboSnap only re-snapshots stories touched by a change. |
+| Option              | Value              | Why                                                      |
+| ------------------- | ------------------ | -------------------------------------------------------- |
+| `storybookBuildDir` | `storybook-static` | Upload a locally built Storybook; avoids rebuild races.  |
+| `exitZeroOnChanges` | `true`             | Visual diffs are reported, not treated as CI failures.   |
+| `onlyChanged`       | `true`             | TurboSnap only re-snapshots stories touched by a change. |
+
+`pnpm chromatic` runs a clean `pnpm build-storybook` first, then uploads
+`storybook-static`. Storybook copies `public/` via `staticDirs` only — Vite’s
+`publicDir` copy is disabled so the two do not race on folders like `fonts/`.
 
 ## Establishing / updating the baseline
 
