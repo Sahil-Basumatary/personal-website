@@ -29,7 +29,10 @@ export function Terminal() {
           </div>
         ))}
         <div className="terminal-input-row">
-          <span className="terminal-prompt">{cwd} &gt;&nbsp;</span>
+          <span className="terminal-prompt">
+            {cwd}
+            {'\u00A0>\u00A0'}
+          </span>
           <input
             ref={inputRef}
             className="terminal-input"

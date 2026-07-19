@@ -101,7 +101,7 @@ export function MatrixRain({ onDismiss }: MatrixRainProps) {
       <canvas ref={canvasRef} className="matrix-canvas" aria-hidden="true" />
       <div className="matrix-hint">
         {prefersReducedMotion
-          ? 'static frame — click anywhere or press ESC to wake up'
+          ? 'static frame - click anywhere or press ESC to wake up'
           : 'click anywhere or press ESC to wake up'}
       </div>
     </div>

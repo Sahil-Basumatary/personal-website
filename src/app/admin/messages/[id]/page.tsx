@@ -26,7 +26,9 @@ export default async function AdminMessageDetailPage({
           <p className="admin-kicker">Message</p>
           <h1>{submission.subject}</h1>
           <p className="admin-hero__copy">
-            From {submission.name} &lt;{submission.email}&gt;
+            From {submission.name} {'<'}
+            {submission.email}
+            {'>'}
           </p>
         </div>
         <p className="admin-hero__timestamp">

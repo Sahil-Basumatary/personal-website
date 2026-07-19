@@ -59,7 +59,7 @@ export const Warning: Story = {
         </Dialog.Header>
         <Dialog.Actions>
           <Dialog.Close>
-            <Button>Don&apos;t Save</Button>
+            <Button>{"Don't Save"}</Button>
           </Dialog.Close>
           <Dialog.Close>
             <Button>Cancel</Button>

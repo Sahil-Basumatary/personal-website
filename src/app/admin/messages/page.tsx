@@ -58,7 +58,9 @@ export default async function AdminMessagesPage() {
                   </span>
                   <strong>{submission.subject}</strong>
                   <span>
-                    {submission.name} &lt;{submission.email}&gt;
+                    {submission.name} {'<'}
+                    {submission.email}
+                    {'>'}
                   </span>
                 </Link>
                 <div className="admin-resource__actions">

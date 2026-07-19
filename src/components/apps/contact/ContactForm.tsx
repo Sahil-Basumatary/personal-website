@@ -321,7 +321,7 @@ export function ContactForm() {
               <Dialog.Description>
                 {dialog.kind === 'error'
                   ? dialog.message
-                  : "Thanks — I'll get back to you."}
+                  : "Thanks - I'll get back to you."}
               </Dialog.Description>
             </Dialog.Body>
           </Dialog.Header>

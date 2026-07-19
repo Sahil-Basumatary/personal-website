@@ -103,13 +103,13 @@ function AboutComputerContent() {
           marginBottom: 12,
         }}
       >
-        Sahil&apos;s Computer
+        Sahil{"'"}s Computer
       </div>
       <div style={{ marginBottom: 4, fontSize: 12 }}>
         Personal Website v{APP_VERSION}
       </div>
       <div style={{ color: 'var(--border-shadow)', fontSize: 11 }}>
-        Built with Next.js, React &amp; TypeScript
+        Built with Next.js, React & TypeScript
       </div>
       <div
         style={{
@@ -120,7 +120,7 @@ function AboutComputerContent() {
           fontSize: 11,
         }}
       >
-        Sahil Basumatary — King&apos;s College London
+        Sahil Basumatary - King{"'"}s College London
       </div>
     </div>
   );

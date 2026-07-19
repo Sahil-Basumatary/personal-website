@@ -141,7 +141,7 @@ export function TextEditor({ filePath }: TextEditorProps) {
         </div>
         <div className="text-editor-statusbar">
           <span className="text-editor-statusbar-left">
-            untitled — Ln {cursor.line}, Col {cursor.col}
+            untitled - Ln {cursor.line}, Col {cursor.col}
           </span>
           <div className="text-editor-statusbar-right">
             <span>plaintext</span>
@@ -179,7 +179,7 @@ export function TextEditor({ filePath }: TextEditorProps) {
       </div>
       <div className="text-editor-statusbar">
         <span className="text-editor-statusbar-left">
-          {fileName} — Ln {cursor.line}, Col {cursor.col}
+          {fileName} - Ln {cursor.line}, Col {cursor.col}
         </span>
         <div className="text-editor-statusbar-right">
           <span>{language}</span>
