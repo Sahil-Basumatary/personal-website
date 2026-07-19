@@ -27,10 +27,10 @@ describe('SYSTEM_DRIVE', () => {
     );
   });
 
-  it('includes README and tech-stack files inside a project', () => {
+  it('includes the project story doc and tech-stack files', () => {
     const projects = folder(folder(SYSTEM_DRIVE, 'Desktop'), 'Projects');
     const first = folder(projects, BUNDLED_PORTFOLIO.projects[0].slug);
-    expect(first.children['README.md']?.kind).toBe('file');
+    expect(first.children['About this project']?.kind).toBe('file');
     expect(first.children['tech-stack.json']?.kind).toBe('file');
   });
 

@@ -1,7 +1,11 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import { BUNDLED_PORTFOLIO } from './bundled-portfolio';
-import { buildSystemDrive, toProjectMetaFile } from './build-system-drive';
+import {
+  PROJECT_STORY_FILENAME,
+  buildSystemDrive,
+  toProjectMetaFile,
+} from './build-system-drive';
 import type { FolderNode } from '@/types/file-system';
 import type { PortfolioContent, PortfolioProject } from '@/types/portfolio';
 
@@ -86,7 +90,7 @@ describe('buildSystemDrive', () => {
       content: JSON.stringify({ languages: ['TypeScript'] }, null, 2),
     });
     const project = folder(folder(desktop, 'Projects'), 'demo');
-    expect(project.children['README.md']?.kind).toBe('file');
+    expect(project.children[PROJECT_STORY_FILENAME]?.kind).toBe('file');
     expect(project.children['tech-stack.json']).toEqual({
       name: 'tech-stack.json',
       kind: 'file',

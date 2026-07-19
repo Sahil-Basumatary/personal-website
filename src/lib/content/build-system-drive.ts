@@ -43,9 +43,11 @@ export function toProjectMetaFile(
   };
 }
 
+export const PROJECT_STORY_FILENAME = 'About this project';
+
 function projectFolder(project: PortfolioProject): FolderNode {
   const items: FSNode[] = [
-    file('README.md', project.readme),
+    file(PROJECT_STORY_FILENAME, project.readme),
     file(
       'tech-stack.json',
       JSON.stringify(toProjectMetaFile(project), null, 2)
