@@ -2,8 +2,27 @@
 
 import { useOnlineStatus } from '@/hooks/use-online-status';
 
-export function ConnectivityBanner() {
-  const { online, showReconnected, dismissReconnected } = useOnlineStatus();
+export type ConnectivityBannerPreview = 'offline' | 'reconnected';
+
+interface ConnectivityBannerProps {
+  /** Storybook / visual baselines — forces a banner state without toggling the network. */
+  previewState?: ConnectivityBannerPreview;
+}
+
+export function ConnectivityBanner({ previewState }: ConnectivityBannerProps) {
+  const live = useOnlineStatus();
+  const online =
+    previewState === 'offline'
+      ? false
+      : previewState === 'reconnected'
+        ? true
+        : live.online;
+  const showReconnected =
+    previewState === 'reconnected'
+      ? true
+      : previewState === 'offline'
+        ? false
+        : live.showReconnected;
 
   if (online && !showReconnected) {
     return null;
@@ -25,7 +44,7 @@ export function ConnectivityBanner() {
         <button
           type="button"
           className="connectivity-banner__dismiss"
-          onClick={dismissReconnected}
+          onClick={previewState ? undefined : live.dismissReconnected}
         >
           Dismiss
         </button>

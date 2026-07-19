@@ -9,8 +9,9 @@ accepted baseline so unintended visual changes surface in review instead of prod
 1. `pnpm build-storybook` produces a static Storybook.
 2. Chromatic uploads it, renders each story in a Chromium cloud browser, and compares
    the result against the last accepted baseline.
-3. Changed stories are flagged for review. On `main`, changes are auto-accepted so the
-   baseline always tracks the shipped UI (`autoAcceptChanges` in `chromatic.config.json`).
+3. Changed stories are flagged for review. Diffs are **advisory** in CI
+   (`exitZeroOnChanges`). Baselines are **not** auto-accepted on `main` — accept
+   intentional changes in the Chromatic UI when you mean to update the v1.0 look.
 
 Configuration lives in [`chromatic.config.json`](../chromatic.config.json):
 
@@ -18,20 +19,20 @@ Configuration lives in [`chromatic.config.json`](../chromatic.config.json):
 | ------------------- | ----------------- | -------------------------------------------------------- |
 | `buildScriptName`   | `build-storybook` | Reuses the existing Storybook build script.              |
 | `exitZeroOnChanges` | `true`            | Visual diffs are reported, not treated as CI failures.   |
-| `autoAcceptChanges` | `main`            | The `main` branch defines the accepted baseline.         |
 | `onlyChanged`       | `true`            | TurboSnap only re-snapshots stories touched by a change. |
 
-## Establishing the baseline
+## Establishing / updating the baseline
 
 Chromatic needs a project token, stored as the `CHROMATIC_PROJECT_TOKEN` secret in CI and
-never committed. To capture the first baseline locally:
+never committed. To capture or refresh the baseline locally:
 
 ```bash
 export CHROMATIC_PROJECT_TOKEN=<token from chromatic.com>
 pnpm chromatic
 ```
 
-The initial run accepts every story as the baseline. Subsequent runs diff against it.
+Then open the Chromatic build and **manually accept** stories that should become the new
+baseline. Phase 12 UI states live under the `Phase12/` Storybook group.
 
 ## Design tokens
 
