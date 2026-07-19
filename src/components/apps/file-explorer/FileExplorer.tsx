@@ -7,6 +7,7 @@ import type { FSNode } from '@/types/file-system';
 import { openUrl } from '@/lib/open-url';
 import { measureOriginRect } from '@/lib/content-rect';
 import { openHelpCenter } from '@/stores/help-store';
+import { isProjectStoryPath } from '@/lib/simpletext/project-story-path';
 import { Sidebar } from './Sidebar';
 import { ListView } from './ListView';
 import { IconView } from './IconView';
@@ -127,15 +128,19 @@ export function FileExplorer({ initialPath }: FileExplorerProps) {
             });
           break;
         }
-        case 'file':
+        case 'file': {
+          const openAsStory = isProjectStoryPath(nodePath);
           openWindow({
             title: node.name,
-            component: 'text-editor',
-            size: { width: 500, height: 350 },
+            component: openAsStory ? 'simpletext' : 'text-editor',
+            size: openAsStory
+              ? { width: 560, height: 480 }
+              : { width: 500, height: 350 },
             props: { filePath: nodePath },
             originRect,
           });
           break;
+        }
       }
     },
     [currentPath, navigateTo, openWindow, getNode]

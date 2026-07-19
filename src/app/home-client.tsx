@@ -15,6 +15,7 @@ import { ConnectivityBanner } from '@/components/desktop/ConnectivityBanner';
 import { PlatinumLoading } from '@/components/ui';
 import { UnknownApplication } from '@/components/system/UnknownApplication';
 import { HelpCoach } from '@/components/help/HelpCoach';
+import { usePortfolioStore } from '@/stores/portfolio-store';
 import type { FolderNode } from '@/types/file-system';
 import type { PortfolioContent } from '@/types/portfolio';
 
@@ -44,6 +45,16 @@ const TextEditor = dynamic(
   {
     ssr: false,
     loading: () => <PlatinumLoading label="Opening Text Editor…" />,
+  }
+);
+const SimpleText = dynamic(
+  () =>
+    import('@/components/apps/simpletext/SimpleText').then(
+      (mod) => mod.SimpleText
+    ),
+  {
+    ssr: false,
+    loading: () => <PlatinumLoading label="Opening SimpleText…" />,
   }
 );
 const CodePlayground = dynamic(
@@ -127,6 +138,8 @@ function renderContent(
     case 'text-editor':
     case 'notepad':
       return <TextEditor filePath={props?.filePath as string} />;
+    case 'simpletext':
+      return <SimpleText filePath={props?.filePath as string} />;
     case 'code-playground':
       return <CodePlayground />;
     case 'browser':
@@ -155,6 +168,7 @@ export function HomeClient({ root, content }: HomeClientProps) {
   }, []);
 
   useEffect(() => {
+    usePortfolioStore.getState().setContent(content);
     try {
       writePortfolioCache(window.localStorage, content);
     } catch {

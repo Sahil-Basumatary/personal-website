@@ -1670,6 +1670,143 @@ body {
     color: var(--surface-base);
     border-radius: 2px;
   }
+  .window-content:has(.simpletext) {
+    background: #ececec;
+    border-color: #ececec;
+    box-shadow: none;
+    overflow: hidden;
+  }
+  .simpletext {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #ececec;
+    color: #111;
+  }
+  .simpletext-body {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 14px 16px 18px;
+  }
+  .simpletext-document {
+    max-width: 40rem;
+    margin: 0 auto;
+  }
+  .simpletext-gallery {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .simpletext-figure {
+    margin: 0;
+  }
+  .simpletext-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid #888;
+    background: #ddd;
+  }
+  .simpletext-caption {
+    margin-top: 6px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: #444;
+    line-height: 1.4;
+  }
+  .simpletext-prose {
+    font-family: var(--font-body);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .simpletext-h1,
+  .simpletext-h2,
+  .simpletext-h3 {
+    font-family: var(--font-system);
+    margin: 0 0 10px;
+    line-height: 1.25;
+  }
+  .simpletext-h1 {
+    font-size: 18px;
+  }
+  .simpletext-h2 {
+    font-size: 15px;
+  }
+  .simpletext-h3 {
+    font-size: 13px;
+  }
+  .simpletext-p {
+    margin: 0 0 12px;
+  }
+  .simpletext-ul {
+    margin: 0 0 12px;
+    padding-left: 1.25rem;
+  }
+  .simpletext-ul li {
+    margin-bottom: 4px;
+  }
+  .simpletext-code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 0 3px;
+    background: #ddd;
+    border: 1px solid #bbb;
+  }
+  .simpletext-link {
+    display: inline;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #00007a;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .simpletext-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .simpletext-empty-title {
+    font-family: var(--font-system);
+    font-size: 14px;
+    margin: 0;
+  }
+  .simpletext-empty-hint {
+    font-family: var(--font-body);
+    font-size: 12px;
+    margin: 0;
+    color: #555;
+  }
+  .simpletext-statusbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 4px 8px;
+    border-top: 1px solid #999;
+    background: var(--platinum-face, #ddd);
+    font-family: var(--font-body);
+    font-size: 11px;
+  }
+  .simpletext-statusbar-left {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .simpletext-badge {
+    flex: 0 0 auto;
+    font-family: var(--font-system);
+    font-size: 10px;
+    padding: 1px 6px;
+    border: 1px solid var(--border-shadow);
+    background: var(--platinum-face, #ddd);
+  }
   .window-content:has(.contact-form) {
     background: var(--surface-primary);
     overflow: auto;
