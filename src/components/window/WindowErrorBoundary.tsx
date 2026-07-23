@@ -1,6 +1,6 @@
 'use client';
 
-import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { Component, Fragment, type ErrorInfo, type ReactNode } from 'react';
 import * as Sentry from '@sentry/nextjs';
 import { WindowCrashRecovery } from './WindowCrashRecovery';
 
@@ -85,6 +85,6 @@ export class WindowErrorBoundary extends Component<
       );
     }
 
-    return <div key={this.state.retryKey}>{this.props.children}</div>;
+    return <Fragment key={this.state.retryKey}>{this.props.children}</Fragment>;
   }
 }
