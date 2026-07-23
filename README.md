@@ -1,8 +1,10 @@
 # My Personal Website/portfolio
 
-[sahilbzy.com](https://www.sahilbzy.com) is my portfolio rebuilt as a working Mac OS 9 desktop.
+[sahilbzy.com](https://www.sahilbzy.com) is my portfolio rebuilt as a working **Mac OS 9-inspired** desktop
 
-The idea came from my father's first work laptop and me secretly playing SimCity at the time, and the feeling that a computer used to be a place you explored is very nostalgic personally. I wanted to make the portfolio that made me and others relive the experience to my best abilities. There are windows to move, files to inspect, commands to run and a few things that are deliberately not explained so you, and I mean YOU have the chance to explore, the same as I did.
+The idea came from my father's first work laptop and me secretly playing SimCity at the time, and the feeling that a computer used to be a place you explored is very nostalgic personally. I wanted to make the portfolio that made me and others relive the experience to my best abilities. There are windows to move, files to inspect, commands to run and a few things that are deliberately not explained so you, and I mean YOU, have the chance to explore, the same as I did.
+
+Current release: **v1.0.0**.
 
 ## What is in it
 
@@ -10,7 +12,9 @@ The idea came from my father's first work laptop and me secretly playing SimCity
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | Desktop and window manager | Draggable, resizable and stackable application windows with a menu bar, dock, context menus and keyboard shortcuts |
 | Macintosh HD               | A navigable virtual filesystem containing my projects, skills and interest, writing and contact details            |
-| Terminal                   | Filesystem commands, tab completion, command history, project shortcuts and a fun commands                         |
+| Project stories            | Read-only SimpleText documents with optional image galleries; full engineering READMEs stay as GitHub aliases      |
+| Help                       | Optional stepped Help from the menu bar (and desktop icon) for windows, filesystem, Terminal, Playground and more  |
+| Terminal                   | Filesystem commands, tab completion, command history, project shortcuts and fun commands                           |
 | Text Editor                | Opens portfolio files in a Monaco editor                                                                           |
 | Code Playground            | Runs JavaScript and TypeScript in a sandboxed iframe and Python through Pyodide                                    |
 | Browser                    | Opens external pages inside the desktop when those sites permit embedding                                          |
@@ -21,7 +25,7 @@ The idea came from my father's first work laptop and me secretly playing SimCity
 
 ## How to explore it
 
-Start by double-clicking **Macintosh HD**. The project folders contain a README, a structured tech stack and links where they exist. **About Me**, **Skills.json** and **Contact** are files on the same virtual drive.
+Start by double-clicking **Macintosh HD**. Project folders include **About a project summary** , tech stack details, and live links. **About Me**, **Skills.json** and **Contact** are also on the same location.
 
 If you prefer a keyboard, open **Terminal** and try:
 
@@ -35,9 +39,9 @@ open Code Playground
 neofetch
 ```
 
-The Code Playground starts in JavaScript, supports TypeScript, and downloads the Python runtime only when Python is selected and run for the first time. The Browser app act like a real iframe-based browser, which means sites such as GitHub that block framing will refuse to open inside it; use their external links instead.
+The Code Playground starts in JavaScript, supports TypeScript, and downloads the Python runtime only when Python is selected and run for the first time. For sites that block framing when browsing, such as GitHub, use their external links instead.
 
-There are also a few terminal commands, shortcuts and desktop interactions that are easier to find by experimenting. Short visual tutorials are in works.
+There are also a few terminal commands, shortcuts and desktop interactions that are easier to find by experimenting. For a guided tour, open **Help** from the menu bar.
 
 ## My Architecture decisions
 
@@ -45,15 +49,15 @@ There are also a few terminal commands, shortcuts and desktop interactions that 
 
 The Content Security Policy was deployed in Report-Only mode before enforcement. I tested the desktop, Monaco, Pyodide, Clerk and Sentry against the production build, fixed the violations, then turned on blocking.
 
-The final policy uses a fresh nonce and `strict-dynamic`. For this personal portfolio, I accepted the small caching tradeoff for a stronger script policy.
+The final policy uses a fresh nonce and `strict-dynamic`. For this personal portfolio, I accepted the small caching tradeoff for a stricter script policy.
 
 ### Analytics
 
-The site records page views and app launches in its own Postgres database. I use daily salted hash for visitor counting and not raw IP addresses. Vercel Speed Insights for Web Vitals, while Sentry handles errors and traces.
+The site records page views and app launches in its own Postgres database. I use daily salted hash for visitor counting and not raw IP addresses. Vercel Speed Insights for Web Vitals, while Sentry has been used to handle errors and traces.
 
 ### Private Admin
 
-There is no sign-up/sign-in element on the portfolio.
+There is no sign-up/sign-in element on the portfolio for public users.
 
 ## Stack
 
@@ -61,7 +65,7 @@ There is no sign-up/sign-in element on the portfolio.
 - Zustand for desktop and window state
 - Monaco Editor and Pyodide for the playground
 - Neon Postgres with Drizzle ORM
-- Clerk for owner authentication
+- Clerk for owner auth
 - Resend for contact notifications and replies
 - Serwist for PWA/offline support
 - Sentry, Vercel Speed Insights and UptimeRobot for production
