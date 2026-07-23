@@ -1,6 +1,9 @@
 import type { PortfolioContent, PortfolioProject } from '@/types/portfolio';
-
-export const DEFAULT_SEED_SKILL_PROFICIENCY = 70;
+import {
+  DEFAULT_LANGUAGE_SKILL_LEVEL,
+  isLanguageSkillCategory,
+  type SkillLevel,
+} from './skill-taxonomy';
 
 export type SeedSkillKey = `${string}::${string}`;
 
@@ -19,7 +22,7 @@ export interface ProjectSeedRow {
 export interface SkillSeedRow {
   name: string;
   category: string;
-  proficiency: number;
+  level: SkillLevel | null;
   order: number;
 }
 
@@ -51,7 +54,7 @@ export function toProjectSeedRows(
 
 export function toSkillSeedRows(
   skills: PortfolioContent['skills'],
-  proficiency = DEFAULT_SEED_SKILL_PROFICIENCY
+  languageLevel: SkillLevel = DEFAULT_LANGUAGE_SKILL_LEVEL
 ): SkillSeedRow[] {
   const rows: SkillSeedRow[] = [];
   let order = 0;
@@ -61,7 +64,7 @@ export function toSkillSeedRows(
       rows.push({
         name,
         category,
-        proficiency,
+        level: isLanguageSkillCategory(category) ? languageLevel : null,
         order,
       });
       order += 1;

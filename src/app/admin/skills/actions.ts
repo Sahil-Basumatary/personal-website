@@ -13,22 +13,49 @@ import {
 } from '@/app/admin/_lib/form-state';
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { revalidatePortfolio } from '@/lib/content/revalidate-portfolio';
+import {
+  isLanguageSkillCategory,
+  SKILL_CATEGORIES,
+  SKILL_LEVELS,
+} from '@/lib/content/skill-taxonomy';
 
-const skillSchema = z.object({
-  name: z.string().trim().min(1).max(120),
-  category: z.string().trim().min(1).max(80),
-  proficiency: z.coerce.number().int().min(0).max(100),
-});
+const skillSchema = z
+  .object({
+    name: z.string().trim().min(1).max(120),
+    category: z.enum(SKILL_CATEGORIES),
+    level: z.enum(SKILL_LEVELS).optional(),
+  })
+  .superRefine((value, ctx) => {
+    if (isLanguageSkillCategory(value.category) && !value.level) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Languages require a level.',
+        path: ['level'],
+      });
+    }
+  });
 
 const idSchema = z.uuid();
 const directionSchema = z.enum(['up', 'down']);
 
 function parseSkill(formData: FormData) {
+  const rawLevel = formData.get('level');
   return skillSchema.safeParse({
     name: formData.get('name'),
     category: formData.get('category'),
-    proficiency: formData.get('proficiency'),
+    level:
+      typeof rawLevel === 'string' && rawLevel.length > 0
+        ? rawLevel
+        : undefined,
   });
+}
+
+function toSkillRow(data: z.infer<typeof skillSchema>) {
+  return {
+    name: data.name,
+    category: data.category,
+    level: isLanguageSkillCategory(data.category) ? (data.level ?? null) : null,
+  };
 }
 
 async function getNextSkillOrder(): Promise<number> {
@@ -50,7 +77,7 @@ export async function createSkill(
     }
 
     await db.insert(skills).values({
-      ...parsed.data,
+      ...toSkillRow(parsed.data),
       order: await getNextSkillOrder(),
     });
 
@@ -82,7 +109,10 @@ export async function updateSkill(
       return formError('Check the skill fields and try again.');
     }
 
-    await db.update(skills).set(parsed.data).where(eq(skills.id, id.data));
+    await db
+      .update(skills)
+      .set(toSkillRow(parsed.data))
+      .where(eq(skills.id, id.data));
 
     revalidatePath('/admin/skills');
     revalidatePortfolio();

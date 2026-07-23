@@ -19,6 +19,12 @@ export const projectStatusEnum = pgEnum('project_status', [
   'archived',
 ]);
 
+export const skillLevelEnum = pgEnum('skill_level', [
+  'beginner',
+  'intermediate',
+  'advanced',
+]);
+
 export const projects = pgTable(
   'projects',
   {
@@ -81,7 +87,7 @@ export const skills = pgTable(
     id: uuid('id').defaultRandom().primaryKey(),
     name: varchar('name', { length: 120 }).notNull(),
     category: varchar('category', { length: 80 }).notNull(),
-    proficiency: integer('proficiency').notNull(),
+    level: skillLevelEnum('level'),
     order: integer('display_order').default(0).notNull(),
   },
   (table) => [

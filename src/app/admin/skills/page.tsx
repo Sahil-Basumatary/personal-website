@@ -1,8 +1,24 @@
 import { AdminConfirmForm } from '@/app/admin/_components/AdminConfirmForm';
 import { AdminPendingForm } from '@/app/admin/_components/AdminPendingForm';
+import {
+  isLanguageSkillCategory,
+  SKILL_CATEGORY_LABELS,
+  SKILL_LEVEL_LABELS,
+  type SkillCategory,
+  type SkillLevel,
+} from '@/lib/content/skill-taxonomy';
 import { deleteSkill, reorderSkill } from './actions';
 import { getSkills } from './queries';
 import { SkillForm } from './skill-form';
+
+function skillEyebrow(category: string, level: string | null): string {
+  const categoryLabel =
+    SKILL_CATEGORY_LABELS[category as SkillCategory] ?? category;
+  if (isLanguageSkillCategory(category) && level) {
+    return `${categoryLabel} / ${SKILL_LEVEL_LABELS[level as SkillLevel] ?? level}`;
+  }
+  return categoryLabel;
+}
 
 export default async function AdminSkillsPage() {
   const skillList = await getSkills();
@@ -14,8 +30,8 @@ export default async function AdminSkillsPage() {
           <p className="admin-kicker">Content</p>
           <h1>Skills</h1>
           <p className="admin-hero__copy">
-            Curate the skills shown in the portfolio. Keep categories consistent
-            and use proficiency as a display signal, not a hiring promise.
+            Use the fixed categories so Skills.json stays clean. Levels are only
+            for languages — Beginner, Intermediate, or Advanced.
           </p>
         </div>
         <p className="admin-hero__timestamp">{skillList.length} skills</p>
@@ -47,12 +63,9 @@ export default async function AdminSkillsPage() {
                 <div className="admin-resource__summary">
                   <div>
                     <p className="admin-resource__eyebrow">
-                      {skill.category} / {skill.proficiency}%
+                      {skillEyebrow(skill.category, skill.level)}
                     </p>
                     <h3>{skill.name}</h3>
-                    <div className="admin-meter" aria-hidden="true">
-                      <span style={{ width: `${skill.proficiency}%` }} />
-                    </div>
                   </div>
                   <div className="admin-resource__actions">
                     <AdminPendingForm

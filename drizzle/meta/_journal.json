@@ -15,6 +15,13 @@
       "when": 1784246263272,
       "tag": "0001_bouncy_starjammers",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784808600000,
+      "tag": "0002_skill_levels",
+      "breakpoints": true
     }
   ]
 }

@@ -1,12 +1,21 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
   type AdminFormState,
   idleFormState,
 } from '@/app/admin/_lib/form-state';
 import type { Skill } from '@/db/schema';
+import {
+  DEFAULT_LANGUAGE_SKILL_LEVEL,
+  isLanguageSkillCategory,
+  SKILL_CATEGORIES,
+  SKILL_CATEGORY_LABELS,
+  SKILL_LEVEL_LABELS,
+  SKILL_LEVELS,
+  type SkillCategory,
+} from '@/lib/content/skill-taxonomy';
 import { createSkill, updateSkill } from './actions';
 
 function SubmitButton({ label }: { label: string }) {
@@ -42,6 +51,13 @@ export function SkillForm({ skill }: SkillFormProps) {
   const isEditing = Boolean(skill);
   const action = isEditing ? updateSkill : createSkill;
   const [state, formAction] = useActionState(action, idleFormState);
+  const initialCategory = (
+    skill && SKILL_CATEGORIES.includes(skill.category as SkillCategory)
+      ? skill.category
+      : 'languages'
+  ) as SkillCategory;
+  const [category, setCategory] = useState<SkillCategory>(initialCategory);
+  const showLevel = isLanguageSkillCategory(category);
 
   return (
     <form action={formAction} className="admin-form">
@@ -69,35 +85,47 @@ export function SkillForm({ skill }: SkillFormProps) {
           >
             Category
           </label>
-          <input
+          <select
             id={`${skill?.id ?? 'new'}-category`}
             name="category"
             className="admin-input"
-            defaultValue={skill?.category}
-            maxLength={80}
-            placeholder="Frontend"
+            value={category}
+            onChange={(event) =>
+              setCategory(event.target.value as SkillCategory)
+            }
             required
-          />
+          >
+            {SKILL_CATEGORIES.map((value) => (
+              <option key={value} value={value}>
+                {SKILL_CATEGORY_LABELS[value]}
+              </option>
+            ))}
+          </select>
         </div>
 
-        <div className="admin-field">
-          <label
-            className="admin-label"
-            htmlFor={`${skill?.id ?? 'new'}-proficiency`}
-          >
-            Proficiency
-          </label>
-          <input
-            id={`${skill?.id ?? 'new'}-proficiency`}
-            name="proficiency"
-            className="admin-input"
-            defaultValue={skill?.proficiency ?? 70}
-            max={100}
-            min={0}
-            required
-            type="number"
-          />
-        </div>
+        {showLevel ? (
+          <div className="admin-field">
+            <label
+              className="admin-label"
+              htmlFor={`${skill?.id ?? 'new'}-level`}
+            >
+              Level
+            </label>
+            <select
+              id={`${skill?.id ?? 'new'}-level`}
+              name="level"
+              className="admin-input"
+              defaultValue={skill?.level ?? DEFAULT_LANGUAGE_SKILL_LEVEL}
+              required
+            >
+              {SKILL_LEVELS.map((value) => (
+                <option key={value} value={value}>
+                  {SKILL_LEVEL_LABELS[value]}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
       </div>
 
       <div className="admin-form__footer">

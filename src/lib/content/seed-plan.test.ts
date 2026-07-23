@@ -2,12 +2,12 @@
 import { describe, it, expect } from 'vitest';
 import type { PortfolioContent } from '@/types/portfolio';
 import {
-  DEFAULT_SEED_SKILL_PROFICIENCY,
   planPortfolioSeed,
   skillSeedKey,
   toProjectSeedRows,
   toSkillSeedRows,
 } from './seed-plan';
+import { DEFAULT_LANGUAGE_SKILL_LEVEL } from './skill-taxonomy';
 
 const sample: PortfolioContent = {
   about: 'About me',
@@ -77,31 +77,36 @@ describe('toProjectSeedRows', () => {
 });
 
 describe('toSkillSeedRows', () => {
-  it('flattens categories with default proficiency and sequential order', () => {
+  it('flattens categories with language levels and sequential order', () => {
     expect(toSkillSeedRows(sample.skills)).toEqual([
       {
         name: 'TypeScript',
         category: 'languages',
-        proficiency: DEFAULT_SEED_SKILL_PROFICIENCY,
+        level: DEFAULT_LANGUAGE_SKILL_LEVEL,
         order: 0,
       },
       {
         name: 'Python',
         category: 'languages',
-        proficiency: DEFAULT_SEED_SKILL_PROFICIENCY,
+        level: DEFAULT_LANGUAGE_SKILL_LEVEL,
         order: 1,
       },
       {
         name: 'Git',
         category: 'tools',
-        proficiency: DEFAULT_SEED_SKILL_PROFICIENCY,
+        level: null,
         order: 2,
       },
     ]);
   });
 
-  it('allows a custom proficiency', () => {
-    expect(toSkillSeedRows({ tools: ['Docker'] }, 55)[0]?.proficiency).toBe(55);
+  it('allows a custom language level', () => {
+    expect(toSkillSeedRows({ languages: ['Go'] }, 'advanced')[0]?.level).toBe(
+      'advanced'
+    );
+    expect(toSkillSeedRows({ tools: ['Docker'] }, 'advanced')[0]?.level).toBe(
+      null
+    );
   });
 });
 
