@@ -8,7 +8,7 @@
   font-weight: normal;
   font-style: normal;
   font-display: swap;
-  unicode-range: U+0020, U+0030-0039, U+0041-005A, U+0061-007A;
+  unicode-range: U+0020-007E;
 }
 
 @font-face {
@@ -17,7 +17,8 @@
   font-weight: normal;
   font-style: normal;
   font-display: swap;
-  unicode-range: U+0020, U+0030-0039, U+0041-005A, U+0061-007A;
+  /* This file's digit/punct glyphs are corrupt (all draw as &). Letters only. */
+  unicode-range: U+0020, U+0041-005A, U+0061-007A;
 }
 
 @font-face {
@@ -50,8 +51,8 @@
   --titlebar-stripe: #999999;
   --color-accent: #3366cc;
   --color-accent-foreground: #ffffff;
-  --font-system: 'ChicagoFLF', 'Chicago', sans-serif;
-  --font-body: 'Charcoal', 'Geneva', sans-serif;
+  --font-system: 'ChicagoFLF', 'Chicago', 'Geneva', sans-serif;
+  --font-body: 'Charcoal', 'ChicagoFLF', 'Geneva', sans-serif;
   --font-hand: 'Caveat', 'Apple Chancery', 'Segoe Script', cursive;
   --font-mono: 'Geneva', 'Monaco', monospace;
   --spacing-1: 2px;
