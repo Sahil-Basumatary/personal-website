@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: SITE.name,
+    default: SITE.title,
     template: `%s · ${SITE.name}`,
   },
   description: SITE.description,
@@ -26,11 +26,15 @@ export const metadata: Metadata = {
   creator: SITE.author,
   publisher: SITE.author,
   keywords: [
+    'Sahil Bzy',
+    'sahilbzy',
+    'sahilbzy.com',
     'Sahil Basumatary',
     'portfolio',
     'software engineer',
     'web developer',
     'computer science',
+    "King's College London",
     'Mac OS 9',
   ],
   alternates: {
@@ -40,13 +44,13 @@ export const metadata: Metadata = {
     type: 'website',
     url: '/',
     siteName: SITE.name,
-    title: SITE.name,
+    title: SITE.title,
     description: SITE.description,
     locale: SITE.locale,
   },
   twitter: {
     card: 'summary_large_image',
-    title: SITE.name,
+    title: SITE.title,
     description: SITE.description,
     creator: SITE.twitter,
     site: SITE.twitter,

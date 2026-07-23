@@ -13,6 +13,7 @@ export function buildStructuredData() {
         '@type': 'Person',
         '@id': PERSON_ID,
         name: SITE.author,
+        alternateName: [...SITE.alternateNames],
         url: SITE_URL,
         sameAs: [
           'https://github.com/Sahil-Basumatary',
@@ -25,9 +26,17 @@ export function buildStructuredData() {
         '@id': WEBSITE_ID,
         url: SITE_URL,
         name: SITE.name,
+        alternateName: [
+          'Sahil Bzy',
+          'sahilbzy',
+          'sahilbzy.com',
+          SITE.author,
+          SITE.title,
+        ],
         description: SITE.description,
         inLanguage: 'en',
         publisher: { '@id': PERSON_ID },
+        author: { '@id': PERSON_ID },
       },
     ],
   };
