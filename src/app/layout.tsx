@@ -108,7 +108,14 @@ export default function RootLayout({
           }}
         />
         {isProduction ? (
-          <SerwistProvider swUrl="/serwist/sw.js">{children}</SerwistProvider>
+          <SerwistProvider
+            swUrl="/serwist/sw.js"
+            // Bundled SW is classic JS (createSerwistRoute + esbuild), not ESM.
+            // SerwistProvider defaults to type:"module", which rejects registration.
+            options={{ type: 'classic' }}
+          >
+            {children}
+          </SerwistProvider>
         ) : (
           <>
             <ServiceWorkerCleanup />
