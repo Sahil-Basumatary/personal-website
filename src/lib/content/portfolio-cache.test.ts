@@ -118,6 +118,47 @@ describe('isPortfolioContent', () => {
     ).toBe(true);
   });
 
+  it('accepts projects with valid story images', () => {
+    expect(
+      isPortfolioContent({
+        ...sample,
+        projects: [
+          {
+            ...sample.projects[0],
+            images: [
+              {
+                url: 'https://media.example/a.jpg',
+                alt: 'A',
+                caption: 'Cap',
+                order: 0,
+              },
+              {
+                url: 'https://media.example/b.jpg',
+                alt: 'B',
+                caption: null,
+                order: 1,
+              },
+            ],
+          },
+        ],
+      })
+    ).toBe(true);
+  });
+
+  it('rejects nullish image entries', () => {
+    expect(
+      isPortfolioContent({
+        ...sample,
+        projects: [
+          {
+            ...sample.projects[0],
+            images: [null],
+          },
+        ],
+      })
+    ).toBe(false);
+  });
+
   it('accepts legacy cache projects that omit images', () => {
     const { images: _images, ...legacyProject } = sample.projects[0];
     expect(
@@ -126,6 +167,67 @@ describe('isPortfolioContent', () => {
         projects: [legacyProject as (typeof sample.projects)[0]],
       })
     ).toBe(true);
+  });
+
+  it('rejects projects with malformed images', () => {
+    expect(
+      isPortfolioContent({
+        ...sample,
+        projects: [
+          {
+            ...sample.projects[0],
+            images: 'nope',
+          },
+        ],
+      })
+    ).toBe(false);
+    expect(
+      isPortfolioContent({
+        ...sample,
+        projects: [
+          {
+            ...sample.projects[0],
+            images: [{ url: 1, alt: 'x', caption: null, order: 0 }],
+          },
+        ],
+      })
+    ).toBe(false);
+    expect(
+      isPortfolioContent({
+        ...sample,
+        projects: [
+          {
+            ...sample.projects[0],
+            images: [
+              {
+                url: 'https://media.example/a.jpg',
+                alt: 'A',
+                caption: 12,
+                order: 0,
+              },
+            ],
+          },
+        ],
+      })
+    ).toBe(false);
+    expect(
+      isPortfolioContent({
+        ...sample,
+        projects: [
+          {
+            ...sample.projects[0],
+            images: [
+              {
+                url: 'https://media.example/a.jpg',
+                alt: 'A',
+                caption: null,
+                order: Number.NaN,
+              },
+            ],
+          },
+        ],
+      })
+    ).toBe(false);
   });
 });
 
@@ -139,10 +241,40 @@ describe('portfolio cache round-trip', () => {
     });
   });
 
+  it('normalizes missing project images to an empty array', () => {
+    const { images: _images, ...legacyProject } = sample.projects[0];
+    const legacy = {
+      ...sample,
+      projects: [legacyProject as (typeof sample.projects)[0]],
+    };
+    const parsed = parsePortfolioCache(
+      serializePortfolioCache(legacy, '2026-07-12T00:00:00.000Z')
+    );
+    expect(parsed?.content.projects[0]?.images).toEqual([]);
+  });
+
+  it('normalizes non-array project images to an empty array on write', () => {
+    const raw = serializePortfolioCache(
+      {
+        ...sample,
+        projects: [
+          {
+            ...sample.projects[0],
+            images:
+              null as unknown as PortfolioContent['projects'][number]['images'],
+          },
+        ],
+      },
+      '2026-07-12T00:00:00.000Z'
+    );
+    expect(JSON.parse(raw).content.projects[0].images).toEqual([]);
+  });
+
   it('returns null for missing or invalid raw values', () => {
     expect(parsePortfolioCache(null)).toBeNull();
     expect(parsePortfolioCache('{')).toBeNull();
     expect(parsePortfolioCache('null')).toBeNull();
+    expect(parsePortfolioCache('"string"')).toBeNull();
     expect(parsePortfolioCache('{"version":2}')).toBeNull();
     expect(
       parsePortfolioCache(

@@ -81,6 +81,33 @@ describe('mapProjectRecord', () => {
     ]);
     expect(mapped.images).not.toBe(images);
   });
+
+  it('breaks image order ties by url', () => {
+    const mapped = mapProjectRecord(
+      baseProject({
+        slug: 'demo',
+        title: 'Demo',
+        images: [
+          {
+            url: 'https://media.example/z.jpg',
+            alt: 'Z',
+            caption: null,
+            order: 1,
+          },
+          {
+            url: 'https://media.example/a.jpg',
+            alt: 'A',
+            caption: null,
+            order: 1,
+          },
+        ],
+      })
+    );
+    expect(mapped.images.map((image) => image.url)).toEqual([
+      'https://media.example/a.jpg',
+      'https://media.example/z.jpg',
+    ]);
+  });
 });
 
 describe('mapPublishedProjects', () => {

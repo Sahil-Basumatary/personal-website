@@ -40,13 +40,13 @@ describe('DesktopIcon', () => {
   it('opens on double click', () => {
     const { onOpen } = setup();
     fireEvent.doubleClick(screen.getByRole('button'));
-    expect(onOpen).toHaveBeenCalledWith(icon);
+    expect(onOpen).toHaveBeenCalledWith(icon, expect.any(HTMLElement));
   });
 
   it('opens on Enter', () => {
     const { onOpen } = setup();
     fireEvent.keyDown(screen.getByRole('button'), { key: 'Enter' });
-    expect(onOpen).toHaveBeenCalledWith(icon);
+    expect(onOpen).toHaveBeenCalledWith(icon, expect.any(HTMLElement));
   });
 
   it('exposes its selection state to assistive tech', () => {
