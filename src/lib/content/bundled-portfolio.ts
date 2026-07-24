@@ -120,7 +120,13 @@ export const BUNDLED_PORTFOLIO: PortfolioContent = {
     },
   ],
   skills: {
-    languages: ['TypeScript', 'JavaScript', 'Python', 'Java', 'SQL'],
+    languages: [
+      { name: 'TypeScript', proficiency: 'advanced' },
+      { name: 'JavaScript', proficiency: 'advanced' },
+      { name: 'Python', proficiency: 'intermediate' },
+      { name: 'Java', proficiency: 'intermediate' },
+      { name: 'SQL', proficiency: 'intermediate' },
+    ],
     frontend: ['React', 'Next.js', 'Tailwind CSS', 'HTML/CSS'],
     backend: ['Node.js', 'Express', 'FastAPI', 'Spring Boot'],
     tools: ['Git', 'Docker', 'PostgreSQL', 'MongoDB', 'Vercel'],

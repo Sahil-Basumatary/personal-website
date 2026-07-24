@@ -36,6 +36,7 @@ export async function fetchPublicPortfolioSnapshot(): Promise<PortfolioSnapshot>
         name: skills.name,
         category: skills.category,
         order: skills.order,
+        proficiency: skills.proficiency,
       })
       .from(skills)
       .orderBy(asc(skills.order), asc(skills.name)),

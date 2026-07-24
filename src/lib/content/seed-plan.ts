@@ -1,8 +1,13 @@
-import type { PortfolioContent, PortfolioProject } from '@/types/portfolio';
+import type {
+  PortfolioContent,
+  PortfolioProject,
+  PortfolioSkillItem,
+} from '@/types/portfolio';
 import {
-  DEFAULT_LANGUAGE_SKILL_LEVEL,
+  DEFAULT_LANGUAGE_SKILL_PROFICIENCY,
   isLanguageSkillCategory,
-  type SkillLevel,
+  isSkillProficiency,
+  type SkillProficiency,
 } from './skill-taxonomy';
 
 export type SeedSkillKey = `${string}::${string}`;
@@ -22,7 +27,7 @@ export interface ProjectSeedRow {
 export interface SkillSeedRow {
   name: string;
   category: string;
-  level: SkillLevel | null;
+  proficiency: SkillProficiency | null;
   order: number;
 }
 
@@ -52,19 +57,33 @@ export function toProjectSeedRows(
   }));
 }
 
+function seedEntryName(entry: PortfolioSkillItem): string {
+  return typeof entry === 'string' ? entry : entry.name;
+}
+
+function seedEntryProficiency(
+  category: string,
+  entry: PortfolioSkillItem,
+  fallback: SkillProficiency
+): SkillProficiency | null {
+  if (!isLanguageSkillCategory(category)) return null;
+  if (typeof entry === 'string') return fallback;
+  return isSkillProficiency(entry.proficiency) ? entry.proficiency : fallback;
+}
+
 export function toSkillSeedRows(
   skills: PortfolioContent['skills'],
-  languageLevel: SkillLevel = DEFAULT_LANGUAGE_SKILL_LEVEL
+  languageProficiency: SkillProficiency = DEFAULT_LANGUAGE_SKILL_PROFICIENCY
 ): SkillSeedRow[] {
   const rows: SkillSeedRow[] = [];
   let order = 0;
 
-  for (const [category, names] of Object.entries(skills)) {
-    for (const name of names) {
+  for (const [category, entries] of Object.entries(skills)) {
+    for (const entry of entries) {
       rows.push({
-        name,
+        name: seedEntryName(entry),
         category,
-        level: isLanguageSkillCategory(category) ? languageLevel : null,
+        proficiency: seedEntryProficiency(category, entry, languageProficiency),
         order,
       });
       order += 1;

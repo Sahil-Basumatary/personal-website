@@ -1,9 +1,16 @@
 import type {
   PortfolioContent,
+  PortfolioLanguageSkill,
   PortfolioProject,
   PortfolioSkills,
   PortfolioStoryImage,
 } from '@/types/portfolio';
+import {
+  DEFAULT_LANGUAGE_SKILL_PROFICIENCY,
+  isLanguageSkillCategory,
+  isSkillProficiency,
+  type SkillProficiency,
+} from './skill-taxonomy';
 
 export type ProjectStatus = 'draft' | 'published' | 'archived';
 
@@ -24,6 +31,7 @@ export interface SkillRecord {
   name: string;
   category: string;
   order: number;
+  proficiency?: SkillProficiency | null;
 }
 
 export function mapStoryImages(
@@ -70,10 +78,25 @@ export function mapPublishedProjects(
     .map(mapProjectRecord);
 }
 
+function resolveLanguageProficiency(
+  value: SkillProficiency | null | undefined
+): SkillProficiency {
+  return value && isSkillProficiency(value)
+    ? value
+    : DEFAULT_LANGUAGE_SKILL_PROFICIENCY;
+}
+
 export function mapSkillRecords(rows: readonly SkillRecord[]): PortfolioSkills {
   const byCategory = new Map<
     string,
-    { minOrder: number; items: { name: string; order: number }[] }
+    {
+      minOrder: number;
+      items: {
+        name: string;
+        order: number;
+        proficiency: SkillProficiency | null;
+      }[];
+    }
   >();
 
   for (const row of rows) {
@@ -81,17 +104,21 @@ export function mapSkillRecords(rows: readonly SkillRecord[]): PortfolioSkills {
     const name = row.name.trim();
     if (!category || !name) continue;
 
+    const proficiency = isLanguageSkillCategory(category)
+      ? resolveLanguageProficiency(row.proficiency)
+      : null;
+
     const existing = byCategory.get(category);
     if (!existing) {
       byCategory.set(category, {
         minOrder: row.order,
-        items: [{ name, order: row.order }],
+        items: [{ name, order: row.order, proficiency }],
       });
       continue;
     }
 
     existing.minOrder = Math.min(existing.minOrder, row.order);
-    existing.items.push({ name, order: row.order });
+    existing.items.push({ name, order: row.order, proficiency });
   }
 
   const orderedCategories = [...byCategory.entries()].sort((a, b) => {
@@ -103,13 +130,22 @@ export function mapSkillRecords(rows: readonly SkillRecord[]): PortfolioSkills {
 
   const skills: PortfolioSkills = {};
   for (const [category, group] of orderedCategories) {
-    skills[category] = group.items
-      .slice()
-      .sort((a, b) => {
-        if (a.order !== b.order) return a.order - b.order;
-        return a.name.localeCompare(b.name);
-      })
-      .map((item) => item.name);
+    const items = group.items.slice().sort((a, b) => {
+      if (a.order !== b.order) return a.order - b.order;
+      return a.name.localeCompare(b.name);
+    });
+
+    if (isLanguageSkillCategory(category)) {
+      skills[category] = items.map(
+        (item): PortfolioLanguageSkill => ({
+          name: item.name,
+          proficiency: resolveLanguageProficiency(item.proficiency),
+        })
+      );
+      continue;
+    }
+
+    skills[category] = items.map((item) => item.name);
   }
   return skills;
 }

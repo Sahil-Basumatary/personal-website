@@ -16,21 +16,21 @@ import { revalidatePortfolio } from '@/lib/content/revalidate-portfolio';
 import {
   isLanguageSkillCategory,
   SKILL_CATEGORIES,
-  SKILL_LEVELS,
+  SKILL_PROFICIENCIES,
 } from '@/lib/content/skill-taxonomy';
 
 const skillSchema = z
   .object({
     name: z.string().trim().min(1).max(120),
     category: z.enum(SKILL_CATEGORIES),
-    level: z.enum(SKILL_LEVELS).optional(),
+    proficiency: z.enum(SKILL_PROFICIENCIES).optional(),
   })
   .superRefine((value, ctx) => {
-    if (isLanguageSkillCategory(value.category) && !value.level) {
+    if (isLanguageSkillCategory(value.category) && !value.proficiency) {
       ctx.addIssue({
         code: 'custom',
-        message: 'Languages require a level.',
-        path: ['level'],
+        message: 'Languages require a proficiency.',
+        path: ['proficiency'],
       });
     }
   });
@@ -39,13 +39,13 @@ const idSchema = z.uuid();
 const directionSchema = z.enum(['up', 'down']);
 
 function parseSkill(formData: FormData) {
-  const rawLevel = formData.get('level');
+  const rawProficiency = formData.get('proficiency');
   return skillSchema.safeParse({
     name: formData.get('name'),
     category: formData.get('category'),
-    level:
-      typeof rawLevel === 'string' && rawLevel.length > 0
-        ? rawLevel
+    proficiency:
+      typeof rawProficiency === 'string' && rawProficiency.length > 0
+        ? rawProficiency
         : undefined,
   });
 }
@@ -54,7 +54,9 @@ function toSkillRow(data: z.infer<typeof skillSchema>) {
   return {
     name: data.name,
     category: data.category,
-    level: isLanguageSkillCategory(data.category) ? (data.level ?? null) : null,
+    proficiency: isLanguageSkillCategory(data.category)
+      ? (data.proficiency ?? null)
+      : null,
   };
 }
 

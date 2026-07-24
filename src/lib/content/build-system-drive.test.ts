@@ -76,7 +76,9 @@ describe('buildSystemDrive', () => {
     const drive = buildSystemDrive({
       about: 'About text',
       projects: [sampleProject],
-      skills: { languages: ['TypeScript'] },
+      skills: {
+        languages: [{ name: 'TypeScript', proficiency: 'advanced' }],
+      },
     });
     const desktop = folder(drive, 'Desktop');
     expect(desktop.children['About Me']).toEqual({
@@ -87,7 +89,13 @@ describe('buildSystemDrive', () => {
     expect(desktop.children['Skills.json']).toEqual({
       name: 'Skills.json',
       kind: 'file',
-      content: JSON.stringify({ languages: ['TypeScript'] }, null, 2),
+      content: JSON.stringify(
+        {
+          languages: [{ name: 'TypeScript', proficiency: 'advanced' }],
+        },
+        null,
+        2
+      ),
     });
     const project = folder(folder(desktop, 'Projects'), 'demo');
     expect(project.children[PROJECT_STORY_FILENAME]?.kind).toBe('file');

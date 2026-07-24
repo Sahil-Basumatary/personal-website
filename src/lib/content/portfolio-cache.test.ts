@@ -24,7 +24,9 @@ const sample: PortfolioContent = {
       images: [],
     },
   ],
-  skills: { languages: ['TypeScript'] },
+  skills: {
+    languages: [{ name: 'TypeScript', proficiency: 'advanced' }],
+  },
 };
 
 function memoryStorage(initial: Record<string, string> = {}) {
@@ -91,7 +93,7 @@ describe('isPortfolioContent', () => {
     expect(
       isPortfolioContent({
         ...sample,
-        skills: { languages: [1] },
+        skills: { languages: [{ name: 'TypeScript' }] },
       })
     ).toBe(false);
     expect(

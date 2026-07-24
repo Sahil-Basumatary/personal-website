@@ -151,7 +151,7 @@ describe('skills and projects', () => {
     const out = COMMANDS.skills.execute([], buildCtx());
     const text = out.map((l) => l.text).join('\n');
     expect(text).toContain('Languages');
-    expect(text).toContain('TypeScript, Python');
+    expect(text).toContain('TypeScript (advanced), Python (intermediate)');
   });
 
   it('projects lists summary and tech tags and flags malformed metadata', () => {

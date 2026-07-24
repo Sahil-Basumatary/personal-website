@@ -8,12 +8,12 @@ import {
 } from '@/app/admin/_lib/form-state';
 import type { Skill } from '@/db/schema';
 import {
-  DEFAULT_LANGUAGE_SKILL_LEVEL,
+  DEFAULT_LANGUAGE_SKILL_PROFICIENCY,
   isLanguageSkillCategory,
   SKILL_CATEGORIES,
   SKILL_CATEGORY_LABELS,
-  SKILL_LEVEL_LABELS,
-  SKILL_LEVELS,
+  SKILL_PROFICIENCIES,
+  SKILL_PROFICIENCY_LABELS,
   type SkillCategory,
 } from '@/lib/content/skill-taxonomy';
 import { createSkill, updateSkill } from './actions';
@@ -57,7 +57,7 @@ export function SkillForm({ skill }: SkillFormProps) {
       : 'languages'
   ) as SkillCategory;
   const [category, setCategory] = useState<SkillCategory>(initialCategory);
-  const showLevel = isLanguageSkillCategory(category);
+  const showProficiency = isLanguageSkillCategory(category);
 
   return (
     <form action={formAction} className="admin-form">
@@ -103,24 +103,26 @@ export function SkillForm({ skill }: SkillFormProps) {
           </select>
         </div>
 
-        {showLevel ? (
+        {showProficiency ? (
           <div className="admin-field">
             <label
               className="admin-label"
-              htmlFor={`${skill?.id ?? 'new'}-level`}
+              htmlFor={`${skill?.id ?? 'new'}-proficiency`}
             >
-              Level
+              Proficiency
             </label>
             <select
-              id={`${skill?.id ?? 'new'}-level`}
-              name="level"
+              id={`${skill?.id ?? 'new'}-proficiency`}
+              name="proficiency"
               className="admin-input"
-              defaultValue={skill?.level ?? DEFAULT_LANGUAGE_SKILL_LEVEL}
+              defaultValue={
+                skill?.proficiency ?? DEFAULT_LANGUAGE_SKILL_PROFICIENCY
+              }
               required
             >
-              {SKILL_LEVELS.map((value) => (
+              {SKILL_PROFICIENCIES.map((value) => (
                 <option key={value} value={value}>
-                  {SKILL_LEVEL_LABELS[value]}
+                  {SKILL_PROFICIENCY_LABELS[value]}
                 </option>
               ))}
             </select>

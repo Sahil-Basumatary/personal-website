@@ -161,7 +161,10 @@ describe('mapSkillRecords', () => {
       { name: 'Ghost', category: '  ', order: 9 },
     ];
     expect(mapSkillRecords(rows)).toEqual({
-      languages: ['TypeScript', 'Python'],
+      languages: [
+        { name: 'TypeScript', proficiency: 'intermediate' },
+        { name: 'Python', proficiency: 'intermediate' },
+      ],
       frontend: ['Next.js', 'React'],
     });
   });
@@ -184,7 +187,7 @@ describe('mapSkillRecords', () => {
         { name: 'SQL', category: 'languages', order: 0 },
       ])
     ).toEqual({
-      languages: ['SQL'],
+      languages: [{ name: 'SQL', proficiency: 'intermediate' }],
       tools: ['Docker'],
     });
   });
@@ -192,11 +195,24 @@ describe('mapSkillRecords', () => {
   it('breaks name ties alphabetically inside a category', () => {
     expect(
       mapSkillRecords([
-        { name: 'Zig', category: 'languages', order: 1 },
-        { name: 'Ada', category: 'languages', order: 1 },
+        {
+          name: 'Zig',
+          category: 'languages',
+          order: 1,
+          proficiency: 'beginner',
+        },
+        {
+          name: 'Ada',
+          category: 'languages',
+          order: 1,
+          proficiency: 'advanced',
+        },
       ])
     ).toEqual({
-      languages: ['Ada', 'Zig'],
+      languages: [
+        { name: 'Ada', proficiency: 'advanced' },
+        { name: 'Zig', proficiency: 'beginner' },
+      ],
     });
   });
 });
@@ -219,11 +235,20 @@ describe('mapPortfolioContent', () => {
         baseProject({ slug: 'keep', title: 'Keep', status: 'published' }),
         baseProject({ slug: 'skip', title: 'Skip', status: 'draft' }),
       ],
-      skills: [{ name: 'Go', category: 'languages', order: 0 }],
+      skills: [
+        {
+          name: 'Go',
+          category: 'languages',
+          order: 0,
+          proficiency: 'advanced',
+        },
+      ],
     });
     expect(content.about).toBe('Hello');
     expect(content.projects).toHaveLength(1);
     expect(content.projects[0]?.slug).toBe('keep');
-    expect(content.skills).toEqual({ languages: ['Go'] });
+    expect(content.skills).toEqual({
+      languages: [{ name: 'Go', proficiency: 'advanced' }],
+    });
   });
 });

@@ -19,7 +19,8 @@ export const projectStatusEnum = pgEnum('project_status', [
   'archived',
 ]);
 
-export const skillLevelEnum = pgEnum('skill_level', [
+// PG enum type stays skill_level; the column is named proficiency.
+export const skillProficiencyEnum = pgEnum('skill_level', [
   'beginner',
   'intermediate',
   'advanced',
@@ -87,7 +88,7 @@ export const skills = pgTable(
     id: uuid('id').defaultRandom().primaryKey(),
     name: varchar('name', { length: 120 }).notNull(),
     category: varchar('category', { length: 80 }).notNull(),
-    level: skillLevelEnum('level'),
+    proficiency: skillProficiencyEnum('proficiency'),
     order: integer('display_order').default(0).notNull(),
   },
   (table) => [

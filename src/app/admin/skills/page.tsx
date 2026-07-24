@@ -3,19 +3,19 @@ import { AdminPendingForm } from '@/app/admin/_components/AdminPendingForm';
 import {
   isLanguageSkillCategory,
   SKILL_CATEGORY_LABELS,
-  SKILL_LEVEL_LABELS,
+  SKILL_PROFICIENCY_LABELS,
   type SkillCategory,
-  type SkillLevel,
+  type SkillProficiency,
 } from '@/lib/content/skill-taxonomy';
 import { deleteSkill, reorderSkill } from './actions';
 import { getSkills } from './queries';
 import { SkillForm } from './skill-form';
 
-function skillEyebrow(category: string, level: string | null): string {
+function skillEyebrow(category: string, proficiency: string | null): string {
   const categoryLabel =
     SKILL_CATEGORY_LABELS[category as SkillCategory] ?? category;
-  if (isLanguageSkillCategory(category) && level) {
-    return `${categoryLabel} / ${SKILL_LEVEL_LABELS[level as SkillLevel] ?? level}`;
+  if (isLanguageSkillCategory(category) && proficiency) {
+    return `${categoryLabel} / ${SKILL_PROFICIENCY_LABELS[proficiency as SkillProficiency] ?? proficiency}`;
   }
   return categoryLabel;
 }
@@ -30,8 +30,8 @@ export default async function AdminSkillsPage() {
           <p className="admin-kicker">Content</p>
           <h1>Skills</h1>
           <p className="admin-hero__copy">
-            Use the fixed categories so Skills.json stays clean. Levels are only
-            for languages — Beginner, Intermediate, or Advanced.
+            Use the fixed categories so Skills.json stays clean. Proficiency is
+            only for languages — Beginner, Intermediate, or Advanced.
           </p>
         </div>
         <p className="admin-hero__timestamp">{skillList.length} skills</p>
@@ -63,7 +63,7 @@ export default async function AdminSkillsPage() {
                 <div className="admin-resource__summary">
                   <div>
                     <p className="admin-resource__eyebrow">
-                      {skillEyebrow(skill.category, skill.level)}
+                      {skillEyebrow(skill.category, skill.proficiency)}
                     </p>
                     <h3>{skill.name}</h3>
                   </div>

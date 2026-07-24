@@ -7,7 +7,7 @@ import {
   toProjectSeedRows,
   toSkillSeedRows,
 } from './seed-plan';
-import { DEFAULT_LANGUAGE_SKILL_LEVEL } from './skill-taxonomy';
+import { DEFAULT_LANGUAGE_SKILL_PROFICIENCY } from './skill-taxonomy';
 
 const sample: PortfolioContent = {
   about: 'About me',
@@ -34,7 +34,10 @@ const sample: PortfolioContent = {
     },
   ],
   skills: {
-    languages: ['TypeScript', 'Python'],
+    languages: [
+      { name: 'TypeScript', proficiency: 'advanced' },
+      { name: 'Python', proficiency: 'intermediate' },
+    ],
     tools: ['Git'],
   },
 };
@@ -77,35 +80,41 @@ describe('toProjectSeedRows', () => {
 });
 
 describe('toSkillSeedRows', () => {
-  it('flattens categories with language levels and sequential order', () => {
+  it('flattens categories with language proficiency and sequential order', () => {
     expect(toSkillSeedRows(sample.skills)).toEqual([
       {
         name: 'TypeScript',
         category: 'languages',
-        level: DEFAULT_LANGUAGE_SKILL_LEVEL,
+        proficiency: 'advanced',
         order: 0,
       },
       {
         name: 'Python',
         category: 'languages',
-        level: DEFAULT_LANGUAGE_SKILL_LEVEL,
+        proficiency: 'intermediate',
         order: 1,
       },
       {
         name: 'Git',
         category: 'tools',
-        level: null,
+        proficiency: null,
         order: 2,
       },
     ]);
   });
 
-  it('allows a custom language level', () => {
-    expect(toSkillSeedRows({ languages: ['Go'] }, 'advanced')[0]?.level).toBe(
-      'advanced'
-    );
-    expect(toSkillSeedRows({ tools: ['Docker'] }, 'advanced')[0]?.level).toBe(
-      null
+  it('allows a custom language proficiency fallback for string entries', () => {
+    expect(
+      toSkillSeedRows({ languages: ['Go'] }, 'advanced')[0]?.proficiency
+    ).toBe('advanced');
+    expect(
+      toSkillSeedRows({ tools: ['Docker'] }, 'advanced')[0]?.proficiency
+    ).toBe(null);
+  });
+
+  it('defaults string language entries to the shared proficiency', () => {
+    expect(toSkillSeedRows({ languages: ['Rust'] })[0]?.proficiency).toBe(
+      DEFAULT_LANGUAGE_SKILL_PROFICIENCY
     );
   });
 });

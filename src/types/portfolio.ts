@@ -1,3 +1,5 @@
+import type { SkillProficiency } from '@/lib/content/skill-taxonomy';
+
 export interface PortfolioStoryImage {
   url: string;
   alt: string;
@@ -16,7 +18,14 @@ export interface PortfolioProject {
   images: PortfolioStoryImage[];
 }
 
-export type PortfolioSkills = Record<string, string[]>;
+export interface PortfolioLanguageSkill {
+  name: string;
+  proficiency: SkillProficiency;
+}
+
+export type PortfolioSkillItem = string | PortfolioLanguageSkill;
+
+export type PortfolioSkills = Record<string, PortfolioSkillItem[]>;
 
 export interface PortfolioContent {
   about: string;

@@ -1,10 +1,13 @@
 import type {
   PortfolioContent,
+  PortfolioLanguageSkill,
   PortfolioProject,
+  PortfolioSkillItem,
   PortfolioStoryImage,
 } from '@/types/portfolio';
+import { isLanguageSkillCategory, isSkillProficiency } from './skill-taxonomy';
 
-export const PORTFOLIO_CACHE_KEY = 'sahilbzy:portfolio:v1';
+export const PORTFOLIO_CACHE_KEY = 'sahilbzy:portfolio:v2';
 
 export interface PortfolioCacheRecord {
   version: 1;
@@ -16,6 +19,23 @@ function isStringArray(value: unknown): value is string[] {
   return (
     Array.isArray(value) && value.every((item) => typeof item === 'string')
   );
+}
+
+function isLanguageSkillItem(value: unknown): value is PortfolioLanguageSkill {
+  if (!value || typeof value !== 'object') return false;
+  const item = value as PortfolioLanguageSkill;
+  return typeof item.name === 'string' && isSkillProficiency(item.proficiency);
+}
+
+function isSkillItemList(
+  category: string,
+  value: unknown
+): value is PortfolioSkillItem[] {
+  if (!Array.isArray(value)) return false;
+  if (isLanguageSkillCategory(category)) {
+    return value.every(isLanguageSkillItem);
+  }
+  return value.every((item) => typeof item === 'string');
 }
 
 function isPortfolioStoryImage(value: unknown): value is PortfolioStoryImage {
@@ -81,7 +101,9 @@ export function isPortfolioContent(value: unknown): value is PortfolioContent {
   }
   if (!content.projects.every(isPortfolioProject)) return false;
   if (!content.skills || typeof content.skills !== 'object') return false;
-  return Object.values(content.skills).every(isStringArray);
+  return Object.entries(content.skills).every(([category, items]) =>
+    isSkillItemList(category, items)
+  );
 }
 
 export function parsePortfolioCache(

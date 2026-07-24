@@ -21,7 +21,9 @@ const fallback: PortfolioContent = {
       images: [],
     },
   ],
-  skills: { languages: ['TypeScript'] },
+  skills: {
+    languages: [{ name: 'TypeScript', proficiency: 'advanced' }],
+  },
 };
 
 const published: ProjectRecord = {

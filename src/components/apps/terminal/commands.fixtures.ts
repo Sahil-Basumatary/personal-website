@@ -17,7 +17,10 @@ export function resolvePath(cwd: string, relative: string): string {
 export const FILES: Record<string, string> = {
   '/Desktop/Contact': 'email: sahil@example.com\ngithub: Sahil-Basumatary',
   '/Desktop/Skills.json': JSON.stringify({
-    languages: ['TypeScript', 'Python'],
+    languages: [
+      { name: 'TypeScript', proficiency: 'advanced' },
+      { name: 'Python', proficiency: 'intermediate' },
+    ],
     frameworks: ['React', 'FastAPI'],
   }),
   '/Desktop/Projects/pioni/tech-stack.json': JSON.stringify({

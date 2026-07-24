@@ -159,11 +159,32 @@ const skills: Command = {
     const content = ctx.fs.getFileContent('/Desktop/Skills.json');
     if (!content) return [error('skills: could not load Skills.json')];
     try {
-      const data = JSON.parse(content) as Record<string, string[]>;
+      const data = JSON.parse(content) as Record<string, unknown>;
       const lines: OutputLine[] = [accent('Technical Skills'), stdout('')];
       for (const [category, items] of Object.entries(data)) {
+        if (!Array.isArray(items)) continue;
         const label = category.charAt(0).toUpperCase() + category.slice(1);
-        lines.push(stdout(`  ${label.padEnd(14)} ${items.join(', ')}`));
+        const names = items
+          .map((item) => {
+            if (typeof item === 'string') return item;
+            if (
+              item &&
+              typeof item === 'object' &&
+              'name' in item &&
+              typeof (item as { name: unknown }).name === 'string'
+            ) {
+              const proficiency = (item as { proficiency?: unknown })
+                .proficiency;
+              if (typeof proficiency === 'string') {
+                return `${(item as { name: string }).name} (${proficiency})`;
+              }
+              return (item as { name: string }).name;
+            }
+            return null;
+          })
+          .filter((name): name is string => Boolean(name));
+        if (names.length === 0) continue;
+        lines.push(stdout(`  ${label.padEnd(14)} ${names.join(', ')}`));
       }
       return lines;
     } catch {
