@@ -3,7 +3,6 @@ import Image from 'next/image';
 const PHOTOS = [
   {
     src: '/wallpapers/young-2003.webp',
-    year: '2003',
     alt: 'Sahil as a baby in 2003',
     width: 206,
     height: 320,
@@ -14,7 +13,6 @@ const PHOTOS = [
   },
   {
     src: '/wallpapers/adult-2026.webp',
-    year: '2026',
     alt: 'Sahil in 2026',
     width: 640,
     height: 640,
@@ -31,7 +29,7 @@ export function DesktopWallpaper() {
       <div className="desktop-photos-stack">
         <div className="desktop-photos-row">
           {PHOTOS.map((photo) => (
-            <div key={photo.year} className="desktop-photo-slot">
+            <div key={photo.src} className="desktop-photo-slot">
               <Image
                 className="photo-frame-label"
                 src={photo.labelSrc}
@@ -41,9 +39,7 @@ export function DesktopWallpaper() {
                 priority
               />
               <figure className="photo-frame">
-                <div className="photo-frame-titlebar">
-                  <span className="photo-frame-title">{photo.year}</span>
-                </div>
+                <div className="photo-frame-titlebar" aria-hidden />
                 <div className="photo-frame-body">
                   <Image
                     className="photo-frame-img"
