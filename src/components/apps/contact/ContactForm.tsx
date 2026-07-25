@@ -143,7 +143,7 @@ export function ContactForm() {
     <div className="contact-form">
       <header className="contact-form-header">
         <h2 className="contact-form-title">Get in touch</h2>
-        <p className="contact-form-subtitle">Drop a note. I read everything.</p>
+        <p className="contact-form-subtitle">Ping me!</p>
       </header>
       <form className="contact-form-fields" onSubmit={handleSubmit} noValidate>
         {issues.length > 0 ? (
