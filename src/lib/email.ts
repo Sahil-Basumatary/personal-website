@@ -2,6 +2,7 @@ import 'server-only';
 
 import { Resend } from 'resend';
 import type { ContactSubmission } from '@/db/schema';
+import { assertResendAccepted } from '@/lib/email-result';
 import { SITE_URL } from '@/lib/site';
 
 interface EmailResult {
@@ -170,7 +171,7 @@ export async function sendContactNotification(
     return { sent: false, skipped: true };
   }
 
-  await resend.emails.send({
+  const result = await resend.emails.send({
     from: getFromAddress(),
     to,
     subject: `New portfolio message: ${submission.subject}`,
@@ -185,6 +186,7 @@ export async function sendContactNotification(
     ].join('\n'),
   });
 
+  assertResendAccepted(result);
   return { sent: true, skipped: false };
 }
 
@@ -200,7 +202,7 @@ export async function sendContactReply({
     return { sent: false, skipped: true };
   }
 
-  await resend.emails.send({
+  const result = await resend.emails.send({
     from: getFromAddress(),
     to,
     subject,
@@ -208,5 +210,6 @@ export async function sendContactReply({
     text: message,
   });
 
+  assertResendAccepted(result);
   return { sent: true, skipped: false };
 }

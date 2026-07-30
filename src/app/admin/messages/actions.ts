@@ -103,18 +103,22 @@ export async function sendReply(
       message: parsed.data.message,
     });
 
+    if (result.skipped) {
+      return formError(
+        'Reply was not sent because RESEND_API_KEY is not configured.'
+      );
+    }
+
+    if (!result.sent) {
+      return formError('Reply failed. Check your Resend configuration.');
+    }
+
     await db
       .update(contactSubmissions)
       .set({ read: true })
       .where(eq(contactSubmissions.id, parsed.data.id));
     revalidatePath('/admin/messages');
     revalidatePath(`/admin/messages/${parsed.data.id}`);
-
-    if (result.skipped) {
-      return formSuccess(
-        'Reply skipped because RESEND_API_KEY is not configured.'
-      );
-    }
 
     return formSuccess('Reply sent.');
   } catch {
