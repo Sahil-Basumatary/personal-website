@@ -13,7 +13,7 @@ import {
 } from '@/app/admin/_lib/form-state';
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { revalidatePortfolio } from '@/lib/content/revalidate-portfolio';
-import { deleteProjectStoryObjects } from './story-image-actions';
+import { deleteProjectStoryObjects } from './delete-project-story-objects';
 
 const optionalUrl = z
   .string()

@@ -277,20 +277,3 @@ export async function deleteStoryImageRecord(
     return formError(storageErrorMessage(error));
   }
 }
-
-export async function deleteProjectStoryObjects(
-  projectId: string
-): Promise<void> {
-  const rows = await db
-    .select({ storageKey: projectStoryImages.storageKey })
-    .from(projectStoryImages)
-    .where(eq(projectStoryImages.projectId, projectId));
-
-  for (const row of rows) {
-    try {
-      await deleteStoryImage(row.storageKey);
-    } catch {
-      // Cascade still removes DB rows; continue best-effort R2 cleanup.
-    }
-  }
-}

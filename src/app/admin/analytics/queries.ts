@@ -2,6 +2,7 @@ import 'server-only';
 
 import { sql } from 'drizzle-orm';
 import { db } from '@/db';
+import { requireAdmin } from '@/lib/auth/require-admin';
 
 export interface AnalyticsSummary {
   visits7d: number;
@@ -49,6 +50,7 @@ function toLabel(value: unknown, fallback: string): string {
 }
 
 export async function getAnalyticsOverview(): Promise<AnalyticsOverview> {
+  await requireAdmin();
   const [
     summaryRows,
     trafficRows,

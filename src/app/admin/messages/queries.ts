@@ -4,8 +4,10 @@ import { desc, eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { db } from '@/db';
 import { contactSubmissions } from '@/db/schema';
+import { requireAdmin } from '@/lib/auth/require-admin';
 
 export async function getContactSubmissions() {
+  await requireAdmin();
   return db
     .select()
     .from(contactSubmissions)
@@ -13,6 +15,7 @@ export async function getContactSubmissions() {
 }
 
 export async function getContactSubmission(id: string) {
+  await requireAdmin();
   const rows = await db
     .select()
     .from(contactSubmissions)

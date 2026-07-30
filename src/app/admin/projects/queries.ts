@@ -3,8 +3,10 @@ import 'server-only';
 import { asc, inArray } from 'drizzle-orm';
 import { db } from '@/db';
 import { projectStoryImages, projects } from '@/db/schema';
+import { requireAdmin } from '@/lib/auth/require-admin';
 
 export async function getProjects() {
+  await requireAdmin();
   const projectList = await db
     .select()
     .from(projects)

@@ -3,6 +3,7 @@ import 'server-only';
 import { sql } from 'drizzle-orm';
 import { db } from '@/db';
 import { pageViews, windowOpens } from '@/db/schema';
+import { requireAdmin } from '@/lib/auth/require-admin';
 
 export interface AdminDashboardMetrics {
   pageViews: number;
@@ -11,6 +12,7 @@ export interface AdminDashboardMetrics {
 }
 
 export async function getAdminDashboardMetrics(): Promise<AdminDashboardMetrics> {
+  await requireAdmin();
   const [pageViewRows, dailyVisitorRows, windowOpenRows] = await Promise.all([
     db.select({ count: sql<number>`count(*)::int` }).from(pageViews),
     db.execute(sql`
