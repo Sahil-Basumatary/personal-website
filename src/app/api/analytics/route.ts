@@ -3,7 +3,12 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { db } from '@/db';
 import { pageViews, windowOpens } from '@/db/schema';
+import {
+  normalizeAnalyticsPath,
+  normalizeAnalyticsWindowType,
+} from '@/lib/analytics/event-values';
 import { normalizeReferrerOrigin } from '@/lib/analytics/normalize-referrer';
+import { isTrustedAnalyticsRequest } from '@/lib/analytics/request-guard';
 import { enforceRateLimit } from '@/lib/rate-limit';
 import { getClientIp, hashRateLimitKey } from '@/lib/request-ip';
 
@@ -49,14 +54,6 @@ function detectDevice(userAgent: string): string {
   return 'desktop';
 }
 
-function normalizePath(path: string): string {
-  if (!path.startsWith('/')) {
-    return '/';
-  }
-
-  return path.slice(0, 300);
-}
-
 function normalizeCountry(request: NextRequest): string | null {
   const country = request.headers.get('x-vercel-ip-country');
 
@@ -68,6 +65,10 @@ function normalizeCountry(request: NextRequest): string | null {
 }
 
 export async function POST(request: NextRequest) {
+  if (!isTrustedAnalyticsRequest(request.headers)) {
+    return NextResponse.json({ ok: false }, { status: 403 });
+  }
+
   const ip = getClientIp(request);
   const rateLimit = await enforceRateLimit('analytics', hashRateLimitKey(ip), {
     windowMs: 60_000,
@@ -95,16 +96,26 @@ export async function POST(request: NextRequest) {
   const visitorHash = hashVisitor(ip, userAgent, dailySalt);
 
   if (parsed.data.type === 'page_view') {
+    const path = normalizeAnalyticsPath(parsed.data.path);
+    if (!path) {
+      return NextResponse.json({ ok: false }, { status: 400 });
+    }
+
     await db.insert(pageViews).values({
-      path: normalizePath(parsed.data.path),
+      path,
       visitorHash,
       country: normalizeCountry(request),
       device: detectDevice(userAgent),
       referrer: normalizeReferrerOrigin(parsed.data.referrer),
     });
   } else {
+    const windowType = normalizeAnalyticsWindowType(parsed.data.windowType);
+    if (!windowType) {
+      return NextResponse.json({ ok: false }, { status: 400 });
+    }
+
     await db.insert(windowOpens).values({
-      windowType: parsed.data.windowType,
+      windowType,
     });
   }
 
