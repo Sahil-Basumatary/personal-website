@@ -3,11 +3,9 @@ import { db } from '@/db';
 import { contactSubmissions } from '@/db/schema';
 import { sendContactNotification } from '@/lib/email';
 import { validateContact } from '@/lib/contact-validation';
-import { checkRateLimit } from '@/lib/rate-limit';
+import { enforceRateLimit } from '@/lib/rate-limit';
 import { getClientIp, hashRateLimitKey } from '@/lib/request-ip';
 
-// We hold rate-limit buckets in process memory, so the handler must run on
-// the long-lived Node runtime. Edge would reset state on every invocation.
 export const runtime = 'nodejs';
 
 const MAX_BODY_BYTES = 16 * 1024;
@@ -25,7 +23,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const rate = checkRateLimit(
+  const rate = await enforceRateLimit(
     'contact',
     hashRateLimitKey(getClientIp(req)),
     RATE_LIMIT

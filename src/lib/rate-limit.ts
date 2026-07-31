@@ -1,3 +1,6 @@
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
+
 interface Bucket {
   count: number;
   resetAt: number;
@@ -14,10 +17,8 @@ export interface RateLimitResult {
   resetAt: number;
 }
 
-// Process-local store. Acceptable for a portfolio: per-instance buckets are
-// fine when the threat model is casual spam, not coordinated abuse. Phase 7
-// migrates to Vercel KV so limits hold across cold starts and regions.
 const stores = new Map<string, Map<string, Bucket>>();
+const redisLimiters = new Map<string, Ratelimit>();
 
 function getStore(namespace: string): Map<string, Bucket> {
   let store = stores.get(namespace);
@@ -34,6 +35,18 @@ function pruneExpired(store: Map<string, Bucket>, now: number): void {
       store.delete(key);
     }
   }
+}
+
+export function isDistributedRateLimitConfigured(): boolean {
+  if (process.env.RATE_LIMIT_FORCE_MEMORY === '1') {
+    return false;
+  }
+  if (process.env.VITEST) {
+    return false;
+  }
+  return Boolean(
+    process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
+  );
 }
 
 export function checkRateLimit(
@@ -68,6 +81,53 @@ export function checkRateLimit(
   };
 }
 
+function getRedisLimiter(
+  namespace: string,
+  config: RateLimitConfig
+): Ratelimit | null {
+  if (!isDistributedRateLimitConfigured()) {
+    return null;
+  }
+
+  const cacheKey = `${namespace}:${config.max}:${config.windowMs}`;
+  let limiter = redisLimiters.get(cacheKey);
+  if (!limiter) {
+    limiter = new Ratelimit({
+      redis: Redis.fromEnv(),
+      limiter: Ratelimit.fixedWindow(config.max, `${config.windowMs} ms`),
+      prefix: `portfolio:rl:${namespace}`,
+      analytics: false,
+    });
+    redisLimiters.set(cacheKey, limiter);
+  }
+  return limiter;
+}
+
+export async function enforceRateLimit(
+  namespace: string,
+  key: string,
+  config: RateLimitConfig,
+  now: number = Date.now()
+): Promise<RateLimitResult> {
+  const limiter = getRedisLimiter(namespace, config);
+  if (!limiter) {
+    return checkRateLimit(namespace, key, config, now);
+  }
+
+  try {
+    const result = await limiter.limit(key);
+    return {
+      ok: result.success,
+      remaining: result.remaining,
+      resetAt: result.reset,
+    };
+  } catch {
+    // Redis outage must not take public routes offline — degrade to local buckets.
+    return checkRateLimit(namespace, key, config, now);
+  }
+}
+
 export function __resetRateLimitStoreForTests(): void {
   stores.clear();
+  redisLimiters.clear();
 }

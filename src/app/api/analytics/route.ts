@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { db } from '@/db';
 import { pageViews, windowOpens } from '@/db/schema';
 import { normalizeReferrerOrigin } from '@/lib/analytics/normalize-referrer';
-import { checkRateLimit } from '@/lib/rate-limit';
+import { enforceRateLimit } from '@/lib/rate-limit';
 import { getClientIp, hashRateLimitKey } from '@/lib/request-ip';
 
 const analyticsEventSchema = z.discriminatedUnion('type', [
@@ -69,7 +69,7 @@ function normalizeCountry(request: NextRequest): string | null {
 
 export async function POST(request: NextRequest) {
   const ip = getClientIp(request);
-  const rateLimit = checkRateLimit('analytics', hashRateLimitKey(ip), {
+  const rateLimit = await enforceRateLimit('analytics', hashRateLimitKey(ip), {
     windowMs: 60_000,
     max: 120,
   });

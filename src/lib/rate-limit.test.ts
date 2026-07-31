@@ -1,6 +1,11 @@
 // @vitest-environment node
 import { describe, it, expect, beforeEach } from 'vitest';
-import { checkRateLimit, __resetRateLimitStoreForTests } from './rate-limit';
+import {
+  checkRateLimit,
+  enforceRateLimit,
+  isDistributedRateLimitConfigured,
+  __resetRateLimitStoreForTests,
+} from './rate-limit';
 
 const config = { windowMs: 1000, max: 3 };
 
@@ -51,5 +56,15 @@ describe('checkRateLimit', () => {
     expect(
       checkRateLimit('contact', 'stale', config, config.windowMs).remaining
     ).toBe(config.max - 1);
+  });
+});
+
+describe('enforceRateLimit', () => {
+  it('uses memory in Vitest even if Upstash env vars are present', async () => {
+    expect(isDistributedRateLimitConfigured()).toBe(false);
+    const first = await enforceRateLimit('contact', 'async-ip', config, 0);
+    const second = await enforceRateLimit('contact', 'async-ip', config, 0);
+    expect(first.remaining).toBe(2);
+    expect(second.remaining).toBe(1);
   });
 });
