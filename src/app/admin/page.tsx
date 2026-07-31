@@ -29,9 +29,9 @@ export default async function AdminDashboardPage() {
           <p className="admin-kicker">Dashboard</p>
           <h1>Portfolio command center</h1>
           <p className="admin-hero__copy">
-            A private view of portfolio activity and content operations. This
-            first analytics pass tracks visits and desktop interactions without
-            storing raw personal identifiers.
+            A private view of portfolio activity and content operations. Public
+            analytics uses daily salted visitor hashes and origin-only referrers
+            rather than raw personal identifiers.
           </p>
         </div>
       </section>

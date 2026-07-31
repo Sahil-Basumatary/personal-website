@@ -3,7 +3,9 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { db } from '@/db';
 import { pageViews, windowOpens } from '@/db/schema';
+import { normalizeReferrerOrigin } from '@/lib/analytics/normalize-referrer';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { getClientIp, hashRateLimitKey } from '@/lib/request-ip';
 
 const analyticsEventSchema = z.discriminatedUnion('type', [
   z.object({
@@ -16,13 +18,6 @@ const analyticsEventSchema = z.discriminatedUnion('type', [
     windowType: z.string().trim().min(1).max(80),
   }),
 ]);
-
-function getClientIp(request: NextRequest): string {
-  const forwardedFor = request.headers.get('x-forwarded-for');
-  const firstForwardedIp = forwardedFor?.split(',').at(0)?.trim();
-
-  return firstForwardedIp || request.headers.get('x-real-ip') || 'unknown';
-}
 
 function getDailySalt(): string | null {
   const salt = process.env.ANALYTICS_SALT;
@@ -74,7 +69,7 @@ function normalizeCountry(request: NextRequest): string | null {
 
 export async function POST(request: NextRequest) {
   const ip = getClientIp(request);
-  const rateLimit = checkRateLimit('analytics', ip, {
+  const rateLimit = checkRateLimit('analytics', hashRateLimitKey(ip), {
     windowMs: 60_000,
     max: 120,
   });
@@ -105,7 +100,7 @@ export async function POST(request: NextRequest) {
       visitorHash,
       country: normalizeCountry(request),
       device: detectDevice(userAgent),
-      referrer: parsed.data.referrer?.slice(0, 500) ?? null,
+      referrer: normalizeReferrerOrigin(parsed.data.referrer),
     });
   } else {
     await db.insert(windowOpens).values({

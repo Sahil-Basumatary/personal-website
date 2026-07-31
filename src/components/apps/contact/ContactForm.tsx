@@ -292,17 +292,31 @@ export function ContactForm() {
           </div>
         </div>
         <div className="contact-form-actions">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={handleReset}
-            disabled={isSubmitting}
-          >
-            Clear
-          </Button>
-          <Button type="submit" variant="primary" disabled={isSubmitting}>
-            {isSubmitting ? 'Sending…' : 'Send'}
-          </Button>
+          <p className="contact-form-privacy">
+            Your name, email, subject, and message are stored so I can reply,
+            and may be emailed through the site&apos;s mail provider.{' '}
+            <a
+              href="/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="contact-form-privacy__link"
+            >
+              Privacy details
+            </a>
+          </p>
+          <div className="contact-form-actions__buttons">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleReset}
+              disabled={isSubmitting}
+            >
+              Clear
+            </Button>
+            <Button type="submit" variant="primary" disabled={isSubmitting}>
+              {isSubmitting ? 'Sending…' : 'Send'}
+            </Button>
+          </div>
         </div>
       </form>
       <Dialog

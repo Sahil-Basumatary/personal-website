@@ -38,4 +38,18 @@ describe('checkRateLimit', () => {
     expect(checkRateLimit('contact', 'b', config, 0).remaining).toBe(2);
     expect(checkRateLimit('newsletter', 'a', config, 0).remaining).toBe(2);
   });
+
+  it('forgets expired keys so the store does not retain them', () => {
+    checkRateLimit('contact', 'stale', config, 0);
+    const afterExpiry = checkRateLimit(
+      'contact',
+      'fresh',
+      config,
+      config.windowMs
+    );
+    expect(afterExpiry.ok).toBe(true);
+    expect(
+      checkRateLimit('contact', 'stale', config, config.windowMs).remaining
+    ).toBe(config.max - 1);
+  });
 });

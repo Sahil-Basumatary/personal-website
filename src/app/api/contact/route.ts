@@ -4,6 +4,7 @@ import { contactSubmissions } from '@/db/schema';
 import { sendContactNotification } from '@/lib/email';
 import { validateContact } from '@/lib/contact-validation';
 import { checkRateLimit } from '@/lib/rate-limit';
+import { getClientIp, hashRateLimitKey } from '@/lib/request-ip';
 
 // We hold rate-limit buckets in process memory, so the handler must run on
 // the long-lived Node runtime. Edge would reset state on every invocation.
@@ -15,17 +16,6 @@ const RATE_LIMIT = {
   max: 5,
 } as const;
 
-function getClientIp(req: NextRequest): string {
-  const forwardedFor = req.headers.get('x-forwarded-for');
-  if (forwardedFor) {
-    const first = forwardedFor.split(',')[0]?.trim();
-    if (first) return first;
-  }
-  const realIp = req.headers.get('x-real-ip');
-  if (realIp) return realIp.trim();
-  return 'unknown';
-}
-
 export async function POST(req: NextRequest) {
   const declaredLength = Number(req.headers.get('content-length') ?? 0);
   if (Number.isFinite(declaredLength) && declaredLength > MAX_BODY_BYTES) {
@@ -35,8 +25,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const ip = getClientIp(req);
-  const rate = checkRateLimit('contact', ip, RATE_LIMIT);
+  const rate = checkRateLimit(
+    'contact',
+    hashRateLimitKey(getClientIp(req)),
+    RATE_LIMIT
+  );
   if (!rate.ok) {
     const retryAfterSec = Math.max(
       1,
@@ -90,15 +83,8 @@ export async function POST(req: NextRequest) {
       console.warn('[contact] notification email failed', error);
     }
   } else {
-    console.warn('[contact] submission insert did not return a row', { ip });
+    console.warn('[contact] submission insert did not return a row');
   }
 
-  return NextResponse.json({
-    ok: true,
-    emailNotification: {
-      configured: Boolean(
-        process.env.RESEND_API_KEY && process.env.CONTACT_NOTIFY_TO
-      ),
-    },
-  });
+  return NextResponse.json({ ok: true });
 }

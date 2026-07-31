@@ -28,6 +28,14 @@ function getStore(namespace: string): Map<string, Bucket> {
   return store;
 }
 
+function pruneExpired(store: Map<string, Bucket>, now: number): void {
+  for (const [key, bucket] of store) {
+    if (now >= bucket.resetAt) {
+      store.delete(key);
+    }
+  }
+}
+
 export function checkRateLimit(
   namespace: string,
   key: string,
@@ -35,6 +43,7 @@ export function checkRateLimit(
   now: number = Date.now()
 ): RateLimitResult {
   const store = getStore(namespace);
+  pruneExpired(store, now);
   const existing = store.get(key);
 
   if (!existing || now >= existing.resetAt) {

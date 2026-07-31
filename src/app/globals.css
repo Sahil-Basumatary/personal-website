@@ -2012,10 +2012,28 @@ body {
   }
   .contact-form-actions {
     display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border-highlight);
+  }
+  .contact-form-privacy {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--color-text);
+  }
+  .contact-form-privacy__link {
+    color: var(--color-text);
+    font-weight: 700;
+    text-decoration: underline;
+  }
+  .contact-form-actions__buttons {
+    display: flex;
     justify-content: flex-end;
     gap: 8px;
-    padding-top: 4px;
-    border-top: 1px solid var(--border-highlight);
   }
   .window-content:has(.playground) {
     background: var(--surface-primary);
@@ -3488,5 +3506,65 @@ body {
       scroll-behavior: auto !important;
       transition-duration: 0.01ms !important;
     }
+  }
+  .privacy-page {
+    min-height: 100dvh;
+    padding: 32px 16px;
+    background:
+      radial-gradient(circle at top left, #6b86a8 0, transparent 45%),
+      linear-gradient(180deg, #4a6889 0%, #3a5574 100%);
+  }
+  .privacy-sheet {
+    width: min(720px, 100%);
+    margin: 0 auto;
+    padding: 28px 24px;
+    background: var(--surface-primary);
+    border: 2px solid #000000;
+    box-shadow:
+      1px 1px 0 #000000,
+      2px 2px 4px rgba(0, 0, 0, 0.28);
+    color: var(--color-text);
+  }
+  .privacy-kicker {
+    margin: 0 0 6px;
+    font-family: var(--font-system);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .privacy-sheet h1 {
+    margin: 0 0 10px;
+    font-family: var(--font-system);
+    font-size: 28px;
+    line-height: 1.15;
+  }
+  .privacy-lede,
+  .privacy-sheet p {
+    margin: 0 0 14px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .privacy-sheet section {
+    margin-top: 22px;
+  }
+  .privacy-sheet h2 {
+    margin: 0 0 8px;
+    font-family: var(--font-system);
+    font-size: 16px;
+  }
+  .privacy-sheet code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 12px;
+  }
+  .privacy-sheet a {
+    color: var(--color-text);
+    font-weight: 700;
+    text-decoration: underline;
+  }
+  .privacy-back {
+    margin-top: 28px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-shadow);
   }
 }
