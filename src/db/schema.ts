@@ -96,13 +96,22 @@ export const skills = pgTable(
   ]
 );
 
-export const aboutContent = pgTable('about_content', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  content: text('content').default('').notNull(),
-  updatedAt: timestamp('updated_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-});
+export const aboutContent = pgTable(
+  'about_content',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    singletonKey: varchar('singleton_key', { length: 32 })
+      .default('default')
+      .notNull(),
+    content: text('content').default('').notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex('about_content_singleton_key_idx').on(table.singletonKey),
+  ]
+);
 
 export const pageViews = pgTable(
   'page_views',

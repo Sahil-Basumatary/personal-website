@@ -13,6 +13,7 @@ import {
 } from '@/app/admin/_lib/form-state';
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { revalidatePortfolio } from '@/lib/content/revalidate-portfolio';
+import { pickAdjacentSwap } from '@/lib/db/adjacent-order';
 import {
   StoryImageStorageError,
   deleteStoryImage,
@@ -30,7 +31,17 @@ const captionSchema = z
   .optional()
   .transform((value) => (value ? value : null));
 
+class StoryImageQuotaError extends Error {
+  constructor() {
+    super('story-image-quota');
+    this.name = 'StoryImageQuotaError';
+  }
+}
+
 function storageErrorMessage(error: unknown): string {
+  if (error instanceof StoryImageQuotaError) {
+    return `Each project can have at most ${STORY_IMAGE_MAX_PER_PROJECT} story images.`;
+  }
   if (!(error instanceof StoryImageStorageError)) {
     return ACTION_FAILURE_MESSAGE;
   }
@@ -46,23 +57,6 @@ function storageErrorMessage(error: unknown): string {
     default:
       return ACTION_FAILURE_MESSAGE;
   }
-}
-
-async function projectExists(projectId: string): Promise<boolean> {
-  const rows = await db
-    .select({ id: projects.id })
-    .from(projects)
-    .where(eq(projects.id, projectId))
-    .limit(1);
-  return rows.length > 0;
-}
-
-async function nextImageOrder(projectId: string): Promise<number> {
-  const rows = await db
-    .select({ order: projectStoryImages.order })
-    .from(projectStoryImages)
-    .where(eq(projectStoryImages.projectId, projectId));
-  return rows.reduce((max, row) => Math.max(max, row.order), -1) + 1;
 }
 
 export async function uploadStoryImage(
@@ -89,19 +83,14 @@ export async function uploadStoryImage(
     if (!(file instanceof File)) {
       return formError('Choose an image file to upload.');
     }
-    if (!(await projectExists(projectId.data))) {
+
+    const existingProject = await db
+      .select({ id: projects.id })
+      .from(projects)
+      .where(eq(projects.id, projectId.data))
+      .limit(1);
+    if (!existingProject.at(0)) {
       return formError('That project no longer exists.');
-    }
-
-    const [{ value: imageCount }] = await db
-      .select({ value: count() })
-      .from(projectStoryImages)
-      .where(eq(projectStoryImages.projectId, projectId.data));
-
-    if (imageCount >= STORY_IMAGE_MAX_PER_PROJECT) {
-      return formError(
-        `Each project can have at most ${STORY_IMAGE_MAX_PER_PROJECT} story images.`
-      );
     }
 
     const bytes = new Uint8Array(await file.arrayBuffer());
@@ -112,19 +101,51 @@ export async function uploadStoryImage(
     });
 
     try {
-      await db.insert(projectStoryImages).values({
-        projectId: projectId.data,
-        storageKey: uploaded.storageKey,
-        url: uploaded.url,
-        alt: alt.data,
-        caption: caption.data,
-        order: await nextImageOrder(projectId.data),
+      await db.transaction(async (tx) => {
+        const projectRows = await tx
+          .select({ id: projects.id })
+          .from(projects)
+          .where(eq(projects.id, projectId.data))
+          .for('update')
+          .limit(1);
+
+        if (!projectRows.at(0)) {
+          throw new Error('project-missing');
+        }
+
+        const [{ value: imageCount }] = await tx
+          .select({ value: count() })
+          .from(projectStoryImages)
+          .where(eq(projectStoryImages.projectId, projectId.data));
+
+        if (imageCount >= STORY_IMAGE_MAX_PER_PROJECT) {
+          throw new StoryImageQuotaError();
+        }
+
+        const orderRows = await tx
+          .select({ order: projectStoryImages.order })
+          .from(projectStoryImages)
+          .where(eq(projectStoryImages.projectId, projectId.data));
+        const nextOrder =
+          orderRows.reduce((max, row) => Math.max(max, row.order), -1) + 1;
+
+        await tx.insert(projectStoryImages).values({
+          projectId: projectId.data,
+          storageKey: uploaded.storageKey,
+          url: uploaded.url,
+          alt: alt.data,
+          caption: caption.data,
+          order: nextOrder,
+        });
       });
     } catch (error) {
       try {
         await deleteStoryImage(uploaded.storageKey);
       } catch {
         // Best-effort cleanup if the DB write fails after upload.
+      }
+      if (error instanceof Error && error.message === 'project-missing') {
+        return formError('That project no longer exists.');
       }
       throw error;
     }
@@ -190,44 +211,53 @@ export async function reorderStoryImage(formData: FormData): Promise<void> {
       return;
     }
 
-    const currentRows = await db
-      .select({
-        id: projectStoryImages.id,
-        projectId: projectStoryImages.projectId,
-        order: projectStoryImages.order,
-      })
-      .from(projectStoryImages)
-      .where(eq(projectStoryImages.id, id.data))
-      .limit(1);
-    const current = currentRows[0];
-    if (!current) return;
+    const swapped = await db.transaction(async (tx) => {
+      const currentRows = await tx
+        .select({
+          id: projectStoryImages.id,
+          projectId: projectStoryImages.projectId,
+        })
+        .from(projectStoryImages)
+        .where(eq(projectStoryImages.id, id.data))
+        .limit(1);
+      const current = currentRows[0];
+      if (!current) {
+        return false;
+      }
 
-    const ordered = await db
-      .select({
-        id: projectStoryImages.id,
-        order: projectStoryImages.order,
-      })
-      .from(projectStoryImages)
-      .where(eq(projectStoryImages.projectId, current.projectId))
-      .orderBy(
-        asc(projectStoryImages.order),
-        asc(projectStoryImages.createdAt)
-      );
+      const ordered = await tx
+        .select({
+          id: projectStoryImages.id,
+          order: projectStoryImages.order,
+        })
+        .from(projectStoryImages)
+        .where(eq(projectStoryImages.projectId, current.projectId))
+        .orderBy(
+          asc(projectStoryImages.order),
+          asc(projectStoryImages.createdAt)
+        )
+        .for('update');
 
-    const currentIndex = ordered.findIndex((row) => row.id === current.id);
-    const targetIndex =
-      direction.data === 'up' ? currentIndex - 1 : currentIndex + 1;
-    const target = ordered[targetIndex];
-    if (!target) return;
+      const pair = pickAdjacentSwap(ordered, current.id, direction.data);
+      if (!pair) {
+        return false;
+      }
 
-    await db
-      .update(projectStoryImages)
-      .set({ order: target.order, updatedAt: new Date() })
-      .where(eq(projectStoryImages.id, current.id));
-    await db
-      .update(projectStoryImages)
-      .set({ order: current.order, updatedAt: new Date() })
-      .where(eq(projectStoryImages.id, target.id));
+      const now = new Date();
+      await tx
+        .update(projectStoryImages)
+        .set({ order: pair.target.order, updatedAt: now })
+        .where(eq(projectStoryImages.id, pair.current.id));
+      await tx
+        .update(projectStoryImages)
+        .set({ order: pair.current.order, updatedAt: now })
+        .where(eq(projectStoryImages.id, pair.target.id));
+      return true;
+    });
+
+    if (!swapped) {
+      return;
+    }
 
     revalidatePath('/admin/projects');
     revalidatePortfolio();

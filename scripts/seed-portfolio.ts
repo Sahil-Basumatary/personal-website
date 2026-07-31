@@ -4,6 +4,7 @@ import { neon } from '@neondatabase/serverless';
 import { and, count, eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { aboutContent, projects, skills } from '../src/db/schema';
+import { ABOUT_SINGLETON_KEY } from '../src/lib/content/about-singleton';
 import { BUNDLED_PORTFOLIO } from '../src/lib/content/bundled-portfolio';
 import { planPortfolioSeed, skillSeedKey } from '../src/lib/content/seed-plan';
 
@@ -57,7 +58,19 @@ async function main(): Promise<void> {
   });
 
   if (plan.about.action === 'insert' && plan.about.content !== null) {
-    await db.insert(aboutContent).values({ content: plan.about.content });
+    await db
+      .insert(aboutContent)
+      .values({
+        singletonKey: ABOUT_SINGLETON_KEY,
+        content: plan.about.content,
+      })
+      .onConflictDoUpdate({
+        target: aboutContent.singletonKey,
+        set: {
+          content: plan.about.content,
+          updatedAt: new Date(),
+        },
+      });
   }
 
   for (const row of plan.projects.insert) {

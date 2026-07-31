@@ -18,6 +18,7 @@ import {
   SKILL_CATEGORIES,
   SKILL_PROFICIENCIES,
 } from '@/lib/content/skill-taxonomy';
+import { pickAdjacentSwap } from '@/lib/db/adjacent-order';
 
 const skillSchema = z
   .object({
@@ -154,28 +155,31 @@ export async function reorderSkill(formData: FormData): Promise<void> {
       return;
     }
 
-    const ordered = await db
-      .select({ id: skills.id, order: skills.order })
-      .from(skills)
-      .orderBy(asc(skills.order), asc(skills.name));
-    const currentIndex = ordered.findIndex((skill) => skill.id === id.data);
-    const targetIndex =
-      direction.data === 'up' ? currentIndex - 1 : currentIndex + 1;
-    const current = ordered[currentIndex];
-    const target = ordered[targetIndex];
+    const swapped = await db.transaction(async (tx) => {
+      const ordered = await tx
+        .select({ id: skills.id, order: skills.order })
+        .from(skills)
+        .orderBy(asc(skills.order), asc(skills.name))
+        .for('update');
+      const pair = pickAdjacentSwap(ordered, id.data, direction.data);
+      if (!pair) {
+        return false;
+      }
 
-    if (!current || !target) {
+      await tx
+        .update(skills)
+        .set({ order: pair.target.order })
+        .where(eq(skills.id, pair.current.id));
+      await tx
+        .update(skills)
+        .set({ order: pair.current.order })
+        .where(eq(skills.id, pair.target.id));
+      return true;
+    });
+
+    if (!swapped) {
       return;
     }
-
-    await db
-      .update(skills)
-      .set({ order: target.order })
-      .where(eq(skills.id, current.id));
-    await db
-      .update(skills)
-      .set({ order: current.order })
-      .where(eq(skills.id, target.id));
 
     revalidatePath('/admin/skills');
     revalidatePortfolio();

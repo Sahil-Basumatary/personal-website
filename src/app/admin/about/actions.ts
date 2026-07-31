@@ -1,6 +1,5 @@
 'use server';
 
-import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { db } from '@/db';
 import { aboutContent } from '@/db/schema';
@@ -11,6 +10,7 @@ import {
   formSuccess,
 } from '@/app/admin/_lib/form-state';
 import { requireAdmin } from '@/lib/auth/require-admin';
+import { ABOUT_SINGLETON_KEY } from '@/lib/content/about-singleton';
 import { revalidatePortfolio } from '@/lib/content/revalidate-portfolio';
 
 const MAX_ABOUT_LENGTH = 20000;
@@ -36,21 +36,19 @@ export async function updateAboutContent(
       );
     }
 
-    const existing = await db
-      .select({ id: aboutContent.id })
-      .from(aboutContent)
-      .limit(1);
-
-    const current = existing.at(0);
-
-    if (current) {
-      await db
-        .update(aboutContent)
-        .set({ content, updatedAt: new Date() })
-        .where(eq(aboutContent.id, current.id));
-    } else {
-      await db.insert(aboutContent).values({ content });
-    }
+    await db
+      .insert(aboutContent)
+      .values({
+        singletonKey: ABOUT_SINGLETON_KEY,
+        content,
+      })
+      .onConflictDoUpdate({
+        target: aboutContent.singletonKey,
+        set: {
+          content,
+          updatedAt: new Date(),
+        },
+      });
 
     revalidatePath('/admin/about');
     revalidatePortfolio();

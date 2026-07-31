@@ -1,9 +1,12 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import ws from 'ws';
 import * as schema from '../src/db/schema';
 import { purgeExpiredPortfolioData } from '../src/lib/data-retention';
+
+neonConfig.webSocketConstructor = ws;
 
 function loadEnvFile(fileName: string): void {
   const filePath = resolve(process.cwd(), fileName);
@@ -35,9 +38,14 @@ async function main(): Promise<void> {
     throw new Error('DATABASE_URL is required to purge expired data.');
   }
 
-  const database = drizzle(neon(databaseUrl), { schema });
-  const result = await purgeExpiredPortfolioData(database);
-  console.log(JSON.stringify({ ok: true, ...result }, null, 2));
+  const pool = new Pool({ connectionString: databaseUrl });
+  try {
+    const database = drizzle(pool, { schema });
+    const result = await purgeExpiredPortfolioData(database);
+    console.log(JSON.stringify({ ok: true, ...result }, null, 2));
+  } finally {
+    await pool.end();
+  }
 }
 
 main().catch((error: unknown) => {

@@ -13,6 +13,7 @@ import {
 } from '@/app/admin/_lib/form-state';
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { revalidatePortfolio } from '@/lib/content/revalidate-portfolio';
+import { pickAdjacentSwap } from '@/lib/db/adjacent-order';
 import { deleteProjectStoryObjects } from './delete-project-story-objects';
 
 const optionalUrl = z
@@ -181,28 +182,32 @@ export async function reorderProject(formData: FormData): Promise<void> {
       return;
     }
 
-    const ordered = await db
-      .select({ id: projects.id, order: projects.order })
-      .from(projects)
-      .orderBy(asc(projects.order), asc(projects.createdAt));
-    const currentIndex = ordered.findIndex((project) => project.id === id.data);
-    const targetIndex =
-      direction.data === 'up' ? currentIndex - 1 : currentIndex + 1;
-    const current = ordered[currentIndex];
-    const target = ordered[targetIndex];
+    const swapped = await db.transaction(async (tx) => {
+      const ordered = await tx
+        .select({ id: projects.id, order: projects.order })
+        .from(projects)
+        .orderBy(asc(projects.order), asc(projects.createdAt))
+        .for('update');
+      const pair = pickAdjacentSwap(ordered, id.data, direction.data);
+      if (!pair) {
+        return false;
+      }
 
-    if (!current || !target) {
+      const now = new Date();
+      await tx
+        .update(projects)
+        .set({ order: pair.target.order, updatedAt: now })
+        .where(eq(projects.id, pair.current.id));
+      await tx
+        .update(projects)
+        .set({ order: pair.current.order, updatedAt: now })
+        .where(eq(projects.id, pair.target.id));
+      return true;
+    });
+
+    if (!swapped) {
       return;
     }
-
-    await db
-      .update(projects)
-      .set({ order: target.order, updatedAt: new Date() })
-      .where(eq(projects.id, current.id));
-    await db
-      .update(projects)
-      .set({ order: current.order, updatedAt: new Date() })
-      .where(eq(projects.id, target.id));
 
     revalidatePath('/admin/projects');
     revalidatePortfolio();

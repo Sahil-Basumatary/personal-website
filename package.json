@@ -49,6 +49,7 @@
     "recharts": "^3.8.1",
     "redis": "^6.1.0",
     "resend": "^6.14.0",
+    "ws": "^8.21.1",
     "zod": "^4.4.3",
     "zustand": "^5.0.11"
   },
@@ -79,6 +80,7 @@
     "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/ws": "^8.18.1",
     "@vitest/browser-playwright": "^4.0.18",
     "@vitest/coverage-v8": "^4.0.18",
     "axe-core": "^4.12.1",

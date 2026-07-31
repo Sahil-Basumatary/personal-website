@@ -1,8 +1,11 @@
 import 'server-only';
 
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import ws from 'ws';
 import * as schema from './schema';
+
+neonConfig.webSocketConstructor = ws;
 
 function getDatabaseUrl(): string {
   const databaseUrl = process.env.DATABASE_URL;
@@ -14,7 +17,18 @@ function getDatabaseUrl(): string {
   return databaseUrl;
 }
 
-const sql = neon(getDatabaseUrl());
+const globalForDb = globalThis as typeof globalThis & {
+  __portfolioDbPool?: Pool;
+};
 
-export const db = drizzle(sql, { schema });
+function getPool(): Pool {
+  if (!globalForDb.__portfolioDbPool) {
+    globalForDb.__portfolioDbPool = new Pool({
+      connectionString: getDatabaseUrl(),
+    });
+  }
+  return globalForDb.__portfolioDbPool;
+}
+
+export const db = drizzle(getPool(), { schema });
 export type Database = typeof db;
