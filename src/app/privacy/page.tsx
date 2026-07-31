@@ -36,7 +36,8 @@ export default function PrivacyPage() {
             fields. Referrers are reduced to an origin such as{' '}
             <code>https://www.google.com</code> before storage. Country may be
             inferred from the hosting platform&apos;s edge country header when
-            present.
+            present. Raw analytics events are retained for 90 days and then
+            deleted automatically.
           </p>
           <p>
             Vercel Speed Insights may also collect aggregated performance
@@ -50,8 +51,10 @@ export default function PrivacyPage() {
             If you use the contact form, your name, email address, subject, and
             message are stored in Postgres so they can be reviewed in the
             private admin inbox. The same content may be emailed through Resend
-            to the site operator so replies can be sent. Messages remain until
-            they are deleted manually from admin.
+            to the site operator so replies can be sent. Contact messages are
+            retained for 12 months and then deleted automatically, and can also
+            be deleted earlier from admin. Copies already delivered to email
+            inboxes or Resend follow those providers&apos; own retention rules.
           </p>
         </section>
 

@@ -28,6 +28,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx scripts/seed-portfolio.ts",
+    "db:purge-expired": "tsx scripts/purge-expired-data.ts",
     "prepare": "husky",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "rm -rf storybook-static && storybook build",
