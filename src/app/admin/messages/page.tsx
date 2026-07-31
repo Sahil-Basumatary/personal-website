@@ -2,18 +2,26 @@ import Link from 'next/link';
 import { AdminConfirmForm } from '@/app/admin/_components/AdminConfirmForm';
 import { AdminPendingForm } from '@/app/admin/_components/AdminPendingForm';
 import { deleteContactSubmission, markContactSubmissionRead } from './actions';
-import { getContactSubmissions } from './queries';
+import { getContactSubmissionCounts, getContactSubmissions } from './queries';
+import { MESSAGES_PAGE_SIZE, parseMessagesPage } from './pagination';
 
 const formatter = new Intl.DateTimeFormat('en-GB', {
   dateStyle: 'medium',
   timeStyle: 'short',
 });
 
-export default async function AdminMessagesPage() {
-  const submissions = await getContactSubmissions();
-  const unreadCount = submissions.filter(
-    (submission) => !submission.read
-  ).length;
+interface AdminMessagesPageProps {
+  searchParams: Promise<{ page?: string | string[] }>;
+}
+
+export default async function AdminMessagesPage({
+  searchParams,
+}: AdminMessagesPageProps) {
+  const params = await searchParams;
+  const { total, unread } = await getContactSubmissionCounts();
+  const totalPages = Math.max(1, Math.ceil(total / MESSAGES_PAGE_SIZE));
+  const page = Math.min(parseMessagesPage(params.page), totalPages);
+  const submissions = await getContactSubmissions(page, MESSAGES_PAGE_SIZE);
 
   return (
     <div className="admin-dashboard">
@@ -27,7 +35,7 @@ export default async function AdminMessagesPage() {
           </p>
         </div>
         <p className="admin-hero__timestamp">
-          {unreadCount} unread / {submissions.length} total
+          {unread} unread / {total} total
         </p>
       </section>
 
@@ -41,51 +49,80 @@ export default async function AdminMessagesPage() {
         </div>
 
         {submissions.length > 0 ? (
-          <div className="admin-message-list">
-            {submissions.map((submission) => (
-              <article
-                className="admin-message-row"
-                data-unread={!submission.read || undefined}
-                key={submission.id}
-              >
-                <Link
-                  className="admin-message-row__main"
-                  href={`/admin/messages/${submission.id}`}
+          <>
+            <div className="admin-message-list">
+              {submissions.map((submission) => (
+                <article
+                  className="admin-message-row"
+                  data-unread={!submission.read || undefined}
+                  key={submission.id}
                 >
-                  <span className="admin-message-row__meta">
-                    {submission.read ? 'Read' : 'Unread'} /{' '}
-                    {formatter.format(submission.createdAt)}
-                  </span>
-                  <strong>{submission.subject}</strong>
-                  <span>
-                    {submission.name} {'<'}
-                    {submission.email}
-                    {'>'}
-                  </span>
-                </Link>
-                <div className="admin-resource__actions">
-                  {!submission.read ? (
-                    <AdminPendingForm
-                      action={markContactSubmissionRead}
-                      label="Mark read"
-                      pendingLabel="Saving…"
-                      className="admin-link-button"
+                  <Link
+                    className="admin-message-row__main"
+                    href={`/admin/messages/${submission.id}`}
+                  >
+                    <span className="admin-message-row__meta">
+                      {submission.read ? 'Read' : 'Unread'} /{' '}
+                      {formatter.format(submission.createdAt)}
+                    </span>
+                    <strong>{submission.subject}</strong>
+                    <span>
+                      {submission.name} {'<'}
+                      {submission.email}
+                      {'>'}
+                    </span>
+                  </Link>
+                  <div className="admin-resource__actions">
+                    {!submission.read ? (
+                      <AdminPendingForm
+                        action={markContactSubmissionRead}
+                        label="Mark read"
+                        pendingLabel="Saving…"
+                        className="admin-link-button"
+                      >
+                        <input type="hidden" name="id" value={submission.id} />
+                      </AdminPendingForm>
+                    ) : null}
+                    <AdminConfirmForm
+                      action={deleteContactSubmission}
+                      itemName={submission.subject}
+                      label="Delete"
+                      className="admin-link-button admin-link-button--danger"
                     >
                       <input type="hidden" name="id" value={submission.id} />
-                    </AdminPendingForm>
-                  ) : null}
-                  <AdminConfirmForm
-                    action={deleteContactSubmission}
-                    itemName={submission.subject}
-                    label="Delete"
-                    className="admin-link-button admin-link-button--danger"
+                    </AdminConfirmForm>
+                  </div>
+                </article>
+              ))}
+            </div>
+            {total > MESSAGES_PAGE_SIZE ? (
+              <nav className="admin-pagination" aria-label="Message pages">
+                {page > 1 ? (
+                  <Link
+                    className="admin-link-button"
+                    href={`/admin/messages?page=${page - 1}`}
                   >
-                    <input type="hidden" name="id" value={submission.id} />
-                  </AdminConfirmForm>
-                </div>
-              </article>
-            ))}
-          </div>
+                    Previous
+                  </Link>
+                ) : (
+                  <span className="admin-pagination__disabled">Previous</span>
+                )}
+                <span className="admin-pagination__status">
+                  Page {page} of {totalPages}
+                </span>
+                {page < totalPages ? (
+                  <Link
+                    className="admin-link-button"
+                    href={`/admin/messages?page=${page + 1}`}
+                  >
+                    Next
+                  </Link>
+                ) : (
+                  <span className="admin-pagination__disabled">Next</span>
+                )}
+              </nav>
+            ) : null}
+          </>
         ) : (
           <p className="admin-empty">
             No contact submissions yet. Messages from the public contact app
