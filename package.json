@@ -40,8 +40,6 @@
     "@monaco-editor/react": "^4.7.0",
     "@neondatabase/serverless": "^1.1.0",
     "@sentry/nextjs": "^10.63.0",
-    "@upstash/ratelimit": "^2.0.8",
-    "@upstash/redis": "^1.38.0",
     "@vercel/speed-insights": "^2.0.0",
     "drizzle-orm": "^0.45.2",
     "monaco-editor": "^0.55.1",
@@ -49,6 +47,7 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "recharts": "^3.8.1",
+    "redis": "^6.1.0",
     "resend": "^6.14.0",
     "zod": "^4.4.3",
     "zustand": "^5.0.11"

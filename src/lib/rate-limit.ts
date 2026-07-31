@@ -1,5 +1,4 @@
-import { Ratelimit } from '@upstash/ratelimit';
-import { Redis } from '@upstash/redis';
+import { getRedisClient, isRedisConfigured } from '@/lib/redis';
 
 interface Bucket {
   count: number;
@@ -18,7 +17,16 @@ export interface RateLimitResult {
 }
 
 const stores = new Map<string, Map<string, Bucket>>();
-const redisLimiters = new Map<string, Ratelimit>();
+
+// Atomic fixed-window: INCR + set TTL only on first hit in the window.
+const FIXED_WINDOW_SCRIPT = `
+local count = redis.call('INCR', KEYS[1])
+if count == 1 then
+  redis.call('PEXPIRE', KEYS[1], tonumber(ARGV[1]))
+end
+local ttl = redis.call('PTTL', KEYS[1])
+return {count, ttl}
+`;
 
 function getStore(namespace: string): Map<string, Bucket> {
   let store = stores.get(namespace);
@@ -38,15 +46,7 @@ function pruneExpired(store: Map<string, Bucket>, now: number): void {
 }
 
 export function isDistributedRateLimitConfigured(): boolean {
-  if (process.env.RATE_LIMIT_FORCE_MEMORY === '1') {
-    return false;
-  }
-  if (process.env.VITEST) {
-    return false;
-  }
-  return Boolean(
-    process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
-  );
+  return isRedisConfigured();
 }
 
 export function checkRateLimit(
@@ -81,26 +81,36 @@ export function checkRateLimit(
   };
 }
 
-function getRedisLimiter(
+async function checkRedisRateLimit(
   namespace: string,
-  config: RateLimitConfig
-): Ratelimit | null {
-  if (!isDistributedRateLimitConfigured()) {
-    return null;
+  key: string,
+  config: RateLimitConfig,
+  now: number
+): Promise<RateLimitResult> {
+  const client = await getRedisClient();
+  if (!client) {
+    return checkRateLimit(namespace, key, config, now);
   }
 
-  const cacheKey = `${namespace}:${config.max}:${config.windowMs}`;
-  let limiter = redisLimiters.get(cacheKey);
-  if (!limiter) {
-    limiter = new Ratelimit({
-      redis: Redis.fromEnv(),
-      limiter: Ratelimit.fixedWindow(config.max, `${config.windowMs} ms`),
-      prefix: `portfolio:rl:${namespace}`,
-      analytics: false,
-    });
-    redisLimiters.set(cacheKey, limiter);
+  const redisKey = `portfolio:rl:${namespace}:${key}`;
+  const raw = (await client.eval(FIXED_WINDOW_SCRIPT, {
+    keys: [redisKey],
+    arguments: [String(config.windowMs)],
+  })) as [number | string, number | string];
+
+  const count = Number(raw[0]);
+  const ttlMs = Number(raw[1]);
+  const resetAt = ttlMs > 0 ? now + ttlMs : now + config.windowMs;
+
+  if (count > config.max) {
+    return { ok: false, remaining: 0, resetAt };
   }
-  return limiter;
+
+  return {
+    ok: true,
+    remaining: Math.max(0, config.max - count),
+    resetAt,
+  };
 }
 
 export async function enforceRateLimit(
@@ -109,18 +119,12 @@ export async function enforceRateLimit(
   config: RateLimitConfig,
   now: number = Date.now()
 ): Promise<RateLimitResult> {
-  const limiter = getRedisLimiter(namespace, config);
-  if (!limiter) {
+  if (!isDistributedRateLimitConfigured()) {
     return checkRateLimit(namespace, key, config, now);
   }
 
   try {
-    const result = await limiter.limit(key);
-    return {
-      ok: result.success,
-      remaining: result.remaining,
-      resetAt: result.reset,
-    };
+    return await checkRedisRateLimit(namespace, key, config, now);
   } catch {
     // Redis outage must not take public routes offline — degrade to local buckets.
     return checkRateLimit(namespace, key, config, now);
@@ -129,5 +133,4 @@ export async function enforceRateLimit(
 
 export function __resetRateLimitStoreForTests(): void {
   stores.clear();
-  redisLimiters.clear();
 }
