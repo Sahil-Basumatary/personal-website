@@ -104,8 +104,8 @@ export async function putStoryImage(options: {
   objectId?: string;
 }): Promise<{ storageKey: string; url: string; mimeType: StoryImageMimeType }> {
   const validated = validateStoryImageBytes({
-    mimeType: options.mimeType,
-    byteLength: options.bytes.byteLength,
+    bytes: options.bytes,
+    declaredMimeType: options.mimeType,
   });
   if (!validated.ok) {
     throw new StoryImageStorageError(
