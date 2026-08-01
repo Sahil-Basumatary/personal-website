@@ -11,6 +11,14 @@ import { normalizeReferrerOrigin } from '@/lib/analytics/normalize-referrer';
 import { isTrustedAnalyticsRequest } from '@/lib/analytics/request-guard';
 import { enforceRateLimit } from '@/lib/rate-limit';
 import { getClientIp, hashRateLimitKey } from '@/lib/request-ip';
+import {
+  BodyTooLargeError,
+  InvalidJsonBodyError,
+  UnsupportedMediaTypeError,
+  readJsonBody,
+} from '@/lib/http/read-json-body';
+
+const MAX_BODY_BYTES = 8 * 1024;
 
 const analyticsEventSchema = z.discriminatedUnion('type', [
   z.object({
@@ -85,7 +93,22 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, stored: false }, { status: 202 });
   }
 
-  const body = await request.json().catch(() => null);
+  let body: unknown;
+  try {
+    body = await readJsonBody(request, MAX_BODY_BYTES);
+  } catch (error) {
+    if (error instanceof BodyTooLargeError) {
+      return NextResponse.json({ ok: false }, { status: 413 });
+    }
+    if (
+      error instanceof UnsupportedMediaTypeError ||
+      error instanceof InvalidJsonBodyError
+    ) {
+      return NextResponse.json({ ok: false }, { status: 400 });
+    }
+    throw error;
+  }
+
   const parsed = analyticsEventSchema.safeParse(body);
 
   if (!parsed.success) {

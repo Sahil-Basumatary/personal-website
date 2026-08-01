@@ -3,6 +3,12 @@ import { db } from '@/db';
 import { contactSubmissions } from '@/db/schema';
 import { sendContactNotification } from '@/lib/email';
 import { validateContact } from '@/lib/contact-validation';
+import {
+  BodyTooLargeError,
+  InvalidJsonBodyError,
+  UnsupportedMediaTypeError,
+  readJsonBody,
+} from '@/lib/http/read-json-body';
 import { enforceRateLimit } from '@/lib/rate-limit';
 import { getClientIp, hashRateLimitKey } from '@/lib/request-ip';
 
@@ -15,14 +21,6 @@ const RATE_LIMIT = {
 } as const;
 
 export async function POST(req: NextRequest) {
-  const declaredLength = Number(req.headers.get('content-length') ?? 0);
-  if (Number.isFinite(declaredLength) && declaredLength > MAX_BODY_BYTES) {
-    return NextResponse.json(
-      { ok: false, error: 'Request body too large.' },
-      { status: 413 }
-    );
-  }
-
   const rate = await enforceRateLimit(
     'contact',
     hashRateLimitKey(getClientIp(req)),
@@ -47,12 +45,27 @@ export async function POST(req: NextRequest) {
 
   let body: unknown;
   try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json(
-      { ok: false, error: 'Invalid JSON.' },
-      { status: 400 }
-    );
+    body = await readJsonBody(req, MAX_BODY_BYTES);
+  } catch (error) {
+    if (error instanceof BodyTooLargeError) {
+      return NextResponse.json(
+        { ok: false, error: 'Request body too large.' },
+        { status: 413 }
+      );
+    }
+    if (error instanceof UnsupportedMediaTypeError) {
+      return NextResponse.json(
+        { ok: false, error: 'Unsupported media type.' },
+        { status: 415 }
+      );
+    }
+    if (error instanceof InvalidJsonBodyError) {
+      return NextResponse.json(
+        { ok: false, error: 'Invalid JSON.' },
+        { status: 400 }
+      );
+    }
+    throw error;
   }
 
   const result = validateContact(body);
