@@ -1,10 +1,13 @@
 import { FALLBACK_POSTS } from './fallback-posts';
 import type { BlogPost } from '@/types/blog';
+import { readResponseText } from '@/lib/http/read-response-text';
 
 const JSON_FEED_URL = 'https://blog.sahilbzy.com/feed.json';
 const RSS_FEED_URL = 'https://blog.sahilbzy.com/rss.xml';
 const REVALIDATE_SECONDS = 1800;
 const MAX_POSTS = 5;
+const FEED_TIMEOUT_MS = 8_000;
+const FEED_MAX_BYTES = 512 * 1024;
 
 interface JsonFeedItem {
   title?: unknown;
@@ -105,11 +108,12 @@ function parseRssFeed(xml: string): BlogPost[] {
 async function fetchFeedText(url: string): Promise<string> {
   const response = await fetch(url, {
     next: { revalidate: REVALIDATE_SECONDS },
+    signal: AbortSignal.timeout(FEED_TIMEOUT_MS),
   });
   if (!response.ok) {
     throw new Error(`Failed to fetch ${url}: ${response.status}`);
   }
-  return response.text();
+  return readResponseText(response, FEED_MAX_BYTES);
 }
 
 export async function getRecentPosts(): Promise<BlogPost[]> {
