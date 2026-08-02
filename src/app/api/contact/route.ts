@@ -9,6 +9,7 @@ import {
   UnsupportedMediaTypeError,
   readJsonBody,
 } from '@/lib/http/read-json-body';
+import { reportServerError } from '@/lib/observability/report-server-error';
 import { enforceRateLimit } from '@/lib/rate-limit';
 import { getClientIp, hashRateLimitKey } from '@/lib/request-ip';
 
@@ -76,22 +77,31 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const inserted = await db
-    .insert(contactSubmissions)
-    .values({
-      name: result.data.name,
-      email: result.data.email,
-      subject: result.data.subject,
-      message: result.data.message,
-    })
-    .returning();
-  const submission = inserted.at(0);
+  let submission: typeof contactSubmissions.$inferSelect | undefined;
+  try {
+    const inserted = await db
+      .insert(contactSubmissions)
+      .values({
+        name: result.data.name,
+        email: result.data.email,
+        subject: result.data.subject,
+        message: result.data.message,
+      })
+      .returning();
+    submission = inserted.at(0);
+  } catch (error) {
+    reportServerError(error, { scope: 'api:contact' });
+    return NextResponse.json(
+      { ok: false, error: 'Unable to save your message right now.' },
+      { status: 500 }
+    );
+  }
 
   if (submission) {
     try {
       await sendContactNotification(submission);
     } catch (error) {
-      console.warn('[contact] notification email failed', error);
+      reportServerError(error, { scope: 'api:contact-notify' });
     }
   } else {
     console.warn('[contact] submission insert did not return a row');

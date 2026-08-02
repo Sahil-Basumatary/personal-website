@@ -1,9 +1,9 @@
 import 'server-only';
 
-import * as Sentry from '@sentry/nextjs';
 import { BUNDLED_PORTFOLIO } from './bundled-portfolio';
 import { fetchCachedPublicPortfolioSnapshot } from './cached-public-portfolio';
 import { loadPortfolioWithDeps } from './portfolio-loader';
+import { reportServerError } from '@/lib/observability/report-server-error';
 
 export type {
   PortfolioLoadResult,
@@ -14,9 +14,7 @@ export async function loadPortfolioContent() {
   return loadPortfolioWithDeps({
     fetchSnapshot: fetchCachedPublicPortfolioSnapshot,
     reportError: (error) => {
-      Sentry.captureException(error, {
-        tags: { scope: 'portfolio-loader' },
-      });
+      reportServerError(error, { scope: 'portfolio-loader' });
     },
     fallback: BUNDLED_PORTFOLIO,
   });

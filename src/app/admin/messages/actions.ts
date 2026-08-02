@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { db } from '@/db';
 import { contactSubmissions } from '@/db/schema';
-import { ACTION_FAILURE_MESSAGE } from '@/app/admin/_lib/action-errors';
+import { reportActionFailure } from '@/app/admin/_lib/action-errors';
 import {
   type AdminFormState,
   formError,
@@ -13,6 +13,7 @@ import {
 } from '@/app/admin/_lib/form-state';
 import { sendContactReply } from '@/lib/email';
 import { requireAdmin } from '@/lib/auth/require-admin';
+import { reportServerError } from '@/lib/observability/report-server-error';
 
 const idSchema = z.uuid();
 const replySchema = z.object({
@@ -38,8 +39,8 @@ export async function deleteContactSubmission(
     revalidatePath('/admin/messages');
 
     return formSuccess('Message deleted.');
-  } catch {
-    return formError(ACTION_FAILURE_MESSAGE);
+  } catch (error) {
+    return formError(reportActionFailure(error, 'deleteContactSubmission'));
   }
 }
 
@@ -60,8 +61,10 @@ export async function markContactSubmissionRead(
       .where(eq(contactSubmissions.id, id.data));
     revalidatePath('/admin/messages');
     revalidatePath(`/admin/messages/${id.data}`);
-  } catch {
-    // Leave the row unread so the operator can retry.
+  } catch (error) {
+    reportServerError(error, {
+      scope: 'admin-action:markContactSubmissionRead',
+    });
   }
 }
 
@@ -121,7 +124,8 @@ export async function sendReply(
     revalidatePath(`/admin/messages/${parsed.data.id}`);
 
     return formSuccess('Reply sent.');
-  } catch {
+  } catch (error) {
+    reportServerError(error, { scope: 'admin-action:sendReply' });
     return formError('Reply failed. Check your Resend configuration.');
   }
 }

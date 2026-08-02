@@ -5,7 +5,10 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { db } from '@/db';
 import { projectStoryImages, projects } from '@/db/schema';
-import { ACTION_FAILURE_MESSAGE } from '@/app/admin/_lib/action-errors';
+import {
+  reportActionFailure,
+  ACTION_FAILURE_MESSAGE,
+} from '@/app/admin/_lib/action-errors';
 import {
   type AdminFormState,
   formError,
@@ -14,6 +17,7 @@ import {
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { revalidatePortfolio } from '@/lib/content/revalidate-portfolio';
 import { pickAdjacentSwap } from '@/lib/db/adjacent-order';
+import { reportServerError } from '@/lib/observability/report-server-error';
 import {
   StoryImageStorageError,
   deleteStoryImage,
@@ -154,6 +158,14 @@ export async function uploadStoryImage(
     revalidatePortfolio();
     return formSuccess('Story image uploaded.');
   } catch (error) {
+    if (
+      !(
+        error instanceof StoryImageStorageError ||
+        error instanceof StoryImageQuotaError
+      )
+    ) {
+      reportServerError(error, { scope: 'admin-action:uploadStoryImage' });
+    }
     return formError(storageErrorMessage(error));
   }
 }
@@ -196,8 +208,8 @@ export async function updateStoryImageMeta(
     revalidatePath('/admin/projects');
     revalidatePortfolio();
     return formSuccess('Image details saved.');
-  } catch {
-    return formError(ACTION_FAILURE_MESSAGE);
+  } catch (error) {
+    return formError(reportActionFailure(error, 'updateStoryImageMeta'));
   }
 }
 
@@ -261,8 +273,8 @@ export async function reorderStoryImage(formData: FormData): Promise<void> {
 
     revalidatePath('/admin/projects');
     revalidatePortfolio();
-  } catch {
-    // Keep the editor usable; refresh shows last known order.
+  } catch (error) {
+    reportServerError(error, { scope: 'admin-action:reorderStoryImage' });
   }
 }
 
@@ -304,6 +316,11 @@ export async function deleteStoryImageRecord(
     revalidatePortfolio();
     return formSuccess('Story image deleted.');
   } catch (error) {
+    if (!(error instanceof StoryImageStorageError)) {
+      reportServerError(error, {
+        scope: 'admin-action:deleteStoryImageRecord',
+      });
+    }
     return formError(storageErrorMessage(error));
   }
 }

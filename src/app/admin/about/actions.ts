@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { db } from '@/db';
 import { aboutContent } from '@/db/schema';
-import { ACTION_FAILURE_MESSAGE } from '@/app/admin/_lib/action-errors';
+import { reportActionFailure } from '@/app/admin/_lib/action-errors';
 import {
   type AdminFormState,
   formError,
@@ -54,7 +54,7 @@ export async function updateAboutContent(
     revalidatePortfolio();
 
     return formSuccess('About content saved.');
-  } catch {
-    return formError(ACTION_FAILURE_MESSAGE);
+  } catch (error) {
+    return formError(reportActionFailure(error, 'updateAboutContent'));
   }
 }

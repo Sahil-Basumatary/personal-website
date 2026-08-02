@@ -3,9 +3,10 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/db';
 import { enforceRateLimit } from '@/lib/rate-limit';
 import { getClientIp, hashRateLimitKey } from '@/lib/request-ip';
+import { reportServerError } from '@/lib/observability/report-server-error';
 
-// Node runtime: the Neon HTTP driver and Drizzle expect Node APIs, and this is
-// a deep check (real DB round-trip), not an edge-cached ping.
+// Node runtime: Neon + Drizzle need Node APIs; this is a deep check
+// (real DB round-trip), not an edge-cached ping.
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
@@ -31,8 +32,8 @@ export async function GET(request: NextRequest) {
       { status: 'ok', db: 'up', time },
       { headers: { 'Cache-Control': 'no-store' } }
     );
-  } catch {
-    // Deliberately opaque: a public probe must not leak driver/schema details.
+  } catch (error) {
+    reportServerError(error, { scope: 'api:health' });
     return NextResponse.json(
       { status: 'error', db: 'down', time },
       { status: 503, headers: { 'Cache-Control': 'no-store' } }

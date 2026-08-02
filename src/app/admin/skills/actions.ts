@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { db } from '@/db';
 import { skills } from '@/db/schema';
-import { ACTION_FAILURE_MESSAGE } from '@/app/admin/_lib/action-errors';
+import { reportActionFailure } from '@/app/admin/_lib/action-errors';
 import {
   type AdminFormState,
   formError,
@@ -19,6 +19,7 @@ import {
   SKILL_PROFICIENCIES,
 } from '@/lib/content/skill-taxonomy';
 import { pickAdjacentSwap } from '@/lib/db/adjacent-order';
+import { reportServerError } from '@/lib/observability/report-server-error';
 
 const skillSchema = z
   .object({
@@ -88,8 +89,8 @@ export async function createSkill(
     revalidatePortfolio();
 
     return formSuccess('Skill created.');
-  } catch {
-    return formError(ACTION_FAILURE_MESSAGE);
+  } catch (error) {
+    return formError(reportActionFailure(error, 'createSkill'));
   }
 }
 
@@ -121,8 +122,8 @@ export async function updateSkill(
     revalidatePortfolio();
 
     return formSuccess('Skill updated.');
-  } catch {
-    return formError(ACTION_FAILURE_MESSAGE);
+  } catch (error) {
+    return formError(reportActionFailure(error, 'updateSkill'));
   }
 }
 
@@ -140,8 +141,8 @@ export async function deleteSkill(formData: FormData): Promise<AdminFormState> {
     revalidatePortfolio();
 
     return formSuccess('Skill deleted.');
-  } catch {
-    return formError(ACTION_FAILURE_MESSAGE);
+  } catch (error) {
+    return formError(reportActionFailure(error, 'deleteSkill'));
   }
 }
 
@@ -183,7 +184,7 @@ export async function reorderSkill(formData: FormData): Promise<void> {
 
     revalidatePath('/admin/skills');
     revalidatePortfolio();
-  } catch {
-    // Keep the list usable; the next refresh shows the last known order.
+  } catch (error) {
+    reportServerError(error, { scope: 'admin-action:reorderSkill' });
   }
 }

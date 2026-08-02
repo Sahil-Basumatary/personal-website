@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { db } from '@/db';
 import { projects } from '@/db/schema';
-import { ACTION_FAILURE_MESSAGE } from '@/app/admin/_lib/action-errors';
+import { reportActionFailure } from '@/app/admin/_lib/action-errors';
 import {
   type AdminFormState,
   formError,
@@ -13,6 +13,7 @@ import {
 } from '@/app/admin/_lib/form-state';
 import { requireAdmin } from '@/lib/auth/require-admin';
 import { revalidatePortfolio } from '@/lib/content/revalidate-portfolio';
+import { reportServerError } from '@/lib/observability/report-server-error';
 import { pickAdjacentSwap } from '@/lib/db/adjacent-order';
 import { deleteProjectStoryObjects } from './delete-project-story-objects';
 
@@ -108,8 +109,8 @@ export async function createProject(
     revalidatePortfolio();
 
     return formSuccess('Project created.');
-  } catch {
-    return formError(ACTION_FAILURE_MESSAGE);
+  } catch (error) {
+    return formError(reportActionFailure(error, 'createProject'));
   }
 }
 
@@ -145,8 +146,8 @@ export async function updateProject(
     revalidatePortfolio();
 
     return formSuccess('Project updated.');
-  } catch {
-    return formError(ACTION_FAILURE_MESSAGE);
+  } catch (error) {
+    return formError(reportActionFailure(error, 'updateProject'));
   }
 }
 
@@ -167,8 +168,8 @@ export async function deleteProject(
     revalidatePortfolio();
 
     return formSuccess('Project deleted.');
-  } catch {
-    return formError(ACTION_FAILURE_MESSAGE);
+  } catch (error) {
+    return formError(reportActionFailure(error, 'deleteProject'));
   }
 }
 
@@ -211,7 +212,7 @@ export async function reorderProject(formData: FormData): Promise<void> {
 
     revalidatePath('/admin/projects');
     revalidatePortfolio();
-  } catch {
-    // Keep the list usable; the next refresh shows the last known order.
+  } catch (error) {
+    reportServerError(error, { scope: 'admin-action:reorderProject' });
   }
 }
