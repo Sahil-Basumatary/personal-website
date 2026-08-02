@@ -1027,6 +1027,9 @@ body {
   .connectivity-banner[data-state='reconnected'] {
     background: #c8d8c0;
   }
+  .connectivity-banner[data-state='update'] {
+    background: #d4e0ec;
+  }
   .connectivity-banner__message {
     margin: 0;
   }

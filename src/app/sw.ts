@@ -2,7 +2,7 @@
 /// <reference lib="webworker" />
 import { defaultCache } from '@serwist/turbopack/worker';
 import type { PrecacheEntry, SerwistGlobalConfig } from 'serwist';
-import { NetworkFirst, Serwist } from 'serwist';
+import { ExpirationPlugin, NetworkFirst, Serwist } from 'serwist';
 
 declare global {
   interface WorkerGlobalScope extends SerwistGlobalConfig {
@@ -27,9 +27,14 @@ self.addEventListener('fetch', (event) => {
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
-  skipWaiting: true,
+  // Wait for an explicit SKIP_WAITING message so an open tab is not forced onto
+  // a new deployment mid-session (chunk URL skew).
+  skipWaiting: false,
   clientsClaim: true,
   navigationPreload: true,
+  precacheOptions: {
+    cleanupOutdatedCaches: true,
+  },
   runtimeCaching: [
     {
       matcher: ({ request, url }) =>
@@ -37,6 +42,12 @@ const serwist = new Serwist({
       handler: new NetworkFirst({
         cacheName: 'portfolio-shell',
         networkTimeoutSeconds: 3,
+        plugins: [
+          new ExpirationPlugin({
+            maxEntries: 4,
+            maxAgeSeconds: 7 * 24 * 60 * 60,
+          }),
+        ],
       }),
     },
     ...defaultCache,

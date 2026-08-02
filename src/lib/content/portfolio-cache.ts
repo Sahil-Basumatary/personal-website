@@ -8,11 +8,24 @@ import type {
 import { isLanguageSkillCategory, isSkillProficiency } from './skill-taxonomy';
 
 export const PORTFOLIO_CACHE_KEY = 'sahilbzy:portfolio:v2';
+export const PORTFOLIO_CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 export interface PortfolioCacheRecord {
   version: 1;
   savedAt: string;
   content: PortfolioContent;
+}
+
+export function isPortfolioCacheFresh(
+  savedAt: string,
+  now: Date = new Date(),
+  maxAgeMs: number = PORTFOLIO_CACHE_MAX_AGE_MS
+): boolean {
+  const savedAtMs = Date.parse(savedAt);
+  if (Number.isNaN(savedAtMs)) {
+    return false;
+  }
+  return now.getTime() - savedAtMs <= maxAgeMs;
 }
 
 function isStringArray(value: unknown): value is string[] {
@@ -107,7 +120,8 @@ export function isPortfolioContent(value: unknown): value is PortfolioContent {
 }
 
 export function parsePortfolioCache(
-  raw: string | null
+  raw: string | null,
+  now: Date = new Date()
 ): PortfolioCacheRecord | null {
   if (!raw) return null;
   try {
@@ -115,6 +129,9 @@ export function parsePortfolioCache(
     if (!parsed || typeof parsed !== 'object') return null;
     const record = parsed as PortfolioCacheRecord;
     if (record.version !== 1 || typeof record.savedAt !== 'string') {
+      return null;
+    }
+    if (!isPortfolioCacheFresh(record.savedAt, now)) {
       return null;
     }
     if (!isPortfolioContent(record.content)) return null;
@@ -141,9 +158,15 @@ export function serializePortfolioCache(
 }
 
 export function readPortfolioCache(
-  storage: Pick<Storage, 'getItem'>
+  storage: Pick<Storage, 'getItem' | 'removeItem'>,
+  now: Date = new Date()
 ): PortfolioCacheRecord | null {
-  return parsePortfolioCache(storage.getItem(PORTFOLIO_CACHE_KEY));
+  const raw = storage.getItem(PORTFOLIO_CACHE_KEY);
+  const record = parsePortfolioCache(raw, now);
+  if (!record && raw) {
+    storage.removeItem(PORTFOLIO_CACHE_KEY);
+  }
+  return record;
 }
 
 export function writePortfolioCache(

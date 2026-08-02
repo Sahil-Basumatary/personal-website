@@ -3,6 +3,8 @@ import { describe, it, expect } from 'vitest';
 import type { PortfolioContent } from '@/types/portfolio';
 import {
   PORTFOLIO_CACHE_KEY,
+  PORTFOLIO_CACHE_MAX_AGE_MS,
+  isPortfolioCacheFresh,
   isPortfolioContent,
   parsePortfolioCache,
   readPortfolioCache,
@@ -36,9 +38,15 @@ function memoryStorage(initial: Record<string, string> = {}) {
     setItem: (key: string, value: string) => {
       store[key] = value;
     },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
     store,
   };
 }
+
+const FRESH_SAVED_AT = '2026-08-01T12:00:00.000Z';
+const FRESH_NOW = new Date('2026-08-02T12:00:00.000Z');
 
 describe('isPortfolioContent', () => {
   it('accepts a valid payload', () => {
@@ -235,10 +243,10 @@ describe('isPortfolioContent', () => {
 
 describe('portfolio cache round-trip', () => {
   it('serializes and parses a valid record', () => {
-    const raw = serializePortfolioCache(sample, '2026-07-12T00:00:00.000Z');
-    expect(parsePortfolioCache(raw)).toEqual({
+    const raw = serializePortfolioCache(sample, FRESH_SAVED_AT);
+    expect(parsePortfolioCache(raw, FRESH_NOW)).toEqual({
       version: 1,
-      savedAt: '2026-07-12T00:00:00.000Z',
+      savedAt: FRESH_SAVED_AT,
       content: sample,
     });
   });
@@ -250,7 +258,8 @@ describe('portfolio cache round-trip', () => {
       projects: [legacyProject as (typeof sample.projects)[0]],
     };
     const parsed = parsePortfolioCache(
-      serializePortfolioCache(legacy, '2026-07-12T00:00:00.000Z')
+      serializePortfolioCache(legacy, FRESH_SAVED_AT),
+      FRESH_NOW
     );
     expect(parsed?.content.projects[0]?.images).toEqual([]);
   });
@@ -267,7 +276,7 @@ describe('portfolio cache round-trip', () => {
           },
         ],
       },
-      '2026-07-12T00:00:00.000Z'
+      FRESH_SAVED_AT
     );
     expect(JSON.parse(raw).content.projects[0].images).toEqual([]);
   });
@@ -291,8 +300,24 @@ describe('portfolio cache round-trip', () => {
 
   it('reads and writes through a Storage-like object', () => {
     const storage = memoryStorage();
-    writePortfolioCache(storage, sample, new Date('2026-07-12T12:00:00.000Z'));
+    writePortfolioCache(storage, sample, new Date(FRESH_SAVED_AT));
     expect(storage.store[PORTFOLIO_CACHE_KEY]).toContain('"version":1');
-    expect(readPortfolioCache(storage)?.content.about).toBe('Hello');
+    expect(readPortfolioCache(storage, FRESH_NOW)?.content.about).toBe('Hello');
+  });
+
+  it('expires stale local portfolio snapshots', () => {
+    const savedAt = '2026-01-01T00:00:00.000Z';
+    const now = new Date('2026-01-10T00:00:00.000Z');
+    expect(
+      isPortfolioCacheFresh(savedAt, now, PORTFOLIO_CACHE_MAX_AGE_MS)
+    ).toBe(false);
+    expect(
+      parsePortfolioCache(serializePortfolioCache(sample, savedAt), now)
+    ).toBeNull();
+
+    const storage = memoryStorage();
+    writePortfolioCache(storage, sample, new Date(savedAt));
+    expect(readPortfolioCache(storage, now)).toBeNull();
+    expect(storage.store[PORTFOLIO_CACHE_KEY]).toBeUndefined();
   });
 });

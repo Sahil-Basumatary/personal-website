@@ -8,6 +8,7 @@ import {
 } from '@/lib/seo/structured-data';
 import { SITE, SITE_URL } from '@/lib/site';
 import { ServiceWorkerCleanup } from './service-worker-cleanup';
+import { ServiceWorkerUpdatePrompt } from './service-worker-update-prompt';
 import './globals.css';
 
 const isProduction = process.env.NODE_ENV === 'production';
@@ -114,6 +115,7 @@ export default function RootLayout({
             // SerwistProvider defaults to type:"module", which rejects registration.
             options={{ type: 'classic' }}
           >
+            <ServiceWorkerUpdatePrompt />
             {children}
           </SerwistProvider>
         ) : (
