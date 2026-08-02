@@ -1,11 +1,13 @@
 import { sql } from 'drizzle-orm';
 import {
   boolean,
+  date,
   index,
   integer,
   jsonb,
   pgEnum,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
@@ -164,6 +166,56 @@ export const contactSubmissions = pgTable(
   (table) => [
     index('contact_submissions_created_at_idx').on(table.createdAt),
     index('contact_submissions_read_idx').on(table.read),
+  ]
+);
+
+export const analyticsDailyPageStats = pgTable('analytics_daily_page_stats', {
+  day: date('day').primaryKey(),
+  visits: integer('visits').default(0).notNull(),
+  uniqueVisitors: integer('unique_visitors').default(0).notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const analyticsDailyWindowStats = pgTable(
+  'analytics_daily_window_stats',
+  {
+    day: date('day').notNull(),
+    windowType: varchar('window_type', { length: 80 }).notNull(),
+    opens: integer('opens').default(0).notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    primaryKey({
+      name: 'analytics_daily_window_stats_pk',
+      columns: [table.day, table.windowType],
+    }),
+    index('analytics_daily_window_stats_day_idx').on(table.day),
+  ]
+);
+
+export const storageDeletionTombstones = pgTable(
+  'storage_deletion_tombstones',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    storageKey: varchar('storage_key', { length: 512 }).notNull(),
+    attempts: integer('attempts').default(0).notNull(),
+    lastError: text('last_error'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex('storage_deletion_tombstones_storage_key_idx').on(
+      table.storageKey
+    ),
+    index('storage_deletion_tombstones_updated_at_idx').on(table.updatedAt),
   ]
 );
 

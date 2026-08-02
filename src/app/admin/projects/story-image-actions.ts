@@ -18,11 +18,8 @@ import { requireAdmin } from '@/lib/auth/require-admin';
 import { revalidatePortfolio } from '@/lib/content/revalidate-portfolio';
 import { pickAdjacentSwap } from '@/lib/db/adjacent-order';
 import { reportServerError } from '@/lib/observability/report-server-error';
-import {
-  StoryImageStorageError,
-  deleteStoryImage,
-  putStoryImage,
-} from '@/lib/storage/r2';
+import { deleteStoryImageDurable } from '@/lib/storage/deletion-tombstones';
+import { StoryImageStorageError, putStoryImage } from '@/lib/storage/r2';
 import { STORY_IMAGE_MAX_PER_PROJECT } from '@/lib/storage/story-image-limits';
 
 const idSchema = z.uuid();
@@ -143,11 +140,7 @@ export async function uploadStoryImage(
         });
       });
     } catch (error) {
-      try {
-        await deleteStoryImage(uploaded.storageKey);
-      } catch {
-        // Best-effort cleanup if the DB write fails after upload.
-      }
+      await deleteStoryImageDurable(db, uploaded.storageKey);
       if (error instanceof Error && error.message === 'project-missing') {
         return formError('That project no longer exists.');
       }
@@ -306,11 +299,7 @@ export async function deleteStoryImageRecord(
       .delete(projectStoryImages)
       .where(eq(projectStoryImages.id, row.id));
 
-    try {
-      await deleteStoryImage(row.storageKey);
-    } catch {
-      // DB row is gone; orphaned R2 object can be cleaned later.
-    }
+    await deleteStoryImageDurable(db, row.storageKey);
 
     revalidatePath('/admin/projects');
     revalidatePortfolio();

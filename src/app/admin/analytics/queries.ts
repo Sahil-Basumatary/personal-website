@@ -61,21 +61,52 @@ export async function getAnalyticsOverview(): Promise<AnalyticsOverview> {
   ] = await Promise.all([
     db.execute(sql`
       with daily_uniques as (
+        select day as date, unique_visitors as visitors
+        from analytics_daily_page_stats
+        where day >= current_date - interval '29 days'
+          and day < current_date
+        union all
         select
           created_at::date as date,
           count(distinct visitor_hash)::int as visitors
         from page_views
-        where created_at >= current_date - interval '29 days'
+        where created_at::date = current_date
+        group by created_at::date
+      ),
+      visits as (
+        select day as date, visits
+        from analytics_daily_page_stats
+        where day >= current_date - interval '29 days'
+          and day < current_date
+        union all
+        select
+          created_at::date as date,
+          count(*)::int as visits
+        from page_views
+        where created_at::date = current_date
+        group by created_at::date
+      ),
+      launches as (
+        select day as date, sum(opens)::int as opens
+        from analytics_daily_window_stats
+        where day >= current_date - interval '29 days'
+          and day < current_date
+        group by day
+        union all
+        select
+          created_at::date as date,
+          count(*)::int as opens
+        from window_opens
+        where created_at::date = current_date
         group by created_at::date
       )
       select
-        count(*) filter (where created_at >= current_date - interval '6 days')::int as visits_7d,
+        coalesce((select sum(visits)::int from visits where date >= current_date - interval '6 days'), 0) as visits_7d,
         coalesce((select sum(visitors)::int from daily_uniques where date >= current_date - interval '6 days'), 0) as daily_visitors_7d,
-        (select count(*)::int from window_opens where created_at >= now() - interval '7 days') as app_launches_7d,
-        count(*) filter (where created_at >= current_date - interval '29 days')::int as visits_30d,
+        coalesce((select sum(opens)::int from launches where date >= current_date - interval '6 days'), 0) as app_launches_7d,
+        coalesce((select sum(visits)::int from visits), 0) as visits_30d,
         coalesce((select sum(visitors)::int from daily_uniques), 0) as daily_visitors_30d,
-        (select count(*)::int from window_opens where created_at >= now() - interval '30 days') as app_launches_30d
-      from page_views
+        coalesce((select sum(opens)::int from launches), 0) as app_launches_30d
     `),
     db.execute(sql`
       with days as (
@@ -84,23 +115,51 @@ export async function getAnalyticsOverview(): Promise<AnalyticsOverview> {
           current_date,
           interval '1 day'
         )::date as date
+      ),
+      rolled as (
+        select day as date, visits, unique_visitors as visitors
+        from analytics_daily_page_stats
+        where day >= current_date - interval '29 days'
+          and day < current_date
+      ),
+      today as (
+        select
+          created_at::date as date,
+          count(*)::int as visits,
+          count(distinct visitor_hash)::int as visitors
+        from page_views
+        where created_at::date = current_date
+        group by created_at::date
       )
       select
         to_char(days.date, 'Mon DD') as date,
-        count(page_views.id)::int as visits,
-        count(distinct page_views.visitor_hash)::int as visitors
+        coalesce(rolled.visits, today.visits, 0)::int as visits,
+        coalesce(rolled.visitors, today.visitors, 0)::int as visitors
       from days
-      left join page_views
-        on page_views.created_at::date = days.date
-      group by days.date
+      left join rolled on rolled.date = days.date
+      left join today on today.date = days.date
       order by days.date asc
     `),
     db.execute(sql`
-      select window_type as label, count(*)::int as count
-      from window_opens
-      where created_at >= now() - interval '30 days'
-      group by window_type
-      order by count desc, window_type asc
+      with rolled as (
+        select window_type as label, sum(opens)::int as count
+        from analytics_daily_window_stats
+        where day >= current_date - interval '29 days'
+          and day < current_date
+        group by window_type
+      ),
+      today as (
+        select window_type as label, count(*)::int as count
+        from window_opens
+        where created_at::date = current_date
+        group by window_type
+      )
+      select
+        coalesce(rolled.label, today.label) as label,
+        (coalesce(rolled.count, 0) + coalesce(today.count, 0))::int as count
+      from rolled
+      full outer join today on today.label = rolled.label
+      order by count desc, label asc
       limit 8
     `),
     db.execute(sql`

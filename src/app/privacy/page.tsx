@@ -36,8 +36,11 @@ export default function PrivacyPage() {
             fields. Referrers are reduced to an origin such as{' '}
             <code>https://www.google.com</code> before storage. Country may be
             inferred from the hosting platform&apos;s edge country header when
-            present. Raw analytics events are retained for 90 days and then
-            deleted automatically.
+            present. Raw analytics events are retained for 90 days. Before those
+            raw events are deleted, the site stores daily visit and app-launch
+            totals (without visitor hashes) for up to about two years so
+            long-range traffic trends remain available in admin. Older daily
+            totals are then deleted automatically.
           </p>
           <p>
             Vercel Speed Insights may also collect aggregated performance

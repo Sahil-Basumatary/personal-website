@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/db';
 import { purgeExpiredPortfolioData } from '@/lib/data-retention';
 import { reportServerError } from '@/lib/observability/report-server-error';
+import { retryStorageDeletionTombstones } from '@/lib/storage/deletion-tombstones';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -22,9 +23,10 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const result = await purgeExpiredPortfolioData(db);
+    const retention = await purgeExpiredPortfolioData(db);
+    const tombstones = await retryStorageDeletionTombstones(db);
     return NextResponse.json(
-      { ok: true, ...result },
+      { ok: true, retention, tombstones },
       { headers: { 'Cache-Control': 'no-store' } }
     );
   } catch (error) {
