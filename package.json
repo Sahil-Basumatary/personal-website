@@ -27,6 +27,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "db:check": "tsx scripts/check-migration-drift.ts",
     "db:seed": "tsx scripts/seed-portfolio.ts",
     "db:purge-expired": "tsx scripts/purge-expired-data.ts",
     "prepare": "husky",
