@@ -1,4 +1,7 @@
-import { storyImageCspOrigin } from './story-image-csp';
+import {
+  storyImageCspOrigin,
+  storyImageSignedCspOrigin,
+} from './story-image-csp';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -15,12 +18,16 @@ export function generateNonce(): string {
 // injected inline/host script cannot execute even if markup is compromised.
 export function buildContentSecurityPolicy(nonce: string): string {
   const storyImageOrigin = storyImageCspOrigin(process.env.R2_PUBLIC_BASE_URL);
+  const signedStoryImageOrigin = storyImageSignedCspOrigin(
+    process.env.R2_ACCOUNT_ID
+  );
   const imgSrc = [
     `'self'`,
     'data:',
     'blob:',
     'https://img.clerk.com',
     ...(storyImageOrigin ? [storyImageOrigin] : []),
+    ...(signedStoryImageOrigin ? [signedStoryImageOrigin] : []),
   ].join(' ');
 
   const directives = [

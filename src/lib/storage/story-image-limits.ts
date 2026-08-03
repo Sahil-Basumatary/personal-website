@@ -1,5 +1,6 @@
 export const STORY_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 export const STORY_IMAGE_MAX_PER_PROJECT = 8;
+export const STORY_IMAGE_SIGNED_URL_TTL_SECONDS = 15 * 60;
 
 export const STORY_IMAGE_MIME_TYPES = [
   'image/jpeg',
@@ -122,6 +123,14 @@ export function buildStoryImageStorageKey(
   return `projects/${projectId}/${id}.${ext}`;
 }
 
+export function publicObjectKeyForStoryImage(storageKey: string): string {
+  const key = storageKey.replace(/^\/+/, '');
+  if (key.startsWith('public/')) {
+    return key;
+  }
+  return `public/${key}`;
+}
+
 export function publicUrlForStorageKey(
   publicBaseUrl: string,
   storageKey: string
@@ -129,4 +138,17 @@ export function publicUrlForStorageKey(
   const base = publicBaseUrl.replace(/\/+$/, '');
   const key = storageKey.replace(/^\/+/, '');
   return `${base}/${key}`;
+}
+
+export function mimeTypeFromStoryImageStorageKey(
+  storageKey: string
+): StoryImageMimeType {
+  const lower = storageKey.toLowerCase();
+  if (lower.endsWith('.png')) {
+    return 'image/png';
+  }
+  if (lower.endsWith('.webp')) {
+    return 'image/webp';
+  }
+  return 'image/jpeg';
 }

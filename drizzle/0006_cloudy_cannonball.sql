@@ -1,0 +1,1 @@
+ALTER TABLE "project_story_images" ALTER COLUMN "url" DROP NOT NULL;

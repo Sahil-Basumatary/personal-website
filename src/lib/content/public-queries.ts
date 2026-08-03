@@ -60,6 +60,9 @@ export async function fetchPublicPortfolioSnapshot(): Promise<PortfolioSnapshot>
 
   const imagesByProject = new Map<string, PortfolioStoryImage[]>();
   for (const row of imageRows) {
+    if (!row.url) {
+      continue;
+    }
     const list = imagesByProject.get(row.projectId) ?? [];
     list.push({
       url: row.url,

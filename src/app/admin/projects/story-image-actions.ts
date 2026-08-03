@@ -19,8 +19,15 @@ import { revalidatePortfolio } from '@/lib/content/revalidate-portfolio';
 import { pickAdjacentSwap } from '@/lib/db/adjacent-order';
 import { reportServerError } from '@/lib/observability/report-server-error';
 import { deleteStoryImageDurable } from '@/lib/storage/deletion-tombstones';
-import { StoryImageStorageError, putStoryImage } from '@/lib/storage/r2';
-import { STORY_IMAGE_MAX_PER_PROJECT } from '@/lib/storage/story-image-limits';
+import {
+  StoryImageStorageError,
+  promoteStoryImageToPublic,
+  putStoryImage,
+} from '@/lib/storage/r2';
+import {
+  STORY_IMAGE_MAX_PER_PROJECT,
+  publicObjectKeyForStoryImage,
+} from '@/lib/storage/story-image-limits';
 
 const idSchema = z.uuid();
 const directionSchema = z.enum(['up', 'down']);
@@ -55,6 +62,10 @@ function storageErrorMessage(error: unknown): string {
       return 'Images must be 2MB or smaller.';
     case 'empty':
       return 'Choose an image file to upload.';
+    case 'promote_failed':
+      return 'Image uploaded but public publishing failed. Try again.';
+    case 'sign_failed':
+      return 'Could not create a preview link for that image.';
     default:
       return ACTION_FAILURE_MESSAGE;
   }
@@ -86,11 +97,12 @@ export async function uploadStoryImage(
     }
 
     const existingProject = await db
-      .select({ id: projects.id })
+      .select({ id: projects.id, status: projects.status })
       .from(projects)
       .where(eq(projects.id, projectId.data))
       .limit(1);
-    if (!existingProject.at(0)) {
+    const project = existingProject.at(0);
+    if (!project) {
       return formError('That project no longer exists.');
     }
 
@@ -101,7 +113,12 @@ export async function uploadStoryImage(
       mimeType: file.type,
     });
 
+    let publicUrl: string | null = null;
     try {
+      if (project.status === 'published') {
+        publicUrl = await promoteStoryImageToPublic(uploaded.storageKey);
+      }
+
       await db.transaction(async (tx) => {
         const projectRows = await tx
           .select({ id: projects.id })
@@ -133,7 +150,7 @@ export async function uploadStoryImage(
         await tx.insert(projectStoryImages).values({
           projectId: projectId.data,
           storageKey: uploaded.storageKey,
-          url: uploaded.url,
+          url: publicUrl,
           alt: alt.data,
           caption: caption.data,
           order: nextOrder,
@@ -141,6 +158,12 @@ export async function uploadStoryImage(
       });
     } catch (error) {
       await deleteStoryImageDurable(db, uploaded.storageKey);
+      if (publicUrl) {
+        await deleteStoryImageDurable(
+          db,
+          publicObjectKeyForStoryImage(uploaded.storageKey)
+        );
+      }
       if (error instanceof Error && error.message === 'project-missing') {
         return formError('That project no longer exists.');
       }
@@ -300,6 +323,10 @@ export async function deleteStoryImageRecord(
       .where(eq(projectStoryImages.id, row.id));
 
     await deleteStoryImageDurable(db, row.storageKey);
+    await deleteStoryImageDurable(
+      db,
+      publicObjectKeyForStoryImage(row.storageKey)
+    );
 
     revalidatePath('/admin/projects');
     revalidatePortfolio();

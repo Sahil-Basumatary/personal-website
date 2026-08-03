@@ -4,6 +4,8 @@ import {
   STORY_IMAGE_MAX_BYTES,
   buildStoryImageStorageKey,
   detectStoryImageMime,
+  mimeTypeFromStoryImageStorageKey,
+  publicObjectKeyForStoryImage,
   publicUrlForStorageKey,
   validateStoryImageBytes,
 } from './story-image-limits';
@@ -75,10 +77,29 @@ describe('story-image-limits', () => {
       )
     ).toBe('projects/proj-1/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee.webp');
     expect(
+      publicObjectKeyForStoryImage(
+        'projects/proj-1/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee.webp'
+      )
+    ).toBe('public/projects/proj-1/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee.webp');
+    expect(
+      publicObjectKeyForStoryImage(
+        'public/projects/proj-1/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee.webp'
+      )
+    ).toBe('public/projects/proj-1/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee.webp');
+    expect(
       publicUrlForStorageKey(
         'https://cdn.example.com/',
-        '/projects/proj-1/a.jpg'
+        '/public/projects/proj-1/a.jpg'
       )
-    ).toBe('https://cdn.example.com/projects/proj-1/a.jpg');
+    ).toBe('https://cdn.example.com/public/projects/proj-1/a.jpg');
+    expect(mimeTypeFromStoryImageStorageKey('projects/x/a.png')).toBe(
+      'image/png'
+    );
+    expect(mimeTypeFromStoryImageStorageKey('projects/x/a.webp')).toBe(
+      'image/webp'
+    );
+    expect(mimeTypeFromStoryImageStorageKey('projects/x/a.jpg')).toBe(
+      'image/jpeg'
+    );
   });
 });

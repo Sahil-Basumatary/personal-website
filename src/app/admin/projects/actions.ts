@@ -15,6 +15,10 @@ import { requireAdmin } from '@/lib/auth/require-admin';
 import { revalidatePortfolio } from '@/lib/content/revalidate-portfolio';
 import { reportServerError } from '@/lib/observability/report-server-error';
 import { pickAdjacentSwap } from '@/lib/db/adjacent-order';
+import {
+  publishProjectStoryImages,
+  unpublishProjectStoryImages,
+} from '@/lib/storage/story-image-visibility';
 import { deleteProjectStoryObjects } from './delete-project-story-objects';
 
 const optionalUrl = z
@@ -137,10 +141,29 @@ export async function updateProject(
       return formError('That project slug is already in use.');
     }
 
+    const previous = await db
+      .select({ status: projects.status })
+      .from(projects)
+      .where(eq(projects.id, id.data))
+      .limit(1);
+    const previousStatus = previous.at(0)?.status;
+    if (!previousStatus) {
+      return formError('That project no longer exists.');
+    }
+
     await db
       .update(projects)
       .set({ ...parsed.data, updatedAt: new Date() })
       .where(eq(projects.id, id.data));
+
+    if (parsed.data.status === 'published' && previousStatus !== 'published') {
+      await publishProjectStoryImages(db, id.data);
+    } else if (
+      previousStatus === 'published' &&
+      parsed.data.status !== 'published'
+    ) {
+      await unpublishProjectStoryImages(db, id.data);
+    }
 
     revalidatePath('/admin/projects');
     revalidatePortfolio();

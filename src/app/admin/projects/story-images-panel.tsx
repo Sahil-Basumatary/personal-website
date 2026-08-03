@@ -20,6 +20,8 @@ import {
   uploadStoryImage,
 } from './story-image-actions';
 
+type AdminStoryImage = ProjectStoryImage & { previewUrl: string };
+
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
@@ -108,7 +110,7 @@ function UploadForm({
   );
 }
 
-function ImageMetaForm({ image }: { image: ProjectStoryImage }) {
+function ImageMetaForm({ image }: { image: AdminStoryImage }) {
   const [state, formAction] = useActionState(
     updateStoryImageMeta,
     idleFormState
@@ -152,7 +154,7 @@ function ImageMetaForm({ image }: { image: ProjectStoryImage }) {
 
 interface StoryImagesPanelProps {
   projectId: string;
-  images: ProjectStoryImage[];
+  images: AdminStoryImage[];
 }
 
 export function StoryImagesPanel({ projectId, images }: StoryImagesPanelProps) {
@@ -177,8 +179,9 @@ export function StoryImagesPanel({ projectId, images }: StoryImagesPanelProps) {
           {images.map((image, index) => (
             <li key={image.id} className="admin-story-item">
               <div className="admin-story-item__preview">
-                {/* Admin previews use public R2 URLs; next/image needs a host allowlist per deploy. */}
-                <img src={image.url} alt={image.alt} />
+                {/* Signed/CDN hosts vary by deploy; next/image needs a static allowlist. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={image.previewUrl} alt={image.alt} />
               </div>
               <div className="admin-story-item__body">
                 <ImageMetaForm image={image} />

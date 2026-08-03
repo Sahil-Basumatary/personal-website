@@ -43,6 +43,13 @@
       "when": 1785628800000,
       "tag": "0005_analytics_rollups_and_tombstones",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1785727746870,
+      "tag": "0006_cloudy_cannonball",
+      "breakpoints": true
     }
   ]
 }

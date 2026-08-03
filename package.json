@@ -36,7 +36,8 @@
     "chromatic": "pnpm build-storybook && chromatic --exit-zero-on-changes --storybook-build-dir=storybook-static"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1089.0",
+    "@aws-sdk/client-s3": "^3.1101.0",
+    "@aws-sdk/s3-request-presigner": "3.1101.0",
     "@clerk/nextjs": "^7.5.2",
     "@monaco-editor/react": "^4.7.0",
     "@neondatabase/serverless": "^1.1.0",

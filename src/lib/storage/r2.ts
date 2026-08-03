@@ -1,16 +1,24 @@
 import 'server-only';
 
 import {
+  CopyObjectCommand,
   DeleteObjectCommand,
+  GetObjectCommand,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import {
   buildStoryImageStorageKey,
+  mimeTypeFromStoryImageStorageKey,
+  publicObjectKeyForStoryImage,
   publicUrlForStorageKey,
+  STORY_IMAGE_SIGNED_URL_TTL_SECONDS,
   validateStoryImageBytes,
   type StoryImageMimeType,
 } from './story-image-limits';
+
+export { STORY_IMAGE_SIGNED_URL_TTL_SECONDS } from './story-image-limits';
 
 export class StoryImageStorageError extends Error {
   constructor(
@@ -22,6 +30,8 @@ export class StoryImageStorageError extends Error {
       | 'empty'
       | 'upload_failed'
       | 'delete_failed'
+      | 'promote_failed'
+      | 'sign_failed'
   ) {
     super(message);
     this.name = 'StoryImageStorageError';
@@ -73,6 +83,14 @@ function requireR2Config(): R2Config {
   return config;
 }
 
+function assertSafeStorageKey(storageKey: string): string {
+  const key = storageKey.trim();
+  if (!key || key.includes('..') || key.startsWith('/')) {
+    throw new StoryImageStorageError('Invalid storage key', 'delete_failed');
+  }
+  return key;
+}
+
 let cachedClient: S3Client | null = null;
 let cachedEndpoint: string | null = null;
 
@@ -102,7 +120,7 @@ export async function putStoryImage(options: {
   bytes: Uint8Array;
   mimeType: string;
   objectId?: string;
-}): Promise<{ storageKey: string; url: string; mimeType: StoryImageMimeType }> {
+}): Promise<{ storageKey: string; mimeType: StoryImageMimeType }> {
   const validated = validateStoryImageBytes({
     bytes: options.bytes,
     declaredMimeType: options.mimeType,
@@ -121,7 +139,6 @@ export async function putStoryImage(options: {
     validated.mimeType,
     objectId
   );
-  const url = publicUrlForStorageKey(config.publicBaseUrl, storageKey);
 
   try {
     await getR2Client(config).send(
@@ -130,7 +147,7 @@ export async function putStoryImage(options: {
         Key: storageKey,
         Body: options.bytes,
         ContentType: validated.mimeType,
-        CacheControl: 'public, max-age=31536000, immutable',
+        CacheControl: 'private, no-store',
       })
     );
   } catch (cause) {
@@ -140,15 +157,70 @@ export async function putStoryImage(options: {
     );
   }
 
-  return { storageKey, url, mimeType: validated.mimeType };
+  return { storageKey, mimeType: validated.mimeType };
+}
+
+export async function promoteStoryImageToPublic(
+  storageKey: string
+): Promise<string> {
+  const key = assertSafeStorageKey(storageKey);
+  const config = requireR2Config();
+  const publicKey = publicObjectKeyForStoryImage(key);
+  const contentType = mimeTypeFromStoryImageStorageKey(key);
+
+  try {
+    await getR2Client(config).send(
+      new CopyObjectCommand({
+        Bucket: config.bucket,
+        CopySource: `${config.bucket}/${key}`,
+        Key: publicKey,
+        ContentType: contentType,
+        CacheControl: 'public, max-age=31536000, immutable',
+        MetadataDirective: 'REPLACE',
+      })
+    );
+  } catch (cause) {
+    throw new StoryImageStorageError(
+      cause instanceof Error ? cause.message : 'Promote failed',
+      'promote_failed'
+    );
+  }
+
+  return publicUrlForStorageKey(config.publicBaseUrl, publicKey);
+}
+
+export async function demoteStoryImageFromPublic(
+  storageKey: string
+): Promise<void> {
+  await deleteStoryImage(publicObjectKeyForStoryImage(storageKey));
+}
+
+export async function getSignedStoryImageUrl(
+  storageKey: string,
+  expiresInSeconds: number = STORY_IMAGE_SIGNED_URL_TTL_SECONDS
+): Promise<string> {
+  const key = assertSafeStorageKey(storageKey);
+  const config = requireR2Config();
+
+  try {
+    return await getSignedUrl(
+      getR2Client(config),
+      new GetObjectCommand({
+        Bucket: config.bucket,
+        Key: key,
+      }),
+      { expiresIn: expiresInSeconds }
+    );
+  } catch (cause) {
+    throw new StoryImageStorageError(
+      cause instanceof Error ? cause.message : 'Sign failed',
+      'sign_failed'
+    );
+  }
 }
 
 export async function deleteStoryImage(storageKey: string): Promise<void> {
-  const key = storageKey.trim();
-  if (!key || key.includes('..') || key.startsWith('/')) {
-    throw new StoryImageStorageError('Invalid storage key', 'delete_failed');
-  }
-
+  const key = assertSafeStorageKey(storageKey);
   const config = requireR2Config();
   try {
     await getR2Client(config).send(
@@ -162,5 +234,16 @@ export async function deleteStoryImage(storageKey: string): Promise<void> {
       cause instanceof Error ? cause.message : 'Delete failed',
       'delete_failed'
     );
+  }
+}
+
+export async function deleteStoryImageObjects(
+  storageKey: string
+): Promise<void> {
+  const key = assertSafeStorageKey(storageKey);
+  const publicKey = publicObjectKeyForStoryImage(key);
+  await deleteStoryImage(key);
+  if (publicKey !== key) {
+    await deleteStoryImage(publicKey);
   }
 }

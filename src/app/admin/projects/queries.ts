@@ -4,6 +4,7 @@ import { asc, inArray } from 'drizzle-orm';
 import { db } from '@/db';
 import { projectStoryImages, projects } from '@/db/schema';
 import { requireAdmin } from '@/lib/auth/require-admin';
+import { getSignedStoryImageUrl } from '@/lib/storage/r2';
 
 export async function getProjects() {
   await requireAdmin();
@@ -25,8 +26,27 @@ export async function getProjects() {
             asc(projectStoryImages.createdAt)
           );
 
-  const imagesByProject = new Map<string, (typeof imageRows)[number][]>();
-  for (const image of imageRows) {
+  const imagesWithPreview = await Promise.all(
+    imageRows.map(async (image) => {
+      if (image.url) {
+        return { ...image, previewUrl: image.url };
+      }
+      try {
+        return {
+          ...image,
+          previewUrl: await getSignedStoryImageUrl(image.storageKey),
+        };
+      } catch {
+        return { ...image, previewUrl: '' };
+      }
+    })
+  );
+
+  const imagesByProject = new Map<
+    string,
+    (typeof imagesWithPreview)[number][]
+  >();
+  for (const image of imagesWithPreview) {
     const list = imagesByProject.get(image.projectId) ?? [];
     list.push(image);
     imagesByProject.set(image.projectId, list);

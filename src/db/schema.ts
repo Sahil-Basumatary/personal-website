@@ -65,7 +65,7 @@ export const projectStoryImages = pgTable(
       .notNull()
       .references(() => projects.id, { onDelete: 'cascade' }),
     storageKey: varchar('storage_key', { length: 512 }).notNull(),
-    url: text('url').notNull(),
+    url: text('url'),
     alt: varchar('alt', { length: 240 }).notNull(),
     caption: text('caption'),
     order: integer('display_order').default(0).notNull(),

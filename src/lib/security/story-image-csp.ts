@@ -1,4 +1,5 @@
-/** Origin allowlisted for story images when R2_PUBLIC_BASE_URL is set. */
+/** Origins allowlisted for story images in img-src. */
+
 export function storyImageCspOrigin(
   publicBaseUrl: string | undefined | null
 ): string | null {
@@ -13,4 +14,14 @@ export function storyImageCspOrigin(
   } catch {
     return null;
   }
+}
+
+export function storyImageSignedCspOrigin(
+  accountId: string | undefined | null
+): string | null {
+  const id = accountId?.trim();
+  if (!id || !/^[a-f0-9]{32}$/i.test(id)) {
+    return null;
+  }
+  return `https://${id}.r2.cloudflarestorage.com`;
 }

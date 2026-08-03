@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { db } from '@/db';
 import { projectStoryImages } from '@/db/schema';
 import { deleteStoryImageDurable } from '@/lib/storage/deletion-tombstones';
+import { publicObjectKeyForStoryImage } from '@/lib/storage/story-image-limits';
 
 const projectIdSchema = z.uuid();
 
@@ -23,5 +24,9 @@ export async function deleteProjectStoryObjects(
 
   for (const row of rows) {
     await deleteStoryImageDurable(db, row.storageKey);
+    await deleteStoryImageDurable(
+      db,
+      publicObjectKeyForStoryImage(row.storageKey)
+    );
   }
 }
