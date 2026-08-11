@@ -19,15 +19,12 @@ import { revalidatePortfolio } from '@/lib/content/revalidate-portfolio';
 import { pickAdjacentSwap } from '@/lib/db/adjacent-order';
 import { reportServerError } from '@/lib/observability/report-server-error';
 import { deleteStoryImageDurable } from '@/lib/storage/deletion-tombstones';
-import {
-  StoryImageStorageError,
-  promoteStoryImageToPublic,
-  putStoryImage,
-} from '@/lib/storage/r2';
+import { StoryImageStorageError, putStoryImage } from '@/lib/storage/r2';
 import {
   STORY_IMAGE_MAX_PER_PROJECT,
   publicObjectKeyForStoryImage,
 } from '@/lib/storage/story-image-limits';
+import { publishProjectStoryImages } from '@/lib/storage/story-image-visibility';
 
 const idSchema = z.uuid();
 const directionSchema = z.enum(['up', 'down']);
@@ -97,12 +94,11 @@ export async function uploadStoryImage(
     }
 
     const existingProject = await db
-      .select({ id: projects.id, status: projects.status })
+      .select({ id: projects.id })
       .from(projects)
       .where(eq(projects.id, projectId.data))
       .limit(1);
-    const project = existingProject.at(0);
-    if (!project) {
+    if (!existingProject.at(0)) {
       return formError('That project no longer exists.');
     }
 
@@ -113,21 +109,19 @@ export async function uploadStoryImage(
       mimeType: file.type,
     });
 
-    let publicUrl: string | null = null;
+    let inserted = false;
     try {
-      if (project.status === 'published') {
-        publicUrl = await promoteStoryImageToPublic(uploaded.storageKey);
-      }
-
+      let shouldPublish = false;
       await db.transaction(async (tx) => {
         const projectRows = await tx
-          .select({ id: projects.id })
+          .select({ id: projects.id, status: projects.status })
           .from(projects)
           .where(eq(projects.id, projectId.data))
           .for('update')
           .limit(1);
 
-        if (!projectRows.at(0)) {
+        const project = projectRows.at(0);
+        if (!project) {
           throw new Error('project-missing');
         }
 
@@ -150,19 +144,21 @@ export async function uploadStoryImage(
         await tx.insert(projectStoryImages).values({
           projectId: projectId.data,
           storageKey: uploaded.storageKey,
-          url: publicUrl,
+          url: null,
           alt: alt.data,
           caption: caption.data,
           order: nextOrder,
         });
+        shouldPublish = project.status === 'published';
       });
+      inserted = true;
+
+      if (shouldPublish) {
+        await publishProjectStoryImages(db, projectId.data);
+      }
     } catch (error) {
-      await deleteStoryImageDurable(db, uploaded.storageKey);
-      if (publicUrl) {
-        await deleteStoryImageDurable(
-          db,
-          publicObjectKeyForStoryImage(uploaded.storageKey)
-        );
+      if (!inserted) {
+        await deleteStoryImageDurable(db, uploaded.storageKey);
       }
       if (error instanceof Error && error.message === 'project-missing') {
         return formError('That project no longer exists.');

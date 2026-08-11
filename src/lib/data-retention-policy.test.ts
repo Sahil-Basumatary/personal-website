@@ -5,6 +5,8 @@ import {
   ANALYTICS_ROLLUP_RETENTION_DAYS,
   CONTACT_RETENTION_DAYS,
   retentionCutoff,
+  retentionDayCutoff,
+  startOfUtcDay,
   toUtcDateOnly,
 } from './data-retention-policy';
 
@@ -32,5 +34,13 @@ describe('retentionCutoff', () => {
     expect(
       toUtcDateOnly(retentionCutoff(730, new Date('2026-07-31T04:00:00.000Z')))
     ).toBe('2024-07-31');
+  });
+
+  it('aligns analytics raw purge to utc day starts', () => {
+    const now = new Date('2026-07-31T15:30:00.000Z');
+    expect(startOfUtcDay(now).toISOString()).toBe('2026-07-31T00:00:00.000Z');
+    expect(retentionDayCutoff(90, now).toISOString()).toBe(
+      '2026-05-02T00:00:00.000Z'
+    );
   });
 });

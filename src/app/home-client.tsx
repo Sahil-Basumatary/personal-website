@@ -9,6 +9,7 @@ import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { EasterEggLayer } from '@/components/easter-eggs';
 import { useKonamiCode } from '@/hooks/use-konami-code';
 import { useSyncFileSystemRoot } from '@/hooks/use-sync-file-system-root';
+import { useBlogPostsFolderBootstrap } from '@/hooks/use-recent-posts';
 import { trackPageView } from '@/lib/analytics/client';
 import { writePortfolioCache } from '@/lib/content/portfolio-cache';
 import { ConnectivityBanner } from '@/components/desktop/ConnectivityBanner';
@@ -163,6 +164,7 @@ interface HomeClientProps {
 
 export function HomeClient({ root, content }: HomeClientProps) {
   useSyncFileSystemRoot(root);
+  useBlogPostsFolderBootstrap(root);
   useKeyboardShortcuts();
   useKonamiCode();
 
@@ -173,6 +175,10 @@ export function HomeClient({ root, content }: HomeClientProps) {
   useEffect(() => {
     usePortfolioStore.getState().setContent(content);
     try {
+      // Avoid clobbering a newer device cache with a stale service-worker shell.
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        return;
+      }
       writePortfolioCache(window.localStorage, content);
     } catch {
       // Private mode / quota failures should not break the desktop.

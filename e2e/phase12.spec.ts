@@ -57,7 +57,9 @@ test('shows the offline banner when the browser goes offline', async ({
 
   await context.setOffline(true);
   await expect(
-    page.getByText("You're offline. Showing the last saved portfolio.")
+    page.getByText(
+      "You're offline. Reconnect when you can — this tab keeps the desktop you already have open."
+    )
   ).toBeVisible();
 });
 

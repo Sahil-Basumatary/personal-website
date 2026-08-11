@@ -6,6 +6,7 @@ const ALLOWED_WINDOW_TYPES = new Set([
   'file-explorer',
   'help',
   'minesweeper',
+  'simpletext',
   'terminal',
   'text-editor',
 ]);

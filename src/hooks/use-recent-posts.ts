@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import type { BlogPost } from '@/types/blog';
-import type { AliasNode, FileNode, FSNode } from '@/types/file-system';
+import type {
+  AliasNode,
+  FileNode,
+  FolderNode,
+  FSNode,
+} from '@/types/file-system';
 import { FALLBACK_POSTS } from '@/lib/content/fallback-posts';
 import { useFileSystemStore } from '@/stores/file-system-store';
 
@@ -34,14 +39,16 @@ export async function fetchRecentPosts(): Promise<BlogPost[]> {
       cachedPosts = parsed;
       return parsed;
     })
-    .catch(() => {
-      cachedPosts = FALLBACK_POSTS;
-      return FALLBACK_POSTS;
-    })
+    .catch(() => FALLBACK_POSTS)
     .finally(() => {
       inflight = null;
     });
   return inflight;
+}
+
+export function __resetRecentPostsCacheForTests(): void {
+  cachedPosts = null;
+  inflight = null;
 }
 
 export function useRecentPosts(enabled: boolean = true) {
@@ -51,7 +58,6 @@ export function useRecentPosts(enabled: boolean = true) {
   useEffect(() => {
     let cancelled = false;
     if (!enabled) return;
-    if (cachedPosts) return;
     fetchRecentPosts()
       .then((nextPosts) => {
         if (cancelled) return;
@@ -76,7 +82,7 @@ export function useRecentPosts(enabled: boolean = true) {
   };
 }
 
-export function useBlogPostsFolderBootstrap() {
+export function useBlogPostsFolderBootstrap(root: FolderNode) {
   const setFolderChildren = useFileSystemStore((s) => s.setFolderChildren);
 
   useEffect(() => {
@@ -95,5 +101,5 @@ export function useBlogPostsFolderBootstrap() {
     return () => {
       cancelled = true;
     };
-  }, [setFolderChildren]);
+  }, [setFolderChildren, root]);
 }

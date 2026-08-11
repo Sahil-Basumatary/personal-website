@@ -21,6 +21,7 @@ describe('normalizeAnalyticsPath', () => {
 describe('normalizeAnalyticsWindowType', () => {
   it('allows known desktop apps only', () => {
     expect(normalizeAnalyticsWindowType('terminal')).toBe('terminal');
+    expect(normalizeAnalyticsWindowType('simpletext')).toBe('simpletext');
     expect(normalizeAnalyticsWindowType('mystery-app')).toBeNull();
   });
 });

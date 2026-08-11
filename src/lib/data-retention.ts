@@ -12,6 +12,7 @@ import {
   ANALYTICS_ROLLUP_RETENTION_DAYS,
   CONTACT_RETENTION_DAYS,
   retentionCutoff,
+  retentionDayCutoff,
   toUtcDateOnly,
 } from './data-retention-policy';
 
@@ -20,6 +21,7 @@ export {
   ANALYTICS_ROLLUP_RETENTION_DAYS,
   CONTACT_RETENTION_DAYS,
   retentionCutoff,
+  retentionDayCutoff,
   toUtcDateOnly,
 } from './data-retention-policy';
 
@@ -85,7 +87,7 @@ export async function purgeExpiredPortfolioData(
   database: Database,
   now: Date = new Date()
 ): Promise<RetentionPurgeResult> {
-  const analyticsCutoff = retentionCutoff(ANALYTICS_RETENTION_DAYS, now);
+  const analyticsCutoff = retentionDayCutoff(ANALYTICS_RETENTION_DAYS, now);
   const contactCutoff = retentionCutoff(CONTACT_RETENTION_DAYS, now);
   const rollupCutoff = retentionCutoff(ANALYTICS_ROLLUP_RETENTION_DAYS, now);
 

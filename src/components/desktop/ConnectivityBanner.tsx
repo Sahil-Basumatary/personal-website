@@ -30,7 +30,7 @@ export function ConnectivityBanner({ previewState }: ConnectivityBannerProps) {
 
   const message = online
     ? 'Back online.'
-    : "You're offline. Showing the last saved portfolio.";
+    : "You're offline. Reconnect when you can — this tab keeps the desktop you already have open.";
 
   return (
     <div

@@ -6,13 +6,11 @@ import { ContextMenu } from '@/components/ui';
 import { DesktopIcon } from './DesktopIcon';
 import { DesktopWallpaper } from './DesktopWallpaper';
 import type { DesktopIconData } from '@/types/desktop';
-import { useBlogPostsFolderBootstrap } from '@/hooks/use-recent-posts';
 import { openUntitledDocument } from '@/lib/window-titles';
 import { measureOriginRect } from '@/lib/content-rect';
 import { openHelpCenter } from '@/stores/help-store';
 
 export function Desktop() {
-  useBlogPostsFolderBootstrap();
   const icons = useDesktopStore((s) => s.icons);
   const selectedIconIds = useDesktopStore((s) => s.selectedIconIds);
   const selectIcon = useDesktopStore((s) => s.selectIcon);

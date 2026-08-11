@@ -141,27 +141,26 @@ export async function updateProject(
       return formError('That project slug is already in use.');
     }
 
-    const previous = await db
-      .select({ status: projects.status })
+    const existing = await db
+      .select({ id: projects.id })
       .from(projects)
       .where(eq(projects.id, id.data))
       .limit(1);
-    const previousStatus = previous.at(0)?.status;
-    if (!previousStatus) {
+    if (!existing.at(0)) {
       return formError('That project no longer exists.');
     }
 
-    await db
-      .update(projects)
-      .set({ ...parsed.data, updatedAt: new Date() })
-      .where(eq(projects.id, id.data));
-
-    if (parsed.data.status === 'published' && previousStatus !== 'published') {
+    if (parsed.data.status === 'published') {
       await publishProjectStoryImages(db, id.data);
-    } else if (
-      previousStatus === 'published' &&
-      parsed.data.status !== 'published'
-    ) {
+      await db
+        .update(projects)
+        .set({ ...parsed.data, updatedAt: new Date() })
+        .where(eq(projects.id, id.data));
+    } else {
+      await db
+        .update(projects)
+        .set({ ...parsed.data, updatedAt: new Date() })
+        .where(eq(projects.id, id.data));
       await unpublishProjectStoryImages(db, id.data);
     }
 
