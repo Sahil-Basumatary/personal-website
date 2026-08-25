@@ -167,8 +167,8 @@ describe('skills and projects', () => {
     const out = COMMANDS.projects.execute([], ctx);
     const text = out.map((l) => l.text).join('\n');
     expect(text).toContain('Pioni');
-    expect(text).toContain('Live trading intelligence');
-    expect(text).toContain('Python');
+    expect(text).toContain('Live paper-trading platform');
+    expect(text).toContain('TypeScript');
     expect(text).not.toContain('LIVE');
     expect(out.some((l) => l.type === 'error')).toBe(true);
   });

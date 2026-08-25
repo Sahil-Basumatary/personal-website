@@ -6,7 +6,11 @@ import { drizzle } from 'drizzle-orm/neon-http';
 import { aboutContent, projects, skills } from '../src/db/schema';
 import { ABOUT_SINGLETON_KEY } from '../src/lib/content/about-singleton';
 import { BUNDLED_PORTFOLIO } from '../src/lib/content/bundled-portfolio';
-import { planPortfolioSeed, skillSeedKey } from '../src/lib/content/seed-plan';
+import {
+  planPortfolioSeed,
+  skillSeedKey,
+  toProjectSeedRows,
+} from '../src/lib/content/seed-plan';
 
 function loadEnvFile(fileName: string): void {
   const filePath = resolve(process.cwd(), fileName);
@@ -87,6 +91,28 @@ async function main(): Promise<void> {
     await db.insert(projects).values(row);
   }
 
+  // Keep published project metadata aligned with the bundled source of truth
+  // without touching status/order that admins may have changed.
+  const syncedSlugs: string[] = [];
+  for (const row of toProjectSeedRows(BUNDLED_PORTFOLIO.projects)) {
+    const updated = await db
+      .update(projects)
+      .set({
+        title: row.title,
+        summary: row.summary,
+        readme: row.readme,
+        techStack: row.techStack,
+        liveUrl: row.liveUrl,
+        githubUrl: row.githubUrl,
+        updatedAt: new Date(),
+      })
+      .where(eq(projects.slug, row.slug))
+      .returning({ slug: projects.slug });
+    if (updated[0]?.slug) {
+      syncedSlugs.push(updated[0].slug);
+    }
+  }
+
   for (const row of plan.skills.insert) {
     const collision = await db
       .select({ id: skills.id })
@@ -107,6 +133,7 @@ async function main(): Promise<void> {
         about: plan.about.action,
         projectsInserted: plan.projects.insert.map((row) => row.slug),
         projectsSkipped: plan.projects.skippedSlugs,
+        projectsSynced: syncedSlugs,
         skillsInserted: plan.skills.insert.map(
           (row) => `${row.category}/${row.name}`
         ),
