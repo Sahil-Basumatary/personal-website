@@ -2,7 +2,7 @@
 
 [sahilbzy.com](https://www.sahilbzy.com) is my portfolio rebuilt as a working **Mac OS 9-inspired** desktop
 
-The idea came from my father's first work laptop and me secretly playing SimCity at the time, and the feeling that a computer used to be a place you explored is very nostalgic personally. I wanted to make the portfolio that made me and others relive the experience to my best abilities. There are windows to move, files to inspect, commands to run and a few things that are deliberately not explained so you, and I mean YOU, have the chance to explore, the same as I did.
+The idea came from my father's first work laptop and playing SimCity secretly at the time, and the feeling that a computer used to be a place you explored so many things is something that always stayed with me for some reason and thats why I wanted to make the portfolio macos themed. There are windows to move, files to inspect, commands to run and a few things that are deliberately not explained so you have the chance to explore, the same as I did some decades ago :)
 
 Current release: **v1.0.0**.
 
